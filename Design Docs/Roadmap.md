@@ -12,7 +12,7 @@
 *Optimal Chihuahua*: **v.0.1.0** -- Standard module (i.e. array sort)  
 
 ## To v.0.2.0 -- Toy Fox Terrier
-*Toy Fox Terrier Blue*: **v.0.01.1** --   
+*Toy Fox Terrier Blue*: **v.0.1.1** --   
 *Toy Fox Terrier Violet*: **v.0.1.2** --   
 *Toy Fox Terrier Purple*: **v.0.1.3** --   
 *Toy Fox Terrier Magenta*: **v.0.1.4** --   
