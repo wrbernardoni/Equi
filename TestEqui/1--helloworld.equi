@@ -19,5 +19,5 @@ get(b);
 int c = a + b;
 
 // Print (for instance if our two are 4 and 7): 4 + 7 = 11
-print(a, " + ", b, " = ", c);
+print("%i + %i = %i", a, b, c);
 
