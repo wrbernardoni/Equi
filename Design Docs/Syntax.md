@@ -1,6 +1,6 @@
-##Tasks and Function definitions:  
-Function -- A repeatable section of a code  
-Task -- A task is a section of the code made to be parallel and run in parallel.  
+## Tasks and Function definitions:  
+*Function* -- A repeatable section of a code  
+*Task* -- A task is a section of the code made to be parallel and run in parallel.  
   
 **Example function definition:**  
 ```
