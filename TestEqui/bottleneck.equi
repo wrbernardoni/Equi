@@ -1,0 +1,90 @@
+/*
+	Test/Desired program for version 1.0 of Equi
+*/
+
+
+// Task to be preformed on each csv line
+// Note: t$ should be an automatic variable giving the int block id for each task, in this case the
+//			line number.
+// Takes a 3-tuple of a string and two ints as an input and sends a 2-tuple of two ints as an output.
+task csvTask: (string operation,int a, int b) -> (int,int) ::
+{
+	if (operation == "add")
+	{
+		return (a+b, t$);
+	}
+	else if (operation == "multiply")
+	{
+		return (a*b, t$);
+	}
+	// Next part shouldn't cause an error, one line ifs don't need to be wrapped in {}
+	else if (operation == "subtract")
+		return (a-b, t$);
+	else if (operation == "divide")
+		return (a/b, t$);
+	else
+		return (0, t$);
+}
+
+// Defines a custom sort of two 2-int-tuples.
+// 1 = Right hand side is greater
+// 0 = equal
+// -1 = Left hand side is greater.
+function lineSort: ((int,int) a, (int,int) b) -> (int) ::
+{
+	(int a1, int a2) = a;
+	(int b1, int b2) = b;
+
+	if (a2 > b2)
+		return -1;
+	else if (b2 > a2)
+		return 1;
+	else
+		return 0;
+}
+
+// Task that will take all of the outputs from each line and then sort them and output them in sorted order.
+task mergePrint : ({{(int,int)}} collection) -> () ::
+{
+	// Turns the collection of 2-int tuples to an array of 2-ints.
+	(int,int)[] mergeArray = array(collection);
+
+	// Inbuilt sort function, sorts array using the passed in function (should be defined as above)
+	sort(mergeArray, lineSort);
+
+	// For loop, C-style syntax.
+	for(int i = 0; i < mergeArray.size(); i++)
+	{
+		// Extracts the information from the 2-tuple.
+		(int lineNumber, int output) = mergeArray[i];
+
+		// Prints.
+		print("[%i] -- %i", lineNumber, output);
+	}
+}
+
+// Task with null input and returns if it is successful or not.
+task main : () -> (bool) ::
+{
+	// Opens "bottleneck.csv", sending each line as the input to a csvTask (by assigning the task csvTask to the lineTask variable)
+	// and sending the array [" ", "\t"] into the function as a defined variable.
+	// csv creates a tasklist, a collection of ongoing tasks, which we are going to assign to the variable bottleneck to keep track of.
+	// csv halts the current task until it is done loading the file, but as it runs it spawns the child tasks.
+	tasklist bottleneck = csv("bottleneck.csv", csvTask as lineTask, [" ","\t"] as columnDelim);
+
+	// Tasklist is a class that has a collection of tasks and their outputs. Merge waits on the completion of each task and then
+	// collects their output into a collection {{}}.
+	// Once merged we then take this variable and throw it to a new instance of the task mergePrint.
+	bottleneck.merge()->mergePrint;
+
+	return true;
+}
+
+
+// Now we want to actually run something, we'll make the entry point into our program here.
+bool success = ()->main;
+
+if (success)
+	print ("It all worked out!");
+else
+	print ("Huh???");

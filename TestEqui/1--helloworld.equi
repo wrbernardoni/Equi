@@ -1,3 +1,8 @@
+/*
+	Test program for version 0.1 of Equi.
+	Console commands, basic int operations.
+*/
+
 // Should print to console: "Hello world"
 print("Hello World!\n");
 
