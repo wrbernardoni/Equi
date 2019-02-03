@@ -41,7 +41,7 @@ task taskName: (input) -> (output) ::
 ```
 **Declaring a task run:**  
 ```
-instance t = (input)->taskName);  
+instance t = input->taskName;  
 output o = t.join();
 ```
 Spawning a task creates an instance object which we can use to reference the task later. We can call its **join** function to wait until task completion and get the output of the task.
@@ -90,7 +90,7 @@ function console: (string s) -> () ::
 	print(s);
 }
 
-function f = log;
+function f = console;
 task t = runf;
 ((f,"Hello World" as input)->t).join();
 ```
