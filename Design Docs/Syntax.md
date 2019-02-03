@@ -85,7 +85,7 @@ task runf: (function f) -> (generic) ::
 	return(f(generic));
 }
 
-function log: (string s) -> () ::
+function console: (string s) -> () ::
 {
 	print(s);
 }
