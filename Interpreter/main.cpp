@@ -36,8 +36,11 @@ int main(int argc, char* argv[])
 	if (opts.file == "")
 	{
 		cout << "Need equi file to interpret.\n";
-		return;
+		return 1;
 	}
 
 	cout << "Hello world.\n";
+
+	return 0;
 }
+
