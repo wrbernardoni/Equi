@@ -3,9 +3,8 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
-void parse(string fn)
+vector<string> tokenize(string fn)
 {
 	P_VERB("Parsing file\n", ALL_STEP_VERB);
 	ifstream in(fn);
@@ -128,4 +127,6 @@ void parse(string fn)
 	{
 		P_VERB(formatted[i] << "\n", ALL_STEP_VERB);
 	}
+
+	return formatted;
 }
