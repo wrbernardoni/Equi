@@ -4,7 +4,7 @@
 
 
 // Task to be preformed on each csv line
-// Note: line is set by csv (csv calls it like: lineTask(# as line, rowTuple))
+// Note: line is set by csv (csv calls it like: lineTask(# as t$, rowTuple))
 // Takes a 3-tuple of a string and two ints as an input and sends a 2-tuple of two ints as an output.
 task csvTask: (string operation,int a, int b) -> (int,int) ::
 {
