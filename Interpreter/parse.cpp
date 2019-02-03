@@ -117,15 +117,16 @@ vector<string> tokenize(string fn)
 
 	if (formatted.size() == 0)
 	{
-		cerr << "No code found.\n";
-		exit(1);
+		cerr << "No code found in file " << fn << ".\n";
 	}
-
-	formatted.pop_back();
+	else
+	{
+		formatted.pop_back();
+	}
 
 	for (int i = 0; i < formatted.size(); i++)
 	{
-		P_VERB(formatted[i] << "\n", ALL_STEP_VERB);
+		P_VERB(i << " -- " << formatted[i] << "\n", ALL_STEP_VERB);
 	}
 
 	return formatted;
