@@ -4,11 +4,12 @@
 
 
 // Task to be preformed on each csv line
-// Note: t$ should be an automatic variable giving the int block id for each task, in this case the
-//			line number.
+// Note: line is set by csv (csv calls it like: lineTask(# as line, rowTuple))
 // Takes a 3-tuple of a string and two ints as an input and sends a 2-tuple of two ints as an output.
 task csvTask: (string operation,int a, int b) -> (int,int) ::
 {
+	int line =& 0;
+
 	if (operation == "add")
 	{
 		return (a+b, t$);
@@ -50,7 +51,7 @@ task mergePrint : ({{(int,int)}} collection) -> () ::
 	(int,int)[] mergeArray = array(collection);
 
 	// Inbuilt sort function, sorts array using the passed in function (should be defined as above)
-	sort(mergeArray, lineSort);
+	mergeArray = sort(mergeArray, lineSort);
 
 	// For loop, C-style syntax.
 	for(int i = 0; i < mergeArray.size(); i++)
@@ -70,7 +71,7 @@ task main : () -> (bool) ::
 	// and sending the array [" ", "\t"] into the function as a defined variable.
 	// csv creates a tasklist, a collection of ongoing tasks, which we are going to assign to the variable bottleneck to keep track of.
 	// csv halts the current task until it is done loading the file, but as it runs it spawns the child tasks.
-	tasklist bottleneck = csv("bottleneck.csv", csvTask as lineTask, [" ","\t"] as columnDelim);
+	tasklist bottleneck = csv("bottleneck.csv", csvTask as lineTask, [" ","\t"] as delims);
 
 	// Tasklist is a class that has a collection of tasks and their outputs. Merge waits on the completion of each task and then
 	// collects their output into a collection {{}}.
@@ -82,7 +83,8 @@ task main : () -> (bool) ::
 
 
 // Now we want to actually run something, we'll make the entry point into our program here.
-bool success = ()->main;
+instance maintask = ()->main;
+bool success = maintask.join();
 
 if (success)
 	print ("It all worked out!");
