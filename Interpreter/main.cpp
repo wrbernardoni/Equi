@@ -2,7 +2,12 @@
 #include <fstream>
 #include <string>
 
+#include "parse.h"
+#include "global.h"
+
 using namespace std;
+
+int verbose;
 
 struct cmdline
 {
@@ -13,10 +18,21 @@ cmdline argHandler(int argc, char* argv[])
 {
 	cmdline opts;
 
-	cout << "Arguments: " << endl;
-	for (int i = 0; i < argc; i++)
+	for (int i = 2; i < argc; i++)
 	{
-		cout << "[" << i << "] -- " << argv[i] << endl;
+		string arg = argv[i];
+		if (arg == "-V" || arg == "--verbose")
+		{
+			if (argc > i+1)
+			{
+				verbose = atoi(argv[i+1]);
+				i++;
+			}
+			else
+			{
+				cerr << "Missing verbosity level.\n";
+			}
+		}
 	}
 
 	if (argc >= 2)
@@ -24,23 +40,29 @@ cmdline argHandler(int argc, char* argv[])
 		opts.file = argv[1];
 	}
 
-	cout << opts.file << endl;
+	P_VERB("Arguments: " << endl, ALL_STEP_VERB);
+	for (int i = 0; i < argc; i++)
+	{
+		P_VERB("[" << i << "] -- " << argv[i] << endl, ALL_STEP_VERB);
+	}
 
 	return opts;
 }
 
 int main(int argc, char* argv[])
 {
+	verbose = 0;
 	cmdline opts = argHandler(argc, argv);
 
 	if (opts.file == "")
 	{
-		cout << "Need equi file to interpret.\n";
+		cerr << "Need equi file to interpret.\n";
 		return 1;
 	}
 
-	cout << "Hello world.\n";
+	parse(opts.file);
 
+	
 	return 0;
 }
 
