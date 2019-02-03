@@ -100,6 +100,6 @@ Note here the use of the generic type -- what this is basically is saying that a
 
 ## Special Functions
 *array(collection)* -- takes a collection and formats it as an array  
-*sort(array, function)* -- takes an array and a function (formatted like a C style comparator) and sorts the array using the function, it returns the sorted array.
+*sort(array, function)* -- takes an array and a function (formatted like a C style comparator) and sorts the array using the function, it returns the sorted array.  
 *csv(string)* -- reads a file and spins off tasks for each line, the tasks are sent in as *lineTask* and the delimiters are sent in via *delims*. If no task is sent in then csv throws an error. It returns a tasklisk.
 
