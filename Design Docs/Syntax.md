@@ -5,18 +5,18 @@ Task -- A task is a section of the code made to be parallel and run in parallel.
 Example function definition:  
 > function fName: (input) -> (output) ::  
 > {  
-> *** //Code  
+> > //Code  
 > }  
   
 Calling a function:  
-	out = fName(input)  
+> out = fName(input)  
 It functions as the datatype of the output would.  
   
 Example task declaration:  
-	task taskName: (input) -> (output) ::  
-	{  
-		//Code  
-	}  
+> task taskName: (input) -> (output) ::  
+> {  
+> >	//Code  
+> }  
 Declaring a task run:  
-	out = (input)->taskName;  
+> out = (input)->taskName;  
 
