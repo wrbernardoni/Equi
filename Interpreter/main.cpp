@@ -33,5 +33,11 @@ int main(int argc, char* argv[])
 {
 	cmdline opts = argHandler(argc, argv);
 
+	if (opts.file == "")
+	{
+		cout << "Need equi file to interpret.\n";
+		return;
+	}
+
 	cout << "Hello world.\n";
 }
