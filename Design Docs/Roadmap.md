@@ -9,7 +9,7 @@
 *Chihuahua Orange*: **v.0.0.7** -- Tasks  
 *Chihuahua Yellow*: **v.0.0.8** -- File I/O  
 *Chihuahua Green*: **v.0.0.9** -- Importing modules  
-*Optimal Chihuahua*: **v.0.1.0** -- Standard module (i.e. array sort)  
+*Ultraviolet Chihuahua*: **v.0.1.0** -- Standard module (i.e. array sort)  
 
 ## To v.0.2.0 -- Yorkie
 *Yorkie Blue*: **v.0.1.1** --   
@@ -21,5 +21,5 @@
 *Yorkie Orange*: **v.0.1.7** --   
 *Yorkie Yellow*: **v.0.1.8** --   
 *Yorkie Green*: **v.0.1.9** --   
-*Optimal Yorkie*: **v.0.2.0** --   
+*Ultraviolet Yorkie*: **v.0.2.0** --   
 
