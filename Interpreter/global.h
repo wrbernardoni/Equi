@@ -5,5 +5,6 @@
 
 extern int verbose;
 #define ALL_STEP_VERB 2
+#define TOKEN_LIST_VERB 100
 
 #endif

@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	tokenize(opts.file);
+	syntaxTree(tokenize(opts.file));
 
 	
 	return 0;

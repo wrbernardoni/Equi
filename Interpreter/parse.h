@@ -7,6 +7,7 @@ using namespace std;
 
 
 vector<string> tokenize(string);
+void syntaxTree(vector<string>);
 
 #endif
 

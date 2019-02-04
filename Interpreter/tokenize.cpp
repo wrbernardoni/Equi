@@ -126,7 +126,7 @@ vector<string> tokenize(string fn)
 
 	for (int i = 0; i < formatted.size(); i++)
 	{
-		P_VERB(i << " -- " << formatted[i] << "\n", ALL_STEP_VERB);
+		P_VERB(i << " -- " << formatted[i] << "\n", TOKEN_LIST_VERB);
 	}
 
 	return formatted;
