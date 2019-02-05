@@ -104,10 +104,51 @@ vector<string> tokenize(string fn)
 		{
 			if (currentWord != "")
 				formatted.push_back(currentWord);
-			string temp = "";
-			temp = temp + c;
-			formatted.push_back(temp);
+
 			currentWord = "";
+
+			if (c == '=' && formatted.size() != 0 && (
+				formatted[formatted.size()-1] == "!" || formatted[formatted.size()-1] == "="
+				|| formatted[formatted.size()-1] == ">" || formatted[formatted.size()-1] == "<"))
+			{
+				formatted[formatted.size() - 1] = formatted[formatted.size() - 1] + c;
+			}
+			else if (c == '+' && formatted.size() != 0 && 
+				formatted[formatted.size()-1] == "+")
+			{
+				formatted[formatted.size() - 1] = formatted[formatted.size() - 1] + c;
+			}
+			else if (c == '-' && formatted.size() != 0 && 
+				formatted[formatted.size()-1] == "-")
+			{
+				formatted[formatted.size() - 1] = formatted[formatted.size() - 1] + c;
+			}
+			else if (c == ':' && formatted.size() != 0 && 
+				formatted[formatted.size()-1] == ":")
+			{
+				formatted[formatted.size() - 1] = formatted[formatted.size() - 1] + c;
+			}
+			else if (c == '>' && formatted.size() != 0 && 
+				formatted[formatted.size()-1] == "-")
+			{
+				formatted[formatted.size() - 1] = formatted[formatted.size() - 1] + c;
+			}
+			else if (c == '|' && formatted.size() != 0 && 
+				formatted[formatted.size()-1] == "|")
+			{
+				formatted[formatted.size() - 1] = formatted[formatted.size() - 1] + c;
+			}
+			else if (c == '&' && formatted.size() != 0 && 
+				formatted[formatted.size()-1] == "&")
+			{
+				formatted[formatted.size() - 1] = formatted[formatted.size() - 1] + c;
+			}
+			else
+			{
+				string temp = "";
+				temp = temp + c;
+				formatted.push_back(temp);
+			}
 		}
 		else
 		{
