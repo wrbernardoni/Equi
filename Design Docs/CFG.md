@@ -14,6 +14,8 @@ Left Associative: a\*b\*c = (a\*b)\*c
  * (L) Commas: a , b
 
 ## CFG
+code -> line\*;
+  
 line -> expression ";";   
 expression -> commas;  
 commas -> equality ("," equality)\*;  
@@ -22,8 +24,7 @@ comparison -> additive ((">" | ">=" | "<=" | "<") additive)\*;
 additive -> multiplicative (("+"|"-") multiplicative)\*;  
 multipicative -> unary (("/" | "\*") unary)\*;  
 unary -> ("!" | "-") unary | declaration | function | primary;  
-declaration -> TOKEN declaration | (TOKEN "=")\* expression;  
+declaration -> TOKEN declaration | (primary "=")\* expression;  
 function -> TOKEN "(" expression ")";  
-primary -> NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN
-
+primary -> NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
 
