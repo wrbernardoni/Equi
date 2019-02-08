@@ -22,7 +22,7 @@ comparison -> additive ((">" | ">=" | "<=" | "<") additive)\*;
 additive -> multiplicative (("+"|"-") multiplicative)\*;  
 multipicative -> unary (("/" | "\*") unary)\*;  
 unary -> ("!" | "-") unary | declaration | function | primary;  
-declaration -> TOKEN declaration | (TOKEN "=")\* expression;
+declaration -> TOKEN declaration | (TOKEN "=")\* expression;  
 function -> TOKEN "(" expression ")";  
 primary -> NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN
 
