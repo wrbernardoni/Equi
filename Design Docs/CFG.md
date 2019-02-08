@@ -1,9 +1,9 @@
-#Equi CFG
+# Equi CFG
 
 Right Associative: a\*b\*c = a\*(b\*c)  
 Left Associative: a\*b\*c = (a\*b)\*c  
 
-##Operators (Highest to Lowest) and Associativity
+## Operators (Highest to Lowest) and Associativity
  * (L) Function calls: function(...)
  * (L) Declaration/Assignment
  * (R) Unary Operations
@@ -13,7 +13,7 @@ Left Associative: a\*b\*c = (a\*b)\*c
  * (L) Equality: a == b, a != b
  * (L) Commas: a , b
 
-##CFG
+## CFG
 line -> expression ";";   
 expression -> commas;  
 commas -> equality ("," equality)\*;  
