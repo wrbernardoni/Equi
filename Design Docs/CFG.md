@@ -24,6 +24,6 @@ multipicative -> unary (("/" | "\*") unary)\*;
 unary -> ("!" | "-") unary | declaration | function | primary;  
 declaration -> TOKEN declaration | (TOKEN "=")\* expression;
 function -> TOKEN "(" expression ")";  
-primary -> NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" | TOKEN
+primary -> NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN
 
 
