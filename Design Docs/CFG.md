@@ -24,7 +24,7 @@ comparison -> additive ((">" | ">=" | "<=" | "<") additive)\*;
 additive -> multiplicative (("+"|"-") multiplicative)\*;  
 multipicative -> unary (("/" | "\*") unary)\*;  
 unary -> ("!" | "-") unary | declaration | function | primary;  
-declaration -> TOKEN declaration | (primary "=")\* expression;  
+declaration -> TOKEN (primary | declaration) | (primary "=")+ expression;  
 function -> TOKEN "(" expression ")";  
 primary -> NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
 
