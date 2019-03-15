@@ -56,13 +56,17 @@ int main(int argc, char* argv[])
 
 	if (opts.file == "")
 	{
-		cerr << "Need equi file to interpret.\n";
+		cerr << "Need equi file to interpret or \"--\" to run stream interpreter.\n";
 		return 1;
 	}
 
-	syntaxTree(tokenize(opts.file));
-
-	
+	//syntaxTree(tokenize(opts.file));
+	int error = interpret(opts.file);
+	if (error != 0)
+        {
+          cerr << "Terminating with error code: " << error << endl;
+          return 1;
+        }
 	return 0;
 }
 
