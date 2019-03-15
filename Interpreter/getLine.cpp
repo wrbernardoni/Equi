@@ -34,9 +34,14 @@ vector<string> getLine(istream* in, int& lineNum)
       cerr << "Unmatched {" << endl;
       throw 1;
     }
-    if (in->eof() && paren > 0)
+    else if (in->eof() && paren > 0)
     {
       cerr << "Unmatched (" << endl;
+      throw 1;
+    }
+    else if (in->eof() && oneMore)
+    {
+      cerr << "Input ended while expecting another statement." << endl;
       throw 1;
     }
 
@@ -181,13 +186,21 @@ vector<string> getLine(istream* in, int& lineNum)
         word = word + ln[i];
       }
     }
+    if (word != "")
+    {
+      line.push_back(word); 
+      word = "";
+    }
 
     if (nextOne && line.size() > pSize)
       oneMore = false;
+
+    if (line.size() > 0 && !(line[line.size() - 1] == "}" || line[line.size() - 1] == ";"))
+      oneMore = true;
+
+
   } while (blockComment || scope > 0 || paren > 0 || oneMore);
 
-  if (word != "")
-    line.push_back(word); 
   return line;
 }
 
