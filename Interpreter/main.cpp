@@ -60,7 +60,6 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	//syntaxTree(tokenize(opts.file));
 	int error = interpret(opts.file);
 	if (error != 0)
         {

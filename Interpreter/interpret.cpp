@@ -28,12 +28,22 @@ int interpret(string fn)
     vector<string> tokens = getLine(in, lineNum);
     if (tokens.size() == 0)
       continue;
-    cout << "<<" << lineNum << ">>: ";
-    for (int i = 0; i < tokens.size(); i++)
+
+    if (verbose >= TOKEN_LIST_VERB)
     {
-      cout << "[" << tokens[i] << "] ";
+      cout << "<<" << lineNum << ">>: ";
+      for (int i = 0; i < tokens.size(); i++)
+      {
+        cout << "[" << tokens[i] << "] ";
+      }
+      cout << endl << endl;
     }
-    cout << endl << endl;
+
+    SyntaxTree* lineTree = lineParse(tokens);
+    if (verbose >= SYNTAX_TREE_LIST)
+      lineTree->print(0);
+
+    delete lineTree;
   }
 
   return 0;

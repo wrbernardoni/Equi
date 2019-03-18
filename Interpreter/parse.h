@@ -5,15 +5,13 @@
 #include <vector>
 #include <istream>
 
+#include "syntaxTree.h"
+
 using namespace std;
-
-
-vector<string> tokenize(string);
-void syntaxTree(vector<string>);
-
 
 int interpret(string);
 vector<string> getLine(istream*, int&);
+SyntaxTree* lineParse(vector<string>);
 
 #endif
 
