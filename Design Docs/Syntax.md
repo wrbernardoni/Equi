@@ -14,9 +14,10 @@ Collections -- {{type}} work like python lists
 Tuples -- (type, type, ...) are fixed length arrays  
 Arrays -- type[] work like C++ vectors  
 
-## Tasks and Function definitions:  
+## Tasks, Function, and Service definitions:  
 *Function* -- A repeatable section of a code  
 *Task* -- A task is a section of the code made to be parallel and run in parallel.  
+*Service* -- A service is a semaphore'd class. It is a collection of protected data and functions offered across tasks, with each function and data allowing a specified amount of parallel access. As there is no global scope in Equi, instead this can be created by making a global service sharing all of the global data.  
   
 **Example function definition:**  
 ```
@@ -45,6 +46,15 @@ instance t = input->taskName;
 output o = t.join();
 ```
 Spawning a task creates an instance object which we can use to reference the task later. We can call its **join** function to wait until task completion and get the output of the task.
+
+**Example Service declaration:**  
+```
+tbd
+```
+**Using a service:**  
+```
+tbd
+```
 
 ### Advanced inputs
 Sometimes we have optional parameters we want to pass into a function sometimes and not others. To do this we have a special operator.
