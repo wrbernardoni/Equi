@@ -36,7 +36,7 @@ int interpret(string fn)
       {
         cout << "[" << tokens[i] << "] ";
       }
-      cout << endl << endl;
+      cout << endl;
     }
 
     SyntaxTree* lineTree = lineParse(tokens);
@@ -44,6 +44,9 @@ int interpret(string fn)
       lineTree->print(0);
 
     delete lineTree;
+
+    if (verbose >= SYNTAX_TREE_LIST)
+      cout << endl;
   }
 
   return 0;
