@@ -22,9 +22,9 @@ commas -> equality ("," equality)\*;
 equality -> comparison (("!=" | "==") comparison)\*;  
 comparison -> additive ((">" | ">=" | "<=" | "<") additive)\*;  
 additive -> multiplicative (("+"|"-") multiplicative)\*;  
-multipicative -> unary (("/" | "\*") unary)\*;  
+multipicative -> unary (("/" | "\*" | "%") unary)\*;  
 unary -> ("!" | "-") unary | declaration | function | primary;  
-declaration -> TOKEN (primary | declaration) | (primary "=")+ expression;  
+declaration -> TOKEN (TOKEN | declaration) | (TOKEN "=")+ expression;  
 function -> TOKEN "(" expression ")";  
 primary -> NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
 
