@@ -272,7 +272,7 @@ SyntaxTree* additive(vector<string> ln, int& state)
   if (t != NULL)
   {
     state = ps;
-    while (SAFECHECK(ln,ps) == "+" || SAFECHECK(ln,ps) == "-")
+    if (SAFECHECK(ln,ps) == "+" || SAFECHECK(ln,ps) == "-")
     {
       if (add->numChildren() == 0)
         add->addChild(t);
@@ -287,7 +287,7 @@ SyntaxTree* additive(vector<string> ln, int& state)
       }
       ps++;
       DPRINT("Eating additive")
-      SyntaxTree* c = multiplicative(ln, ps);
+      SyntaxTree* c = additive(ln, ps);
       if (c != NULL)
       {
         state = ps;
@@ -320,7 +320,7 @@ SyntaxTree* multiplicative(vector<string> ln, int& state)
   if (t != NULL)
   {
     state = ps;
-    while (SAFECHECK(ln,ps) == "*" || SAFECHECK(ln,ps) == "/" || SAFECHECK(ln,ps) == "%")
+    if (SAFECHECK(ln,ps) == "*" || SAFECHECK(ln,ps) == "/" || SAFECHECK(ln,ps) == "%")
     {
       if (mult->numChildren() == 0)
         mult->addChild(t);
@@ -339,7 +339,7 @@ SyntaxTree* multiplicative(vector<string> ln, int& state)
       }
       ps++;
       DPRINT("Eating multiplicative")
-      SyntaxTree* c = unary(ln, ps);
+      SyntaxTree* c = multiplicative(ln, ps);
       if (c != NULL)
       {
         state = ps;

@@ -19,7 +19,7 @@ SyntaxTree::SyntaxTree(string typ)
 void SyntaxTree::print(int i)
 {
   for (int j = 0; j < i; j++)
-    cout << "-";
+    cout << "|--";
   cout << type << ":";
   for (int j = 0; j < tokens.size(); j++)
   {
