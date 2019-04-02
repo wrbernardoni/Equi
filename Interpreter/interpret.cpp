@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 
+#include "EquiWorker.h"
+
 int interpret(string fn)
 {
   istream* in;
@@ -22,6 +24,8 @@ int interpret(string fn)
   }
 
   int lineNum = 0;
+  // Spawn single worker
+  EquiWorker core;
 
   while(!in->eof())
   {
@@ -43,10 +47,19 @@ int interpret(string fn)
     if (verbose >= SYNTAX_TREE_LIST)
       lineTree->print(0);
 
-    delete lineTree;
-
     if (verbose >= SYNTAX_TREE_LIST)
       cout << endl;
+
+    try
+    {
+      core.run(lineTree);
+    }
+    catch (string m)
+    {
+      cerr << "Error on line: " << lineNum << ": " << m << endl;
+    }
+
+    delete lineTree;
   }
 
   return 0;

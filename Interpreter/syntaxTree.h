@@ -29,10 +29,12 @@ private:
 public:
   ~SyntaxTree();
   SyntaxTree(string);
+  inline string getType() { return type; };
   void print(int);
   void addChild(SyntaxTree*);
   void addToken(string);
   int numChildren();
+  inline vector<SyntaxTree*> getChildren() { return children; };
 
 };
 
