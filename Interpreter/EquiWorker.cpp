@@ -66,7 +66,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_ADDITIVE)
 	{
-
+		
 	}
 	else if (code->getType() == EQ_TR_MULTIPLICATIVE)
 	{

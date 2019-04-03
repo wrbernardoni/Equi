@@ -29,9 +29,9 @@ public:
 	virtual bool operator!= (EquiObject& o) { return !(*this == o); };
 
 	virtual bool operator> (EquiObject& o) { return false; };
-	virtual bool operator>= (EquiObject& o) { return false; }; 
-	virtual bool operator< (EquiObject& o) { return false; }; 
-	virtual bool operator<= (EquiObject& o) { return false; };  
+	virtual bool operator>= (EquiObject& o) { return !(o > *this); }; 
+	virtual bool operator< (EquiObject& o) { return o > *this; }; 
+	virtual bool operator<= (EquiObject& o) { return !(o < *this); };
 
 	virtual string to_string() { return "()"; };
 private:
@@ -249,147 +249,6 @@ public:
 
 		EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
 		return data > oTup->getData();
-	};
-
-	virtual bool operator>= (EquiObject& o)
-	{ 
-		if (o.getType() != getType())
-		{
-			if (o.getDataType() != "long" && o.getDataType() != "int" &&
-				o.getDataType() != "double" && o.getDataType() != "float")
-			{
-				throwError("Unsupported type comparison");
-				return false;
-			}
-			if (getDataType() != "long" && getDataType() != "int" &&
-				getDataType() != "double" && getDataType() != "float")
-			{
-				throwError("Unsupported type comparison");
-				return false;
-			}
-
-
-			long double d;
-			if (o.getDataType() == "long")
-			{
-				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "int")
-			{
-				EquiPrimitive<int>* oTup = (EquiPrimitive<int>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "double")
-			{
-				EquiPrimitive<double>* oTup = (EquiPrimitive<double>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "float")
-			{
-				EquiPrimitive<float>* oTup = (EquiPrimitive<float>*)&o;
-				d = oTup->getData();
-			}
-
-			return data >= d;
-		}
-
-		EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
-		return data >= oTup->getData();
-	};
-
-	virtual bool operator< (EquiObject& o)
-	{ 
-		if (o.getType() != getType())
-		{
-			if (o.getDataType() != "long" && o.getDataType() != "int" &&
-				o.getDataType() != "double" && o.getDataType() != "float")
-			{
-				throwError("Unsupported type comparison");
-				return false;
-			}
-			if (getDataType() != "long" && getDataType() != "int" &&
-				getDataType() != "double" && getDataType() != "float")
-			{
-				throwError("Unsupported type comparison");
-				return false;
-			}
-
-
-			long double d;
-			if (o.getDataType() == "long")
-			{
-				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "int")
-			{
-				EquiPrimitive<int>* oTup = (EquiPrimitive<int>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "double")
-			{
-				EquiPrimitive<double>* oTup = (EquiPrimitive<double>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "float")
-			{
-				EquiPrimitive<float>* oTup = (EquiPrimitive<float>*)&o;
-				d = oTup->getData();
-			}
-
-			return data < d;
-		}
-
-		EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
-		return data < oTup->getData();
-	};
-
-	virtual bool operator<= (EquiObject& o)
-	{ 
-		if (o.getType() != getType())
-		{
-			if (o.getDataType() != "long" && o.getDataType() != "int" &&
-				o.getDataType() != "double" && o.getDataType() != "float")
-			{
-				throwError("Unsupported type comparison");
-				return false;
-			}
-			if (getDataType() != "long" && getDataType() != "int" &&
-				getDataType() != "double" && getDataType() != "float")
-			{
-				throwError("Unsupported type comparison");
-				return false;
-			}
-
-
-			long double d = 0;
-			if (o.getDataType() == "long")
-			{
-				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "int")
-			{
-				EquiPrimitive<int>* oTup = (EquiPrimitive<int>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "double")
-			{
-				EquiPrimitive<double>* oTup = (EquiPrimitive<double>*)&o;
-				d = oTup->getData();
-			}
-			else if (o.getDataType() == "float")
-			{
-				EquiPrimitive<float>* oTup = (EquiPrimitive<float>*)&o;
-				d = oTup->getData();
-			}
-
-			return data <= d;
-		}
-
-		EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
-		return data <= oTup->getData();
 	};
 
 	virtual string to_string() {
