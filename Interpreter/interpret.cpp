@@ -50,9 +50,11 @@ int interpret(string fn)
     if (verbose >= SYNTAX_TREE_LIST)
       cout << endl;
 
+    EquiObject* o = NULL;
     try
     {
-      core.run(lineTree);
+      EquiObject* o = core.run(lineTree);
+      delete o;
     }
     catch (string m)
     {

@@ -5,12 +5,17 @@
 #include "syntaxTree.h"
 #include "EquiObject.h"
 
+#include <map>
+#include <string>
+
+using namespace std;
+
 class EquiWorker
 {
 private:
-
+	map<string, EquiObject> tokens;
 public:
-	EquiObject run(SyntaxTree*);
+	EquiObject* run(SyntaxTree*);
 };
 
 #endif

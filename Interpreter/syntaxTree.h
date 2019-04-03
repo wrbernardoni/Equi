@@ -35,6 +35,7 @@ public:
   void addToken(string);
   int numChildren();
   inline vector<SyntaxTree*> getChildren() { return children; };
+  inline vector<string> getTokens() { return tokens; };
 
 };
 
