@@ -101,7 +101,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		throwError("Unknown syntax tree node type (?????)");
 	}
 
-	if (!killChildren)
+	if (killChildren)
 	{
 		for (int i = 0; i < childOut.size(); i++)
 		{
