@@ -9,7 +9,6 @@
 #define E_GENERIC_TYPE "generic"
 #define E_VOID_TYPE "void"
 #define E_TUPLE_TYPE "tuple"
-#define E_BOOL_TYPE "bool"
 #define E_PRIMITIVE_TYPE "primitive"
 
 using namespace std;
