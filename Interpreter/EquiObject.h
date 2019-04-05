@@ -4,6 +4,7 @@
 #include "global.h"
 #include <string>
 #include <vector>
+#include <typeinfo>
 
 #define E_GENERIC_TYPE "generic"
 #define E_VOID_TYPE "void"
@@ -34,8 +35,8 @@ public:
 	virtual bool operator<= (EquiObject& o) { return !(o < *this); };
 
 	virtual string to_string() { return "()"; };
-private:
-
+protected:
+	void* data;
 };
 
 class EquiVoid : public EquiObject
@@ -54,19 +55,32 @@ public:
 
 class EquiTuple : public EquiObject
 {
-private:
-	vector<EquiObject*> tuple;
 public:
+	EquiTuple()
+	{
+		data = new vector<EquiObject*>;
+	}
+
 	~EquiTuple()
 	{
-		for (int i = 0; i < tuple.size(); i++)
-			delete tuple[i];
+		vector<EquiObject*>* tuple = ((vector<EquiObject*>*) data);
+		for (int i = 0; i < tuple->size(); i++)
+			delete (*tuple)[i];
+		delete tuple;
 	};
 
 	virtual inline string getType() { return E_TUPLE_TYPE; };
 
-	inline void setTuple(vector<EquiObject*> o) { tuple = o; };
-	inline vector<EquiObject*> getTuple() { return tuple; };
+	inline void setTuple(vector<EquiObject*> o)
+	{
+		vector<EquiObject*>* tuple = (vector<EquiObject*>*) data;
+		*tuple = o; 
+	};
+	inline vector<EquiObject*> getTuple()
+	{ 
+		vector<EquiObject*>* tuple = (vector<EquiObject*>*) data;
+		return *tuple; 
+	};
 
 	virtual bool operator== (EquiObject& o) 
 	{
@@ -74,9 +88,12 @@ public:
 			return false;
 		EquiTuple* oTup = (EquiTuple*)&o;
 		vector<EquiObject*> oT = oTup->getTuple();
-		for (int i = 0; i < MIN(oT.size(), tuple.size()); i++)
+		vector<EquiObject*>* tuple = (vector<EquiObject*>*) data;
+		if (oT.size() != tuple->size())
+			return false;
+		for (int i = 0; i < tuple->size(); i++)
 		{
-			if (*oT[i] != *tuple[i])
+			if (*oT[i] != *(*tuple)[i])
 				return false;
 		}
 
@@ -106,10 +123,11 @@ public:
 
 	virtual string to_string() {
 		string s = "{";
-		for (int i = 0; i < tuple.size(); i++)
+		vector<EquiObject*>* tuple = (vector<EquiObject*>*) data;	
+		for (int i = 0; i < tuple->size(); i++)
 		{
-			s += tuple[i]->to_string();
-			if (i != tuple.size() - 1)
+			s += (*tuple)[i]->to_string();
+			if (i != tuple->size() - 1)
 				s += ", ";
 		}
 		s += "}";
@@ -175,11 +193,18 @@ struct TypeName<long>
 template <class T>
 class EquiPrimitive : public EquiObject
 {
-private:
-	T data;
 public:
-	void setData(T t) { data = t; };
-	T getData() {return data; };
+	EquiPrimitive()
+	{
+		data = new T;
+	};
+	~EquiPrimitive()
+	{
+		delete data;
+	}
+
+	void setData(T t) { *((T*)data) = t; };
+	T getData() {return *((T*)data); };
 	virtual string getDataType() 
 	{ 
 		TypeName<T> c; 
@@ -201,7 +226,7 @@ public:
 		if (o.getType() != getType())
 			return false;
 		EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
-		return data == oTup->getData();
+		return *((T*)data) == oTup->getData();
 	};
 
 	virtual bool operator> (EquiObject& o) 
@@ -244,15 +269,15 @@ public:
 				d = oTup->getData();
 			}
 
-			return data > d;
+			return *((T*)data) > d;
 		}
 
 		EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
-		return data > oTup->getData();
+		return *((T*)data) > oTup->getData();
 	};
 
 	virtual string to_string() {
-		return std::to_string(data);
+		return std::to_string(*((T*)data));
 	};
 };
 
