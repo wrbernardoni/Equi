@@ -224,7 +224,46 @@ public:
 	virtual bool operator== (EquiObject& o) 
 	{
 		if (o.getType() != getType())
-			return false;
+		{
+			if (o.getDataType() != "long" && o.getDataType() != "int" &&
+				o.getDataType() != "double" && o.getDataType() != "float")
+			{
+				//throwError("Unsupported type comparison");
+				return false;
+			}
+			if (getDataType() != "long" && getDataType() != "int" &&
+				getDataType() != "double" && getDataType() != "float")
+			{
+				//throwError("Unsupported type comparison");
+				return false;
+			}
+
+
+			long double d;
+			if (o.getDataType() == "long")
+			{
+				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "int")
+			{
+				EquiPrimitive<int>* oTup = (EquiPrimitive<int>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "double")
+			{
+				EquiPrimitive<double>* oTup = (EquiPrimitive<double>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "float")
+			{
+				EquiPrimitive<float>* oTup = (EquiPrimitive<float>*)&o;
+				d = oTup->getData();
+			}
+
+			return *((T*)data) == d;
+		}
+
 		EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
 		return *((T*)data) == oTup->getData();
 	};
