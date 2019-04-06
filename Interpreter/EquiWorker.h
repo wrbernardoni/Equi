@@ -15,6 +15,9 @@ class EquiWorker
 private:
 	map<string, EquiObject*> tokens;
 public:
+	EquiWorker();
+	~EquiWorker();
+	
 	EquiObject* run(SyntaxTree*);
 };
 

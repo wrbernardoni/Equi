@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "standardLibrary/EquiConsole.h"
+
 extern void throwError(string s)
 {
 	throw(s);
@@ -10,6 +12,21 @@ extern void throwError(string s)
 extern bool isNum(string s);
 
 extern bool isString(string s);
+
+EquiWorker::EquiWorker()
+{
+	EquiVoid* vd = new EquiVoid;
+	tokens["void"] = vd;
+	loadConsoleStd(&tokens);
+}
+
+EquiWorker::~EquiWorker()
+{
+	for (auto const& x : tokens)
+	{
+		delete x.second;
+	}
+}
 
 EquiObject* EquiWorker::run(SyntaxTree* code)
 {
