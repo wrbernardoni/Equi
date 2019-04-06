@@ -11,6 +11,7 @@
 #define E_TUPLE_TYPE "tuple"
 #define E_PRIMITIVE_TYPE "primitive"
 #define E_STRING_TYPE "string"
+#define E_FUNCTION_TYPE "function"
 
 using namespace std;
 
@@ -23,9 +24,8 @@ public:
 	EquiObject() {};
 	virtual ~EquiObject() {};
 
-	virtual EquiObject* clone() { return new EquiObject; };
-
 	virtual EquiObject* spawnMyType() { return new EquiObject; };
+	virtual EquiObject* clone() { return spawnMyType(); };
 
 	virtual inline string getType() { return E_GENERIC_TYPE; };
 	virtual string getDataType() 
@@ -107,6 +107,37 @@ public:
 	virtual string to_string() { return "()"; };
 protected:
 	void* data;
+};
+
+#define EQUI_FN(a) virtual string getDataType() { return #a; }; \
+	virtual EquiObject* clone() { return new a; }; \
+	virtual EquiObject* spawnMyType() { return new a; }; 
+
+class EquiFunction : public EquiObject
+{
+public:
+	virtual inline string getType() { return E_FUNCTION_TYPE; };
+	EQUI_FN(EquiFunction)
+	virtual bool operator== (EquiObject& o) { return (getType() == o.getType()) && (getDataType() == o.getDataType()); };
+
+	virtual bool operator> (EquiObject& o)
+	{ 
+		throwError("Cannot do a logical comparison on a function reference.");
+		return false; 
+	};
+
+	virtual EquiObject* operator() (EquiObject*)
+	{
+		throwError("Function " + getDataType() + " undefined.");
+		EquiObject* n = new EquiObject;
+		return n;
+	}
+
+	virtual string to_string()
+	{ 
+		throwError("Cannot stringify a function reference");
+		return ""; 
+	};
 };
 
 class EquiString : public EquiObject
