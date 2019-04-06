@@ -4,14 +4,14 @@
 */
 
 // Should print to console: "Hello world"
-print("Hello World!\n");
+print("Hello World!");
 
 // Define two integers
 int a = 0;
 int b = 0;
 
 // Read in from console
-print("Give me two integers to add:");
+print("Give me two integers to operate on (second nonzero):");
 a = getint();
 b = getint();
 
@@ -20,4 +20,7 @@ int c = a + b;
 
 // Print (for instance if our two are 4 and 7): 4 + 7 = 11
 print("%i + %i = %i", a, b, c);
+print("%i - %i = %i", a, b, a-b);
+print("%i * %i = %i", a, b, a*b);
+print("%i / %i = %i", a, b, a/b);
 
