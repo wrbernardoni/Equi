@@ -158,6 +158,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			{
 				newObj = new EquiPrimitive<bool>;
 			}
+			else if (type == "string")
+			{
+				newObj = new EquiString;
+			}
 			else
 			{
 				throwError("Unrecognized type name");
@@ -185,7 +189,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 
 		if (isString(code->getTokens()[0]))
 		{
-			// TODO
+			string s = code->getTokens()[0].substr(1, code->getTokens()[0].size() - 2);
+			EquiString* str = new EquiString;
+			str->setString(s);
+			out = str;
 		}
 		else if (isNum(code->getTokens()[0]))
 		{

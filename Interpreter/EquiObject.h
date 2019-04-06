@@ -10,6 +10,7 @@
 #define E_VOID_TYPE "void"
 #define E_TUPLE_TYPE "tuple"
 #define E_PRIMITIVE_TYPE "primitive"
+#define E_STRING_TYPE "string"
 
 using namespace std;
 
@@ -99,6 +100,76 @@ public:
 	virtual string to_string() { return "()"; };
 protected:
 	void* data;
+};
+
+class EquiString : public EquiObject
+{
+private:
+
+public:
+	EquiString()
+	{
+		data = new string;
+	};
+	~EquiString()
+	{
+		string* s = (string*)data;
+		delete s;
+	};
+
+	string getString()
+	{
+		string* s = (string*)data;
+		return *s;
+	}
+
+	void setString(string nu)
+	{
+		string* s = (string*)data;
+		*s = nu;
+	}
+
+	virtual inline string getType() { return E_STRING_TYPE; };
+
+	virtual EquiObject* clone() 
+	{ 
+		EquiString* newS = new EquiString;
+		newS->setString(getString());
+		return newS;
+	};
+
+	virtual EquiObject* spawnMyType() { return new EquiString; };
+
+	virtual bool operator== (EquiObject& o)
+	{ 
+		if (o.getType() == E_STRING_TYPE)
+			return getString() == o.to_string();
+		else
+			return false;
+	};
+
+	virtual bool operator> (EquiObject& o)
+	{ 
+		if (o.getType() != E_STRING_TYPE)
+			throwError("Cannot logically compare strings and non strings");
+		return getString() > o.to_string(); 
+	};
+
+	virtual EquiObject& operator= (EquiObject& o)
+	{
+		setString(o.to_string());
+		return *this;
+	};
+
+	virtual EquiObject* operator+ (EquiObject& o)
+	{
+		EquiString* n = new EquiString;
+		string s = getString() + o.to_string();
+		n->setString(s);
+		return n;
+	};
+
+	virtual string to_string() { return getString(); };
 };
 
 class EquiVoid : public EquiObject
