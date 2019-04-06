@@ -12,8 +12,8 @@ int b = 0;
 
 // Read in from console
 print("Give me two integers to add:");
-get(a);
-get(b);
+a = getint();
+b = getint();
 
 // Define a new integer and assign it value from a and b
 int c = a + b;
