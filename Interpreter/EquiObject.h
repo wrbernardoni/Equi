@@ -328,7 +328,6 @@ public:
 
 	virtual EquiObject& operator= (EquiObject& o)
 	{
-		throwError("Here");
 		purgeData();
 
 		if (o.getType() == E_TUPLE_TYPE)
