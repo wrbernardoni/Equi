@@ -128,7 +128,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_DECLARATION)
 	{
-		if (childOut.size() != 1 || (code->getTokens().size() != 1 && code->getTokens().size() != 2))
+		if (childOut.size() > 1 || (code->getTokens().size() != 1 && code->getTokens().size() != 2))
 			throwError("Invalid number of arguments on unary operation");
 
 		string tok = code->getTokens()[0];
@@ -141,26 +141,32 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			if (type == "int")
 			{
 				newObj = new EquiPrimitive<int>;
+				((EquiPrimitive<int>*)newObj)->setData(0);
 			}
 			else if (type == "long")
 			{
 				newObj = new EquiPrimitive<long>;
+				((EquiPrimitive<long>*)newObj)->setData(0);
 			}
 			else if (type == "double")
 			{
 				newObj = new EquiPrimitive<double>;
+				((EquiPrimitive<double>*)newObj)->setData(0);
 			}
 			else if (type == "float")
 			{
 				newObj = new EquiPrimitive<float>;
+				((EquiPrimitive<float>*)newObj)->setData(0);
 			}
 			else if (type == "bool")
 			{
 				newObj = new EquiPrimitive<bool>;
+				((EquiPrimitive<bool>*)newObj)->setData(0);
 			}
 			else if (type == "string")
 			{
 				newObj = new EquiString;
+				((EquiString*)newObj)->setString(0);
 			}
 			else
 			{
@@ -180,7 +186,11 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		{
 			throwError("Undefined token");
 		}
-		out = (*tokens[tok] = *(childOut[0])).clone();
+
+		if (childOut.size() == 1)
+			out = (*tokens[tok] = *(childOut[0])).clone();
+		else
+			out = (tokens[tok]->clone());
 	}
 	else if (code->getType() == EQ_TR_CONST)
 	{
@@ -221,7 +231,33 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{
-		
+		if (childOut.size() > 1 || code->getTokens().size() != 1 )
+			throwError("Invalid number of arguments for functions");
+		string tok = code->getTokens()[0];
+
+		EquiObject* in = NULL;
+		if (childOut.size() == 0)
+			in = new EquiVoid;
+		else
+			in = childOut[0];
+
+		if (tokens.count(tok) == 0)
+		{
+			if (childOut.size()  == 0)
+			{
+				EquiVoid* v = (EquiVoid*) in;
+				delete v;
+			}
+			throwError("No function of the name " + tok);
+		}
+
+		out = (*tokens[tok])(in);
+
+		if (childOut.size()  == 0)
+		{
+			EquiVoid* v = (EquiVoid*) in;
+			delete v;
+		}
 	}
 	else
 	{

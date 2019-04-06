@@ -97,6 +97,13 @@ public:
 		return n;
 	};
 
+	virtual EquiObject* operator() (EquiObject*)
+	{
+		throwError("Cannot call a " + getType() + " as a function.");
+		EquiObject* n = new EquiObject;
+		return n;
+	}
+
 	virtual string to_string() { return "()"; };
 protected:
 	void* data;
@@ -194,7 +201,7 @@ public:
 		return *this;
 	}
 
-	virtual string to_string() { return "VOID"; };
+	virtual string to_string() { return ""; };
 };
 
 class EquiTuple : public EquiObject
