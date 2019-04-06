@@ -144,8 +144,7 @@ vector<string> getLine(istream* in, int& lineNum)
         }
         instring = !instring;
       }
-      else if (!instring && !isalnum(ln[i]) && ln[i] != '$' && ln[i] != '_' &&
-        ln[i] != '-')
+      else if (!instring && !isalnum(ln[i]) && ln[i] != '$' && ln[i] != '_')
       {
        if (word != "")
            line.push_back(word);

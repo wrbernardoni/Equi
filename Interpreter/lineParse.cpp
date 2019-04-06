@@ -370,12 +370,13 @@ SyntaxTree* unary(vector<string> ln, int& state)
   int ps = state;
   if (SAFECHECK(ln,ps) == "!" || SAFECHECK(ln,ps) == "-")
   {
+    bool logicalNegation = SAFECHECK(ln,ps) == "!";
     ps++;
     DPRINT("Eating unary")
     SyntaxTree* c = unary(ln, ps);
     if (c != NULL)
     {
-      if (ln[ps - 1] == "!")
+      if (logicalNegation)
       {
         un->addToken("!");
       }

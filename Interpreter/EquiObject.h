@@ -22,6 +22,8 @@ public:
 	EquiObject() {};
 	virtual ~EquiObject() {};
 
+	virtual EquiObject* clone() { return new EquiObject; };
+
 	virtual EquiObject* spawnMyType() { return new EquiObject; };
 
 	virtual inline string getType() { return E_GENERIC_TYPE; };
@@ -37,10 +39,61 @@ public:
 	virtual bool operator>= (EquiObject& o) { return !(o > *this); }; 
 	virtual bool operator< (EquiObject& o) { return o > *this; }; 
 	virtual bool operator<= (EquiObject& o) { return !(o < *this); };
+	
 	virtual EquiObject& operator= (EquiObject& o)
 	{
-		throwError("Ill defined equality declaration between generic types");
+		throwError("Ill defined equality declaration between " + getType() + " types.");
 		return *this;
+	};
+	
+
+	virtual EquiObject* operator+ (EquiObject& o)
+	{
+		throwError("Cannot add to a " + getType() + " type.");
+		EquiObject* n = new EquiObject;
+		return n;
+	};
+
+	virtual EquiObject* operator- (EquiObject& o)
+	{
+		throwError("Cannot subtract from a " + getType() + " type.");
+		EquiObject* n = new EquiObject;
+		return n;
+	};
+
+	virtual EquiObject* operator* (EquiObject& o)
+	{
+		throwError("Cannot multiply to a " + getType() + " type.");
+		EquiObject* n = new EquiObject;
+		return n;
+	};
+
+	virtual EquiObject* operator/ (EquiObject& o)
+	{
+		throwError("Cannot divide from a " + getType() + " type.");
+		EquiObject* n = new EquiObject;
+		return n;
+	};
+
+	virtual EquiObject* operator% (EquiObject& o)
+	{
+		throwError("Cannot modulus from a " + getType() + " type.");
+		EquiObject* n = new EquiObject;
+		return n;
+	};
+
+	virtual EquiObject* operator! ()
+	{
+		throwError("Cannot logical negate from a " + getType() + " type.");
+		EquiObject* n = new EquiObject;
+		return n;
+	};
+
+	virtual EquiObject* operator- ()
+	{
+		throwError("Cannot negate from a " + getType() + " type.");
+		EquiObject* n = new EquiObject;
+		return n;
 	};
 
 	virtual string to_string() { return "()"; };
@@ -52,6 +105,7 @@ class EquiVoid : public EquiObject
 {
 public:
 	virtual EquiObject* spawnMyType() { return new EquiVoid; };
+	virtual EquiObject* clone() { return new EquiVoid; };
 
 	virtual inline string getType() { return E_VOID_TYPE; };
 	virtual bool operator== (EquiObject& o) 
@@ -84,6 +138,20 @@ private:
 	};
 public:
 	virtual EquiObject* spawnMyType() { return new EquiTuple; };
+	virtual EquiObject* clone() 
+	{ 
+		EquiTuple* newTup = new EquiTuple;
+		vector<EquiObject*> tuple = newTup->getTuple();
+		vector<EquiObject*> me = *((vector<EquiObject*>*)data);
+		for (int i = 0; i < me.size(); i++)
+		{
+			EquiObject* e = me[i]->spawnMyType();
+			*e = *(me[i]);
+			tuple.push_back(e);
+		}
+		newTup->setTuple(tuple);
+		return newTup;
+	};
 
 	EquiTuple()
 	{
@@ -151,6 +219,7 @@ public:
 
 	virtual EquiObject& operator= (EquiObject& o)
 	{
+		throwError("Here");
 		purgeData();
 
 		if (o.getType() == E_TUPLE_TYPE)
@@ -173,6 +242,42 @@ public:
 			tuple->push_back(e);
 		}
 		return *this;
+	};
+
+	virtual EquiObject* operator+ (EquiObject& o)
+	{
+		EquiTuple* newTup = (EquiTuple*)clone();//new EquiTuple;
+		vector<EquiObject*> tuple = newTup->getTuple();
+		
+		if (o.getType() == E_TUPLE_TYPE)
+		{
+			EquiTuple* oTup = (EquiTuple*)&o;
+			vector<EquiObject*> oT = oTup->getTuple();
+			
+			for (int i = 0; i < oT.size(); i++)
+			{
+				EquiObject* e = oT[i]->spawnMyType();
+				*e = *(oT[i]);
+				tuple.push_back(e);
+			}		
+		}
+		else
+		{
+			EquiObject* e = o.spawnMyType();
+			*e = o;
+			tuple.push_back(e);
+		}
+
+		newTup->setTuple(tuple);
+		
+		return newTup;
+	};
+
+	virtual EquiObject* operator- (EquiObject& o)
+	{
+		throwError("Cannot subtract from a tuple.");
+		EquiVoid* v = new EquiVoid;
+		return v;
 	};
 
 	virtual string to_string() {
@@ -249,6 +354,12 @@ class EquiPrimitive : public EquiObject
 {
 public:
 	virtual EquiObject* spawnMyType() { return new EquiPrimitive<T>; };
+	virtual EquiObject* clone() 
+	{ 
+		EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+		newT->setData(getData());
+		return newT; 
+	};
 
 	EquiPrimitive()
 	{
@@ -290,7 +401,7 @@ public:
 			}
 
 
-			long double d;
+			T d;
 			if (o.getDataType() == "long")
 			{
 				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
@@ -337,7 +448,7 @@ public:
 			}
 
 
-			long double d;
+			T d;
 			if (o.getDataType() == "long")
 			{
 				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
@@ -382,7 +493,7 @@ public:
 			}
 
 
-			long double d;
+			T d;
 			if (o.getDataType() == "long")
 			{
 				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
@@ -414,6 +525,241 @@ public:
 
 		return *this;
 	};
+
+	virtual EquiObject* operator+ (EquiObject& o)
+	{
+		if (o.getDataType() != getDataType())
+		{
+			if (o.getDataType() != "long" && o.getDataType() != "int" &&
+				o.getDataType() != "double" && o.getDataType() != "float")
+			{
+				throwError("Cannot cast a numeric to a non-numeric");
+			}
+			if (getDataType() != "long" && getDataType() != "int" &&
+				getDataType() != "double" && getDataType() != "float")
+			{
+				throwError("Cannot cast a numeric to a nonnumeric");
+			}
+
+
+			T d;
+			if (o.getDataType() == "long")
+			{
+				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "int")
+			{
+				EquiPrimitive<int>* oTup = (EquiPrimitive<int>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "double")
+			{
+				EquiPrimitive<double>* oTup = (EquiPrimitive<double>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "float")
+			{
+				EquiPrimitive<float>* oTup = (EquiPrimitive<float>*)&o;
+				d = oTup->getData();
+			}
+
+			T out = *((T*)data) + d;
+			EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+			newT->setData(out);
+			return newT;
+		}
+		else
+		{
+			EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
+			T out = *((T*)data) + oTup->getData();
+			EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+			newT->setData(out);
+			return newT;
+		}
+	}
+
+	virtual EquiObject* operator- (EquiObject& o)
+	{
+		if (o.getDataType() != getDataType())
+		{
+			if (o.getDataType() != "long" && o.getDataType() != "int" &&
+				o.getDataType() != "double" && o.getDataType() != "float")
+			{
+				throwError("Cannot cast a numeric to a non-numeric");
+			}
+			if (getDataType() != "long" && getDataType() != "int" &&
+				getDataType() != "double" && getDataType() != "float")
+			{
+				throwError("Cannot cast a numeric to a nonnumeric");
+			}
+
+
+			T d;
+			if (o.getDataType() == "long")
+			{
+				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "int")
+			{
+				EquiPrimitive<int>* oTup = (EquiPrimitive<int>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "double")
+			{
+				EquiPrimitive<double>* oTup = (EquiPrimitive<double>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "float")
+			{
+				EquiPrimitive<float>* oTup = (EquiPrimitive<float>*)&o;
+				d = oTup->getData();
+			}
+
+			T out = *((T*)data) - d;
+			EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+			newT->setData(out);
+			return newT;
+		}
+		else
+		{
+			EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
+			T out = *((T*)data) - oTup->getData();
+			EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+			newT->setData(out);
+			return newT;
+		}
+	}
+
+	virtual EquiObject* operator* (EquiObject& o)
+	{
+		if (o.getDataType() != getDataType())
+		{
+			if (o.getDataType() != "long" && o.getDataType() != "int" &&
+				o.getDataType() != "double" && o.getDataType() != "float")
+			{
+				throwError("Cannot cast a numeric to a non-numeric");
+			}
+			if (getDataType() != "long" && getDataType() != "int" &&
+				getDataType() != "double" && getDataType() != "float")
+			{
+				throwError("Cannot cast a numeric to a nonnumeric");
+			}
+
+
+			T d;
+			if (o.getDataType() == "long")
+			{
+				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "int")
+			{
+				EquiPrimitive<int>* oTup = (EquiPrimitive<int>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "double")
+			{
+				EquiPrimitive<double>* oTup = (EquiPrimitive<double>*)&o;
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "float")
+			{
+				EquiPrimitive<float>* oTup = (EquiPrimitive<float>*)&o;
+				d = oTup->getData();
+			}
+
+			T out = *((T*)data) * d;
+			EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+			newT->setData(out);
+			return newT;
+		}
+		else
+		{
+			EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
+			T out = *((T*)data) * oTup->getData();
+			EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+			newT->setData(out);
+			return newT;
+		}
+	}
+
+	virtual EquiObject* operator/ (EquiObject& o)
+	{
+		if (o.getDataType() != getDataType())
+		{
+			if (o.getDataType() != "long" && o.getDataType() != "int" &&
+				o.getDataType() != "double" && o.getDataType() != "float")
+			{
+				throwError("Cannot cast a numeric to a non-numeric");
+			}
+			if (getDataType() != "long" && getDataType() != "int" &&
+				getDataType() != "double" && getDataType() != "float")
+			{
+				throwError("Cannot cast a numeric to a nonnumeric");
+			}
+
+
+			T d;
+			long double d0;
+			if (o.getDataType() == "long")
+			{
+				EquiPrimitive<long>* oTup = (EquiPrimitive<long>*)&o;
+				d0 = oTup->getData();
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "int")
+			{
+				EquiPrimitive<int>* oTup = (EquiPrimitive<int>*)&o;
+				d0 = oTup->getData();
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "double")
+			{
+				EquiPrimitive<double>* oTup = (EquiPrimitive<double>*)&o;
+				d0 = oTup->getData();
+				d = oTup->getData();
+			}
+			else if (o.getDataType() == "float")
+			{
+				EquiPrimitive<float>* oTup = (EquiPrimitive<float>*)&o;
+				d0 = oTup->getData();
+				d = oTup->getData();
+			}
+
+			if (d0 == 0)
+				throwError("Divide by 0");
+
+			T out = *((T*)data) / d;
+			EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+			newT->setData(out);
+			return newT;
+		}
+		else
+		{
+			EquiPrimitive<T>* oTup = (EquiPrimitive<T>*)&o;
+			T out = *((T*)data) / oTup->getData();
+			EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+			newT->setData(out);
+			return newT;
+		}
+	}
+
+	virtual EquiObject* operator! ()
+	{
+		EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+		newT->setData(!getData());
+		return newT;
+	};
+
+	virtual EquiObject* operator- ()
+	{
+		EquiPrimitive<T>* newT = new EquiPrimitive<T>;
+		newT->setData(-getData());
+		return newT;
+	};
+
 
 	virtual string to_string() {
 		return std::to_string(*((T*)data));

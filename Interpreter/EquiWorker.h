@@ -13,7 +13,7 @@ using namespace std;
 class EquiWorker
 {
 private:
-	map<string, EquiObject> tokens;
+	map<string, EquiObject*> tokens;
 public:
 	EquiObject* run(SyntaxTree*);
 };
