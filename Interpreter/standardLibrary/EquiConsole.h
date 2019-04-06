@@ -76,20 +76,41 @@ private:
 
 };
 
-class cnsl_std_EquiGetInt : public EquiFunction
+template <class T>
+class cnsl_std_EquiGetPrimitive : public EquiFunction
 {
 public:
-	EQUI_FN(cnsl_std_EquiGetInt)
+	EQUI_FN(cnsl_std_EquiGetPrimitive<T>)
 
 	virtual EquiObject* operator() (EquiObject* in)
 	{
 		if (in->getType() != E_VOID_TYPE)
 			throwError("No input expected in getInt function.");
-		int i = 0;
+		T i = 0;
 		cin >> i;
 
-		EquiPrimitive<int>* n = new EquiPrimitive<int>;
+		EquiPrimitive<T>* n = new EquiPrimitive<T>;
 		n->setData(i);
+		return n;
+	}
+private:
+
+};
+
+class cnsl_std_EquiGetLine : public EquiFunction
+{
+public:
+	EQUI_FN(cnsl_std_EquiGetLine)
+
+	virtual EquiObject* operator() (EquiObject* in)
+	{
+		if (in->getType() != E_VOID_TYPE)
+			throwError("No input expected in getline function.");
+		string i = "";
+		cin >> i;
+
+		EquiString* n = new EquiString;
+		n->setString(i);
 		return n;
 	}
 private:
@@ -101,6 +122,18 @@ void loadConsoleStd(map<string, EquiObject*>* tok)
 	cnsl_std_EquiPrint* print = new cnsl_std_EquiPrint;
 	(*tok)["print"] = print;
 
-	cnsl_std_EquiGetInt* getint = new cnsl_std_EquiGetInt;
+	cnsl_std_EquiGetPrimitive<int>* getint = new cnsl_std_EquiGetPrimitive<int>;
 	(*tok)["getint"] = getint;
+
+	cnsl_std_EquiGetPrimitive<long>* getlong = new cnsl_std_EquiGetPrimitive<long>;
+	(*tok)["getlong"] = getlong;
+
+	cnsl_std_EquiGetPrimitive<double>* getdouble = new cnsl_std_EquiGetPrimitive<double>;
+	(*tok)["getdouble"] = getdouble;
+
+	cnsl_std_EquiGetPrimitive<float>* getfloat = new cnsl_std_EquiGetPrimitive<float>;
+	(*tok)["getfloat"] = getfloat;
+
+	cnsl_std_EquiGetLine* getline = new cnsl_std_EquiGetLine;
+	(*tok)["getline"] = getline;
 }
