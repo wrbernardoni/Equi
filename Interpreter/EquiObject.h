@@ -19,6 +19,9 @@ extern void throwError(string s);
 class EquiObject
 {
 public:
+	EquiObject() {};
+	virtual ~EquiObject() {};
+
 	virtual EquiObject* spawnMyType() { return new EquiObject; };
 
 	virtual inline string getType() { return E_GENERIC_TYPE; };
@@ -253,7 +256,7 @@ public:
 	};
 	~EquiPrimitive()
 	{
-		delete data;
+		delete ((T*)data);
 	}
 
 	void setData(T t) { *((T*)data) = t; };
