@@ -6,109 +6,139 @@
 int a = -5;
 int b = 5;
 
+int testNum = 0;
+
 print("Beginning test");
 
+testNum = testNum + 1;
 if (a == a)
 {
-	print ("good - if(a==a) {...}");
+	print ("%i. good - if(a==a) {...}", testNum);
 }
 else
 {
-	print("bad - if(a==a) {...}");
+	print("%i. bad - if(a==a) {...}", testNum);
 }
 
+testNum = testNum + 1;
 if (a == a)
-	print ("good - if(a==a) ...;");
+	print ("%i. good - if(a==a) ...;", testNum);
 else
-	print("bad - if(a==a) ...;");
+	print("%i. bad - if(a==a) ...;", testNum);
 
+testNum = testNum + 1;
 if (a != a)
 {
-	print ("bad - if(a!=a) {...}");
+	print ("%i. bad - if(a!=a) {...}", testNum);
 }
 else
 {
-	print("good - if(a!=a) {...}");
+	print("%i. good - if(a!=a) {...}", testNum);
 }
 
+testNum = testNum + 1;
 if (a != a)
-	print ("bad - if(a!=a) ...;");
+	print ("%i. bad - if(a!=a) ...;", testNum);
 else
-	print("good - if(a!=a) ...;");
+	print("%i. good - if(a!=a) ...;", testNum);
 
+testNum = testNum + 1;
 if (a == b)
 {
-	print ("bad - if(a==b) {...}");
+	print ("%i. bad - if(a==b) {...}", testNum);
 }
 else
 {
-	print("good - if(a==b) {...}");
+	print("%i. good - if(a==b) {...}", testNum);
 }
 
+testNum = testNum + 1;
 if (a == b)
-	print ("bad - if(a=b) ...;");
+	print ("%i. bad - if(a=b) ...;", testNum);
 else
-	print("good - if(a==b) ...;");
+	print("%i. good - if(a==b) ...;", testNum);
 
+testNum = testNum + 1;
 if (a != b)
 {
-	print ("good - if(a!=b) {...}");
+	print ("%i. good - if(a!=b) {...}", testNum);
 }
 else
 {
-	print("bad - if(a!=b) {...}");
+	print("%i. bad - if(a!=b) {...}", testNum);
 }
 
+testNum = testNum + 1;
 if (a != b)
-	print ("good - if(a!=b) ...;");
+	print ("%i. good - if(a!=b) ...;", testNum);
 else
-	print("bad - if(a!=b) ...;");
+	print("%i. bad - if(a!=b) ...;", testNum);
 
 b = a;
 print ("Reassigning, b = a");
 
+testNum = testNum + 1;
 if (a == b)
 {
-	print ("good - if(a==b) {...}");
+	print ("%i. good - if(a==b) {...}", testNum);
 }
 else
 {
-	print("bad - if(a==b) {...}");
+	print("%i. bad - if(a==b) {...}", testNum);
 }
 
+testNum = testNum + 1;
 if (a == b)
-	print ("good - if(a=b) ...;");
+	print ("%i. good - if(a=b) ...;", testNum);
 else
-	print("bad - if(a==b) ...;");
+	print("%i. bad - if(a==b) ...;", testNum);
 
+testNum = testNum + 1;
 if (a != b)
 {
-	print ("bad - if(a!=b) {...}");
+	print ("%i. bad - if(a!=b) {...}", testNum);
 }
 else
 {
-	print("good - if(a!=b) {...}");
+	print("%i. good - if(a!=b) {...}", testNum);
 }
 
+testNum = testNum + 1;
 if (a != b)
-	print ("bad - if(a!=b) ...;");
+	print ("%i. bad - if(a!=b) ...;", testNum);
 else
-	print("good - if(a!=b) ...;");
+	print("%i. good - if(a!=b) ...;", testNum);
 
 print ("Fact: a < b < c");
 a = 0;
 b = 1; 
 int c = 2;
 
+testNum = testNum + 1;
 if (c > a)
 {
 	if (c > b)
-		print("Good! c max");
+		print("%i. Good! c max", testNum);
 	else
-		print("Bad! b max");
+		print("%i. Bad! b max", testNum);
 }
 else if (b > a)
-	print("Bad! b max");
+	print("%i. Bad! b max", testNum);
 else
-	print("Bad! a max");
+	print("%i. Bad! a max", testNum);
+
+testNum = testNum + 1;
+if (c < a)
+{
+	if (c < b)
+		print("%i. Bad! c min", testNum);
+	else
+		print("%i. Bad! b min", testNum);
+}
+else if (b > a)
+	print("%i. Good! a min", testNum);
+else
+	print("%i. Bad! b min", testNum);
+
+print("%i tests ran.", testNum);
 
