@@ -14,9 +14,14 @@ Left Associative: a\*b\*c = (a\*b)\*c
  * (L) Commas: a , b
 
 ## CFG
-code -> line\*;
-  
+code -> (block | line)\*;  
+
+block -> logicalBlock;  
+logicalBlock -> ((("if" | ("else" "if")) "(" expression ")") | "else") (("{" code "}" (";")?) | (line | block));  
+
 line -> expression ";";   
+
+
 expression -> commas;  
 commas -> equality ("," equality)\*;  
 equality -> comparison (("!=" | "==") comparison)?;  
