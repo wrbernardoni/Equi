@@ -9,6 +9,8 @@
 
 // RECURSIVE CFG RULES
 SyntaxTree* code(vector<string>, int&);
+SyntaxTree* block(vector<string>, int&);
+SyntaxTree* logicalBlock(vector<string>, int&);
 SyntaxTree* line(vector<string>, int&);
 SyntaxTree* expression(vector<string>, int&);
 SyntaxTree* commas(vector<string>, int&);
@@ -45,12 +47,13 @@ bool isToken(string s){
     s != "<=" && s != "+" && s != "-" && s != "/" &&
     s != "*" && s != "%" && s != "!" && s != "=" &&
     s != "(" && s != ")" && s != "false" && s != "true" &&
+    s != "{" && s != "}" &&
     s != "" && !isNum(s) && !isString(s));
 }
 
 #define SAFECHECK(a,b) (b < a.size() ? a[b] : "")
 
-//#define DEB 1
+#define DEB 1
 #ifdef DEB
 #define DEBUG(a) cout << "In " << a << " looking at: " << SAFECHECK(ln,state) << endl;
 #define DPRINT(a) cout << a << endl;
@@ -67,7 +70,13 @@ SyntaxTree* code(vector<string> ln, int& state)
   do
   {
     int ps = state;
-    t = line(ln, ps);
+    t = block(ln, ps);
+    if (t == NULL)
+    {
+      ps = state;
+      t = line(ln, ps);
+    }
+
     if (t != NULL)
     {
       DPRINT("Line added")
@@ -88,6 +97,155 @@ SyntaxTree* code(vector<string> ln, int& state)
     delete cd;
     return NULL;
   }
+}
+
+SyntaxTree* block(vector<string> ln, int& state)
+{
+  DEBUG("block")
+  return logicalBlock(ln, state);
+}
+
+SyntaxTree* logicalBlock(vector<string> ln, int& state)
+{
+  DEBUG("logicalBlock")
+  SyntaxTree* log = new SyntaxTree(EQ_TR_LOGICAL_BLOCK);
+
+  bool reqExpr = false;
+  if(SAFECHECK(ln, state) == "if")
+  {
+    log->addToken("if");
+    state++;
+    DPRINT("Eating if");
+    reqExpr = true;
+  }
+  else if (SAFECHECK(ln, state) == "else")
+  {
+    DPRINT("Eating else");
+    log->addToken("else");
+    state++;
+    if (SAFECHECK(ln, state) == "if")
+    {
+      DPRINT("Eating if");
+      log->addToken("if");
+      state++;
+      reqExpr = true;
+    }
+    else
+    {
+
+    }
+  }
+  else
+  {
+    delete log;
+    return NULL;
+  }
+
+  if (reqExpr)
+  {
+    if (SAFECHECK(ln, state) == "(")
+    {
+      DPRINT("Eating (");
+      state++;
+      SyntaxTree* expr = expression(ln, state);
+      if (expr != NULL && SAFECHECK(ln, state) == ")")
+      {
+        DPRINT("Eating )");
+        log->addChild(expr);
+        state++;
+      }
+      else if (expr != NULL)
+      {
+        DPRINT("Expecting ), failed to find");
+        // ERROR expecting )
+        delete expr;
+        delete log;
+        return NULL;
+      }
+    }
+    else
+    {
+      DPRINT("Expecting logical expression")
+      delete log;
+      return NULL;
+    }
+  }
+
+  if (SAFECHECK(ln, state) == "{")
+  {
+    DPRINT("Eating {");
+    state++;
+    SyntaxTree* cde = code(ln, state);
+    if (SAFECHECK(ln, state) == "}")
+    {
+      DPRINT("Eating }");
+      state++;
+      if (SAFECHECK(ln, state) == ";")
+      {
+        DPRINT("Eating ;");
+        state++;
+      }
+      if (cde != NULL)
+      {
+        log->addChild(cde);
+      }
+      else
+      {
+        cde = new SyntaxTree(EQ_TR_CODE);
+        log->addChild(cde);
+      }
+
+      return log;
+    }
+    else
+    {
+      DPRINT("Missing trailing }");
+      if (cde != NULL)
+      {
+        delete cde;
+      }
+
+      // ERROR expecting }
+    }
+  }
+  else
+  {
+    int ps = state;
+    SyntaxTree* lin = line(ln, ps);
+    if (lin != NULL)
+    {
+      state = ps;
+      log->addChild(lin);
+      return log;
+    }
+    else
+    {
+      lin = block(ln, state);
+      if (lin != NULL)
+      {
+        log->addChild(lin);
+        return log;
+      }
+      else
+      {
+        if (SAFECHECK(ln, state) == ";")
+        {
+          lin = new SyntaxTree(EQ_TR_CODE);
+          log->addChild(lin);
+          return log;
+        }
+        else
+        {
+          DPRINT("No expression after logical block")
+          // ERROR expecting expression after logical block
+          delete lin;
+        }
+      }
+    }
+  }
+
+  delete log;
+  return NULL;
 }
 
 SyntaxTree* line(vector<string> ln, int& state)

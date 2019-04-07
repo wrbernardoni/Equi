@@ -20,6 +20,8 @@ using namespace std;
 #define EQ_TR_TOKEN "token"
 #define EQ_TR_FUNCTION "function"
 
+#define EQ_TR_LOGICAL_BLOCK "logicalBlock"
+
 class SyntaxTree
 {
 private:
