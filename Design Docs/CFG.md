@@ -27,7 +27,7 @@ commas -> equality ("," equality)\*;
 equality -> comparison (("!=" | "==") comparison)?;  
 comparison -> additive ((">" | ">=" | "<=" | "<") additive)?;  
 additive -> multiplicative (("+"|"-") multiplicative)?;  
-multipicative -> unary (("/" | "\*" | "%") unary)?;  
+multiplicative -> unary (("/" | "\*" | "%") unary)?;  
 unary -> ("!" | "-") unary | declaration | function | primary;  
 declaration -> TOKEN (TOKEN | declaration) | (TOKEN "=")+ expression;  
 function -> TOKEN "(" expression ")";  
