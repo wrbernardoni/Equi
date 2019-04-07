@@ -78,8 +78,11 @@ public:
 
 	virtual EquiObject* operator% (EquiObject& o)
 	{
-		throwError("Cannot modulus from a " + getType() + " type.");
-		EquiObject* n = new EquiObject;
+		EquiObject* div = operator/(o);
+		EquiObject* mult = o.operator*(*div);
+		EquiObject* n = operator-(*mult);
+		delete div;
+		delete mult;
 		return n;
 	};
 
