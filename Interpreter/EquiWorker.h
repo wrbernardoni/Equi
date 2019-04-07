@@ -14,6 +14,7 @@ class EquiWorker
 {
 private:
 	map<string, EquiObject*> tokens;
+	bool runElse;
 public:
 	EquiWorker();
 	~EquiWorker();

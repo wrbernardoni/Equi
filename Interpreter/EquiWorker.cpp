@@ -17,6 +17,8 @@ EquiWorker::EquiWorker()
 {
 	EquiVoid* vd = new EquiVoid;
 	tokens["void"] = vd;
+	runElse = false;
+
 	loadConsoleStd(&tokens);
 }
 
@@ -32,9 +34,12 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 {
 	vector<SyntaxTree*> children = code->getChildren();;
 	vector<EquiObject*> childOut;
-	for (int i = 0; i < children.size(); i++)
+	if (code->getType() != EQ_TR_LOGICAL_BLOCK)
 	{
-		childOut.push_back(run(children[i]));
+		for (int i = 0; i < children.size(); i++)
+		{
+			childOut.push_back(run(children[i]));
+		}
 	}
 
 	bool killChildren = true;
@@ -214,7 +219,19 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		if (childOut.size() != 0 || code->getTokens().size() != 1 )
 			throwError("Invalid number of arguments on constant???");
 
-		if (isString(code->getTokens()[0]))
+		if (code->getTokens()[0] == "false")
+		{
+			EquiPrimitive<bool>* fals = new EquiPrimitive<bool>;
+			fals->setData(false);
+			out = fals;
+		}
+		else if (code->getTokens()[0] == "true")
+		{
+			EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
+			tru->setData(true);
+			out = tru;
+		}
+		else if (isString(code->getTokens()[0]))
 		{
 			string s = code->getTokens()[0].substr(1, code->getTokens()[0].size() - 2);
 			EquiString* str = new EquiString;
@@ -274,6 +291,104 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		{
 			EquiVoid* v = (EquiVoid*) in;
 			delete v;
+		}
+	}
+	else if (code->getType() == EQ_TR_LOGICAL_BLOCK)
+	{
+		if (code->getTokens().size() == 1)
+		{
+			if (code->getTokens()[0] == "if")
+			{
+				if (children.size() != 2)
+				{
+					throwError("Incorrect number of arguments on else");
+				}
+
+				childOut.push_back(run(children[0]));
+				EquiPrimitive<bool> fals;
+				fals.setData(false);
+				if (*childOut[0] != fals)
+				{
+					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
+					tru->setData(true);
+					out = tru;
+					childOut.push_back(run(children[1]));
+					runElse = false;
+				}
+				else
+				{
+					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
+					tru->setData(false);
+					out = tru;
+					runElse = true;
+				}
+
+			}
+			else if (code->getTokens()[0] == "else")
+			{
+				if (children.size() != 1)
+				{
+					throwError("Incorrect number of arguments on else");
+				}
+
+				if (runElse)
+				{
+					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
+					tru->setData(true);
+					out = tru;
+					childOut.push_back(run(children[0]));
+				}
+				else
+				{
+					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
+					tru->setData(false);
+					out = tru;
+				}
+				runElse = false;
+			}
+			else
+			{
+				throwError("Unknown logical block type.");
+			}
+		}
+		else if (code->getTokens().size() == 2)
+		{
+			if (children.size() != 2)
+			{
+				throwError("Incorrect number of arguments on else if");
+			}
+
+			if (runElse)
+			{
+				childOut.push_back(run(children[0]));
+				EquiPrimitive<bool> fals;
+				fals.setData(false);
+				if (*childOut[0] != fals)
+				{
+					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
+					tru->setData(true);
+					out = tru;
+					childOut.push_back(run(children[1]));
+					runElse = false;
+				}
+				else
+				{
+					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
+					tru->setData(false);
+					out = tru;
+					runElse = true;
+				}
+			}
+			else
+			{
+				EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
+				tru->setData(false);
+				out = tru;
+			}
+		}
+		else
+		{
+			throwError("Too many arguments in logical block");
 		}
 	}
 	else
