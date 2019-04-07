@@ -1,0 +1,114 @@
+/*
+	Test program for version 0.0.2 of Equi.
+	Logical flow and logical operators
+*/
+
+int a = -5;
+int b = 5;
+
+print("Beginning test");
+
+if (a == a)
+{
+	print ("good - if(a==a) {...}");
+}
+else
+{
+	print("bad - if(a==a) {...}");
+}
+
+if (a == a)
+	print ("good - if(a==a) ...;");
+else
+	print("bad - if(a==a) ...;");
+
+if (a != a)
+{
+	print ("bad - if(a!=a) {...}");
+}
+else
+{
+	print("good - if(a!=a) {...}");
+}
+
+if (a != a)
+	print ("bad - if(a!=a) ...;");
+else
+	print("good - if(a!=a) ...;");
+
+if (a == b)
+{
+	print ("bad - if(a==b) {...}");
+}
+else
+{
+	print("good - if(a==b) {...}");
+}
+
+if (a == b)
+	print ("bad - if(a=b) ...;");
+else
+	print("good - if(a==b) ...;");
+
+if (a != b)
+{
+	print ("good - if(a!=b) {...}");
+}
+else
+{
+	print("bad - if(a!=b) {...}");
+}
+
+if (a != b)
+	print ("good - if(a!=b) ...;");
+else
+	print("bad - if(a!=b) ...;");
+
+b = a;
+print ("Reassigning, b = a");
+
+if (a == b)
+{
+	print ("good - if(a==b) {...}");
+}
+else
+{
+	print("bad - if(a==b) {...}");
+}
+
+if (a == b)
+	print ("good - if(a=b) ...;");
+else
+	print("bad - if(a==b) ...;");
+
+if (a != b)
+{
+	print ("bad - if(a!=b) {...}");
+}
+else
+{
+	print("good - if(a!=b) {...}");
+}
+
+if (a != b)
+	print ("bad - if(a!=b) ...;");
+else
+	print("good - if(a!=b) ...;");
+
+print ("Fact: a < b < c");
+a = 0;
+b = 1; 
+int c = 2;
+
+if (c > a)
+{
+	if (c > b)
+		print("Good! c max");
+	else
+		print("Bad! b max");
+}
+else if (b > a)
+	print("Bad! b max");
+else
+	print("Bad! a max");
+
