@@ -16,8 +16,14 @@ Left Associative: a\*b\*c = (a\*b)\*c
 ## CFG
 code -> (block | line)\*;  
 
-block -> logicalBlock;  
+block -> logicalBlock | loopBlock;  
+
 logicalBlock -> ((("if" | ("else" "if")) "(" expression ")") | "else") (("{" code "}" (";")?) | (line | block));  
+
+loopBlock -> doWhileLoop | whileLoop | forLoop;  
+doWhileLoop -> "do" ( (line | block) | "{" code "}" ) "while" "(" expression ")" ";";  
+whileLoop -> "while" "(" expression ")" ( (line | block) | "{" code "}" )  ";"?;  
+whileLoop -> "for" "(" expression ";" expression ";" expression ")" ( (line | block) | "{" code "}" )  ";"?;  
 
 line -> expression ";";   
 
