@@ -37,5 +37,7 @@ multiplicative -> unary (("/" | "\*" | "%") unary)?;
 unary -> ("!" | "-") unary | declaration | function | primary;  
 declaration -> TOKEN (TOKEN | declaration) | (TOKEN "=")+ expression;  
 function -> TOKEN "(" expression ")";  
-primary -> NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
+primary -> NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN | special;
+
+special -> "break" | "continue";  
 

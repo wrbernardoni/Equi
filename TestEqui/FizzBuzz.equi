@@ -1,0 +1,70 @@
+/*
+ v.0.0.3 version of FizzBuzz
+*/
+
+int i = 0;
+print("DO WHILE LOOP");
+do
+{
+	if ((i%3) + (i%5) == 0)
+	{
+		print("FizzBuzz");
+	}
+	else if ((i%3) == 0)
+	{
+		print("Fizz");
+	}
+	else if ((i%5) == 0)
+	{
+		print("Buzz");
+	}
+	else
+	{
+		print(i);
+	}
+	i++;
+} while(i < 20);
+
+i = 0;
+print("WHILE LOOP");
+while (i < 20)
+{
+	if ((i%3) + (i%5) == 0)
+	{
+		print("FizzBuzz");
+	}
+	else if ((i%3) == 0)
+	{
+		print("Fizz");
+	}
+	else if ((i%5) == 0)
+	{
+		print("Buzz");
+	}
+	else
+	{
+		print(i);
+	}
+	i++;
+}
+
+print("FOR LOOP");
+for (int j = 0; j < 20; j++)
+{
+	if ((j%3) + (j%5) == 0)
+	{
+		print("FizzBuzz");
+	}
+	else if ((j%3) == 0)
+	{
+		print("Fizz");
+	}
+	else if ((j%5) == 0)
+	{
+		print("Buzz");
+	}
+	else
+	{
+		print(j);
+	}
+}

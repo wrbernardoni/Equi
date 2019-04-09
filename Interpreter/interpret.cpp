@@ -54,6 +54,7 @@ int interpret(string fn)
     try
     {
       EquiObject* o = core.run(lineTree);
+      P_VERB("-->" << o->to_string() << endl, TOKEN_PRINT_VERB);
       delete o;
     }
     catch (string m)

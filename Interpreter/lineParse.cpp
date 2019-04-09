@@ -26,6 +26,7 @@ SyntaxTree* unary(vector<string>, int&);
 SyntaxTree* declaration(vector<string>, int&);
 SyntaxTree* funct(vector<string>, int&);
 SyntaxTree* primary(vector<string>, int&);
+SyntaxTree* special(vector<string>, int&);
 
 bool isNum(string s)
 {
@@ -974,6 +975,14 @@ SyntaxTree* funct(vector<string> ln, int& state)
 SyntaxTree* primary(vector<string> ln, int& state)
 {
   DEBUG("primary")
+  int ps = state;
+  SyntaxTree* spec = special(ln, ps);
+  if (spec != NULL)
+  {
+    state = ps;
+    return spec;
+  }
+
   if (isNum(SAFECHECK(ln,state)) || isString(SAFECHECK(ln,state)) || SAFECHECK(ln,state) == "true" || SAFECHECK(ln,state) == "false" || SAFECHECK(ln,state) == "null")
   {
     SyntaxTree* cons = new SyntaxTree(EQ_TR_CONST);
@@ -1007,6 +1016,29 @@ SyntaxTree* primary(vector<string> ln, int& state)
     }
   }
   
+  return NULL;
+}
+
+SyntaxTree* special(vector<string> ln, int& state)
+{
+  DEBUG("special");
+
+  if (SAFECHECK(ln, state) == "break")
+  {
+    DPRINT("Eating break");
+    state++;
+    SyntaxTree* expr = new SyntaxTree(EQ_TR_SPECIAL);
+    expr->addToken("break");
+    return expr;
+  }
+  else if (SAFECHECK(ln, state) == "continue")
+  {
+    DPRINT("Eating continue");
+    state++;
+    SyntaxTree* expr = new SyntaxTree(EQ_TR_SPECIAL);
+    expr->addToken("continue");
+    return expr;
+  }
   return NULL;
 }
 

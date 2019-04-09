@@ -16,6 +16,9 @@ class EquiWorker
 private:
 	deque<map<string, EquiObject*>*> tokens;
 	bool runElse;
+	bool breakFlag;
+	bool continueFlag;
+	
 	EquiObject* getToken(string);
 	bool isToken(string);
 	void emplaceToken(string, EquiObject*);

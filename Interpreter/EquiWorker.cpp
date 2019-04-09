@@ -21,6 +21,9 @@ EquiWorker::EquiWorker()
 	(*tok)["void"] = vd;
 	runElse = false;
 
+	breakFlag = false;
+	continueFlag = false;
+
 
 	loadConsoleStd(tok);
 	tokens.push_back(tok);
@@ -91,6 +94,8 @@ void EquiWorker::scopeDown()
 
 void EquiWorker::resetScope()
 {
+	breakFlag = false;
+	continueFlag = false;
 	while (tokens.size() > 1)
 	{
 		scopeDown();
@@ -99,6 +104,11 @@ void EquiWorker::resetScope()
 
 EquiObject* EquiWorker::run(SyntaxTree* code)
 {
+	if (breakFlag || continueFlag)
+	{
+		return new EquiVoid;
+	}
+
 	vector<SyntaxTree*> children = code->getChildren();;
 	vector<EquiObject*> childOut;
 	if (code->getType() != EQ_TR_LOGICAL_BLOCK && code->getType() != EQ_TR_DO_WHILE
@@ -120,8 +130,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_CODE)
 	{
-		if (childOut.size() == 1)
-			P_VERB("-->" << childOut[0]->to_string() << endl << endl, TOKEN_PRINT_VERB)
+		EquiTuple* t = new EquiTuple;
+		t->setTuple(childOut);
+		out = t;
+		killChildren = false;
 	}
 	else if (code->getType() == EQ_TR_COMMA)
 	{
@@ -395,6 +407,163 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			delete v;
 		}
 	}
+	else if (code->getType() == EQ_TR_SPECIAL)
+	{
+		if (childOut.size() > 0 || code->getTokens().size() != 1 )
+			throwError("Invalid number of arguments for keyword");
+		string tok = code->getTokens()[0];
+
+		if (tok == "break")
+		{
+			breakFlag = true;
+		}
+		else if (tok == "continue")
+		{
+			continueFlag = true;
+		}
+	}
+	else if (code->getType() == EQ_TR_DO_WHILE)
+	{
+		if (children.size() != 2)
+		{
+			throwError("Incorrect number of arguments on do while");
+		}
+
+		bool keepRun = true;
+		do
+		{
+			scopeUp();
+			EquiObject* rn = run(children[0]);
+			delete rn;
+			scopeDown();
+			if(breakFlag)
+			{
+				breakFlag = false;
+				keepRun = false;
+			}
+			else
+			{
+				if (continueFlag)
+					continueFlag = false;
+
+				EquiPrimitive<bool> fals;
+				fals.setData(false);
+				EquiObject* eval = run(children[1]);
+				keepRun = (fals) != (*eval);
+				delete eval;
+			}
+		}while(keepRun);
+	}
+	else if (code->getType() == EQ_TR_WHILE)
+	{
+		if (children.size() != 2)
+		{
+			throwError("Incorrect number of arguments on while");
+		}
+
+		bool keepRun = true;
+		scopeUp();
+		EquiPrimitive<bool> fals;
+		fals.setData(false);
+		EquiObject* eval = run(children[0]);
+		keepRun =  (fals) != (*eval);
+		delete eval;
+		scopeDown();
+		
+		if(breakFlag)
+		{
+			breakFlag = false;
+			keepRun = false;
+		}
+		if (continueFlag)
+			continueFlag = false;
+
+		while(keepRun)
+		{
+			scopeUp();
+			EquiObject* rn = run(children[1]);
+			delete rn;
+			scopeDown();
+			if(breakFlag)
+			{
+				breakFlag = false;
+				keepRun = false;
+			}
+			else
+			{
+				if (continueFlag)
+					continueFlag = false;
+
+				EquiPrimitive<bool> fals;
+				fals.setData(false);
+				EquiObject* eval = run(children[0]);
+				keepRun = (fals) != (*eval);
+				delete eval;
+			}
+		}
+	}
+	else if (code->getType() == EQ_TR_FOR)
+	{
+		if (children.size() != 4)
+		{
+			throwError("Incorrect number of arguments on for loop");
+		}
+
+		EquiPrimitive<bool> fals;
+		fals.setData(false);
+
+		scopeUp();
+		EquiObject* dec = run(children[0]);
+		delete dec;
+		
+		EquiObject* eval = run(children[1]);
+		bool keepRun = (fals) != (*eval);
+		delete eval;
+				
+		if(breakFlag)
+		{
+			breakFlag = false;
+			keepRun = false;
+		}
+		if (continueFlag)
+			continueFlag = false;
+
+		while(keepRun)
+		{
+			scopeUp();
+			EquiObject* rn = run(children[3]);
+			delete rn;
+			scopeDown();
+			if(breakFlag)
+			{
+				breakFlag = false;
+				keepRun = false;
+			}
+			else
+			{
+				if (continueFlag)
+					continueFlag = false;
+
+				EquiObject* endDec = run(children[2]);
+				if (continueFlag)
+					continueFlag = false;
+
+				if(breakFlag)
+				{
+					breakFlag = false;
+					keepRun = false;
+				}
+				else
+				{
+					eval = run(children[1]);
+					keepRun = (fals) != (*eval);
+					delete eval;
+				}
+			}
+		}
+
+		scopeDown();
+	}
 	else if (code->getType() == EQ_TR_LOGICAL_BLOCK)
 	{
 		scopeUp();
@@ -410,7 +579,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				childOut.push_back(run(children[0]));
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
-				if (*childOut[0] != fals)
+				if (fals != *childOut[0])
 				{
 					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
 					tru->setData(true);
@@ -466,7 +635,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				childOut.push_back(run(children[0]));
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
-				if (*childOut[0] != fals)
+				if (fals != *childOut[0])
 				{
 					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
 					tru->setData(true);

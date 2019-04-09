@@ -25,6 +25,8 @@ using namespace std;
 #define EQ_TR_WHILE "while"
 #define EQ_TR_FOR "for"
 
+#define EQ_TR_SPECIAL "keyword"
+
 class SyntaxTree
 {
 private:
