@@ -34,7 +34,8 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 {
 	vector<SyntaxTree*> children = code->getChildren();;
 	vector<EquiObject*> childOut;
-	if (code->getType() != EQ_TR_LOGICAL_BLOCK)
+	if (code->getType() != EQ_TR_LOGICAL_BLOCK && code->getType() != EQ_TR_DO_WHILE
+		&& code->getType() != EQ_TR_WHILE && code->getType() != EQ_TR_FOR)
 	{
 		for (int i = 0; i < children.size(); i++)
 		{
