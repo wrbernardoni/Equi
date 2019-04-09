@@ -11,6 +11,10 @@
 SyntaxTree* code(vector<string>, int&);
 SyntaxTree* block(vector<string>, int&);
 SyntaxTree* logicalBlock(vector<string>, int&);
+SyntaxTree* loopBlock(vector<string>, int&);
+SyntaxTree* doWhileLoop(vector<string>, int&);
+SyntaxTree* whileLoop(vector<string>, int&);
+SyntaxTree* forLoop(vector<string>, int&);
 SyntaxTree* line(vector<string>, int&);
 SyntaxTree* expression(vector<string>, int&);
 SyntaxTree* commas(vector<string>, int&);
@@ -53,7 +57,7 @@ bool isToken(string s){
 
 #define SAFECHECK(a,b) (b < a.size() ? a[b] : "")
 
-//#define DEB 1
+#define DEB 1
 #ifdef DEB
 #define DEBUG(a) cout << "In " << a << " looking at: " << SAFECHECK(ln,state) << endl;
 #define DPRINT(a) cout << a << endl;
@@ -102,7 +106,15 @@ SyntaxTree* code(vector<string> ln, int& state)
 SyntaxTree* block(vector<string> ln, int& state)
 {
   DEBUG("block")
-  return logicalBlock(ln, state);
+  int ps = state;
+  SyntaxTree* blc = logicalBlock(ln, ps);
+  if (blc != NULL)
+  {
+    state = ps;
+    return blc;
+  }
+
+  return loopBlock(ln, state);
 }
 
 SyntaxTree* logicalBlock(vector<string> ln, int& state)
@@ -245,6 +257,313 @@ SyntaxTree* logicalBlock(vector<string> ln, int& state)
   }
 
   delete log;
+  return NULL;
+}
+
+SyntaxTree* loopBlock(vector<string> ln, int& state)
+{
+  DEBUG("loop")
+  int ps = state;
+  SyntaxTree* lp = doWhileLoop(ln, ps);
+  if (lp != NULL)
+  {
+    state = ps;
+    return lp;
+  }
+
+  ps = state;
+  lp = whileLoop(ln, ps);
+  if (lp != NULL)
+  {
+    state = ps;
+    return lp;
+  }
+
+  return forLoop(ln, state);
+}
+
+SyntaxTree* doWhileLoop(vector<string> ln, int& state)
+{
+  DEBUG("doWhile")
+  if (SAFECHECK(ln, state) == "do")
+  {
+    DPRINT("eating do");
+    state++;
+    SyntaxTree* doWhl = new SyntaxTree(EQ_TR_DO_WHILE);
+    if (SAFECHECK(ln, state) == "{")
+    {
+      DPRINT("eating {");
+      state++;
+      
+      SyntaxTree* cd = code(ln, state);
+      if (cd == NULL)
+      {
+        cd = new SyntaxTree(EQ_TR_CODE);
+      }
+      doWhl->addChild(cd);
+
+      if (SAFECHECK(ln, state) != "}")
+      {
+        DPRINT("Expecting }");
+        // ERROR missing end } on do while;
+        delete doWhl;
+        return NULL;
+      }
+      DPRINT("eating }")
+      state++;
+    }
+    else
+    {
+      int ps = state;
+      SyntaxTree* interior = block(ln, ps);
+      if (interior == NULL)
+      {
+        ps = state;
+        interior = line(ln, ps);
+
+        if (interior == NULL)
+        {
+          interior = new SyntaxTree(EQ_TR_CODE);
+        }
+      }
+      state = ps;
+      doWhl->addChild(interior);
+    }
+
+    if (SAFECHECK(ln, state) == "while")
+    {
+      DPRINT("eating while");
+      state++;
+      if (SAFECHECK(ln, state) == "(")
+      {
+        DPRINT("eating (");
+        state++;
+        SyntaxTree* condition = expression(ln, state);
+        if (condition == NULL)
+        {
+          condition = new SyntaxTree(EQ_TR_CODE);
+        }
+
+        doWhl->addChild(condition);
+        if (SAFECHECK(ln, state) == ")" && SAFECHECK(ln, state+1) == ";")
+        {
+          DPRINT("eating ) ;");
+          state += 2;
+          return doWhl;
+        }
+        delete doWhl;
+        return NULL;
+      }
+      else
+      {
+        DPRINT("Error, missing ( after while")
+        //ERROR missing ( after while
+        delete doWhl;
+        return NULL;
+      }
+    }
+    else
+    {
+      DPRINT("Error, expecting while after do");
+      //ERROR expecting while after do
+      delete doWhl;
+      return NULL;
+    }
+
+    delete doWhl;
+  }
+  return NULL;
+}
+
+SyntaxTree* whileLoop(vector<string> ln, int& state)
+{
+  DEBUG("while")
+  if (SAFECHECK(ln, state) == "while" && SAFECHECK(ln, state + 1) == "(")
+  {
+    DPRINT("eating while (");
+    state += 2;
+    SyntaxTree* whl = new SyntaxTree(EQ_TR_WHILE);
+
+    SyntaxTree* expr = expression(ln, state);
+    if (expr == NULL)
+    {
+      expr = new SyntaxTree(EQ_TR_CODE);
+    }
+    whl->addChild(expr);
+
+    if (SAFECHECK(ln, state) != ")")
+    {
+      DPRINT("ERROR missing )")
+      // ERROR, missing )
+      delete whl;
+      return NULL;
+    }
+
+    DPRINT("eating )");
+    state++;
+
+    if (SAFECHECK(ln, state) == "{")
+    {
+      DPRINT("eating {");
+      state++;
+      
+      SyntaxTree* cd = code(ln, state);
+      if (cd == NULL)
+      {
+        cd = new SyntaxTree(EQ_TR_CODE);
+      }
+      whl->addChild(cd);
+
+      if (SAFECHECK(ln, state) != "}")
+      {
+        DPRINT("Expecting }");
+        // ERROR missing end } on while;
+        delete whl;
+        return NULL;
+      }
+      DPRINT("eating }")
+      state++;
+    }
+    else
+    {
+      int ps = state;
+      SyntaxTree* interior = block(ln, ps);
+      if (interior == NULL)
+      {
+        ps = state;
+        interior = line(ln, ps);
+
+        if (interior == NULL)
+        {
+          interior = new SyntaxTree(EQ_TR_CODE);
+        }
+      }
+      state = ps;
+      whl->addChild(interior);
+    }
+
+    if (SAFECHECK(ln, state) == ";")
+    {
+      DPRINT("eating ;")
+      state++;
+    }
+
+    return whl;
+
+    delete whl;
+  }
+  return NULL;
+}
+
+SyntaxTree* forLoop(vector<string> ln, int& state)
+{
+  DEBUG("for")
+  if (SAFECHECK(ln, state) == "for" && SAFECHECK(ln, state + 1) == "(")
+  {
+    DPRINT("eating for (");
+    state += 2;
+    SyntaxTree* whl = new SyntaxTree(EQ_TR_FOR);
+
+    SyntaxTree* expr = expression(ln, state);
+    if (expr == NULL)
+    {
+      expr = new SyntaxTree(EQ_TR_CODE);
+    }
+    whl->addChild(expr);
+
+    if (SAFECHECK(ln, state) != ";")
+    {
+      //ERROR, expecting ;
+      DPRINT("ERROR, expecting ;");
+      delete whl;
+      return NULL;
+    }
+    state++;
+
+    expr = expression(ln, state);
+    if (expr == NULL)
+    {
+      expr = new SyntaxTree(EQ_TR_CODE);
+    }
+    whl->addChild(expr);
+
+    if (SAFECHECK(ln, state) != ";")
+    {
+      //ERROR, expecting ;
+      DPRINT("ERROR, expecting ;");
+      delete whl;
+      return NULL;
+    }
+    state++;
+
+    expr = expression(ln, state);
+    if (expr == NULL)
+    {
+      expr = new SyntaxTree(EQ_TR_CODE);
+    }
+    whl->addChild(expr);
+
+    if (SAFECHECK(ln, state) != ")")
+    {
+      DPRINT("ERROR missing )")
+      // ERROR, missing )
+      delete whl;
+      return NULL;
+    }
+
+    DPRINT("eating )");
+    state++;
+
+    if (SAFECHECK(ln, state) == "{")
+    {
+      DPRINT("eating {");
+      state++;
+      
+      SyntaxTree* cd = code(ln, state);
+      if (cd == NULL)
+      {
+        cd = new SyntaxTree(EQ_TR_CODE);
+      }
+      whl->addChild(cd);
+
+      if (SAFECHECK(ln, state) != "}")
+      {
+        DPRINT("Expecting }");
+        // ERROR missing end } on while;
+        delete whl;
+        return NULL;
+      }
+      DPRINT("eating }")
+      state++;
+    }
+    else
+    {
+      int ps = state;
+      SyntaxTree* interior = block(ln, ps);
+      if (interior == NULL)
+      {
+        ps = state;
+        interior = line(ln, ps);
+
+        if (interior == NULL)
+        {
+          interior = new SyntaxTree(EQ_TR_CODE);
+        }
+      }
+      state = ps;
+      whl->addChild(interior);
+    }
+
+    if (SAFECHECK(ln, state) == ";")
+    {
+      DPRINT("eating ;")
+      state++;
+    }
+
+    return whl;
+
+    delete whl;
+  }
   return NULL;
 }
 

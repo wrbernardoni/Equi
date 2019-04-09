@@ -21,6 +21,9 @@ using namespace std;
 #define EQ_TR_FUNCTION "function"
 
 #define EQ_TR_LOGICAL_BLOCK "logicalBlock"
+#define EQ_TR_DO_WHILE "dowhile"
+#define EQ_TR_WHILE "while"
+#define EQ_TR_FOR "for"
 
 class SyntaxTree
 {
