@@ -61,6 +61,8 @@ int interpret(string fn)
       cerr << "Error on line: " << lineNum << ": " << m << endl;
     }
 
+    core.resetScope();
+
     delete lineTree;
   }
 

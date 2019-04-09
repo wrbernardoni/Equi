@@ -7,15 +7,25 @@
 
 #include <map>
 #include <string>
+#include <deque>
 
 using namespace std;
 
 class EquiWorker
 {
 private:
-	map<string, EquiObject*> tokens;
+	deque<map<string, EquiObject*>*> tokens;
 	bool runElse;
+	EquiObject* getToken(string);
+	bool isToken(string);
+	void emplaceToken(string, EquiObject*);
+
+	void scopeUp();
+	void scopeDown();
+
 public:
+	void resetScope();
+
 	EquiWorker();
 	~EquiWorker();
 	

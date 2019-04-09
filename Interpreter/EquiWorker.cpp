@@ -15,18 +15,85 @@ extern bool isString(string s);
 
 EquiWorker::EquiWorker()
 {
+	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
+
 	EquiVoid* vd = new EquiVoid;
-	tokens["void"] = vd;
+	(*tok)["void"] = vd;
 	runElse = false;
 
-	loadConsoleStd(&tokens);
+
+	loadConsoleStd(tok);
+	tokens.push_back(tok);
 }
 
 EquiWorker::~EquiWorker()
 {
 	for (auto const& x : tokens)
 	{
-		delete x.second;
+		for (auto const& y : *x)
+			delete y.second;
+
+		delete x;
+	}
+}
+
+EquiObject* EquiWorker::getToken(string n)
+{
+	for (int i = 0; i < tokens.size(); i++)
+	{
+		if (tokens[i]->count(n) != 0)
+		{
+			return (*tokens[i])[n];
+		}
+	}
+	throwError("Token not found");
+	return NULL;
+}
+
+bool EquiWorker::isToken(string n)
+{
+	for (int i = 0; i < tokens.size(); i++)
+	{
+		if (tokens[i]->count(n) != 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void EquiWorker::emplaceToken(string n, EquiObject* o)
+{
+	if (isToken(n))
+		throwError("Token " + n + " already defined");
+
+
+	(*tokens[tokens.size() - 1])[n] = o;
+}
+
+void EquiWorker::scopeUp()
+{
+	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
+	tokens.push_back(tok);
+}
+
+void EquiWorker::scopeDown()
+{
+	map<string, EquiObject*>* tok = tokens[tokens.size() - 1];
+	for (auto const& y : *tok)
+	{
+		delete y.second;
+	}
+
+	delete tok;
+	tokens.pop_back();
+}
+
+void EquiWorker::resetScope()
+{
+	while (tokens.size() > 1)
+	{
+		scopeDown();
 	}
 }
 
@@ -177,7 +244,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					pre = true;
 				}
 				
-				if (tokens.count(tok) == 0)
+				if (!isToken(tok))
 				{
 					throwError("Undefined token");
 				}
@@ -188,9 +255,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				}
 
 				if (op == "++")
-					++(*tokens[tok]);
+					++(*getToken(tok));
 				else
-					--(*tokens[tok]);
+					--(*getToken(tok));
 			}
 			else
 			{
@@ -229,25 +296,24 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					throwError("Unrecognized type name");
 				}
 
-				if(tokens.count(tok) != 0)
+				if(isToken(tok))
 				{
 					throwError("Reinstantiation of token");
-					delete tokens[tok];
 				}
 
-				tokens[tok] = newObj;
+				emplaceToken(tok, newObj);
 			}
 		}
 		
-		if (tokens.count(tok) == 0)
+		if (!isToken(tok))
 		{
 			throwError("Undefined token");
 		}
 
 		if (childOut.size() == 1)
-			out = (*tokens[tok] = *(childOut[0])).clone();
+			out = (*getToken(tok) = *(childOut[0])).clone();
 		else
-			out = (tokens[tok]->clone());
+			out = (getToken(tok)->clone());
 	}
 	else if (code->getType() == EQ_TR_CONST)
 	{
@@ -291,12 +357,12 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			throwError("Invalid number of arguments on token???");
 
 		string tok = code->getTokens()[0];
-		if (tokens.count(tok) == 0)
+		if (!isToken(tok))
 		{
 			throwError("Undefined reference to token " + tok);
 		}
 
-		out = tokens[tok]->clone();
+		out = getToken(tok)->clone();
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{
@@ -310,17 +376,18 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		else
 			in = childOut[0];
 
-		if (tokens.count(tok) == 0)
+		if (!isToken(tok))
 		{
 			if (childOut.size()  == 0)
 			{
 				EquiVoid* v = (EquiVoid*) in;
 				delete v;
 			}
-			throwError("No function of the name " + tok);
-		}
 
-		out = (*tokens[tok])(in);
+			throwError("No function of the name " + tok);
+		}		
+
+		out = (*getToken(tok))(in);
 
 		if (childOut.size()  == 0)
 		{
@@ -330,6 +397,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_LOGICAL_BLOCK)
 	{
+		scopeUp();
 		if (code->getTokens().size() == 1)
 		{
 			if (code->getTokens()[0] == "if")
@@ -425,6 +493,8 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		{
 			throwError("Too many arguments in logical block");
 		}
+
+		scopeDown();
 	}
 	else
 	{
