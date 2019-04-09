@@ -57,7 +57,7 @@ bool isToken(string s){
 
 #define SAFECHECK(a,b) (b < a.size() ? a[b] : "")
 
-#define DEB 1
+//#define DEB 1
 #ifdef DEB
 #define DEBUG(a) cout << "In " << a << " looking at: " << SAFECHECK(ln,state) << endl;
 #define DPRINT(a) cout << a << endl;
