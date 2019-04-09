@@ -160,48 +160,82 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			tok = code->getTokens()[1];
 			EquiObject* newObj = NULL;
 
-			if (type == "int")
+			if (tok == "++" || tok == "--" || type == "++" || type == "--")
 			{
-				newObj = new EquiPrimitive<int>;
-				((EquiPrimitive<int>*)newObj)->setData(0);
-			}
-			else if (type == "long")
-			{
-				newObj = new EquiPrimitive<long>;
-				((EquiPrimitive<long>*)newObj)->setData(0);
-			}
-			else if (type == "double")
-			{
-				newObj = new EquiPrimitive<double>;
-				((EquiPrimitive<double>*)newObj)->setData(0);
-			}
-			else if (type == "float")
-			{
-				newObj = new EquiPrimitive<float>;
-				((EquiPrimitive<float>*)newObj)->setData(0);
-			}
-			else if (type == "bool")
-			{
-				newObj = new EquiPrimitive<bool>;
-				((EquiPrimitive<bool>*)newObj)->setData(0);
-			}
-			else if (type == "string")
-			{
-				newObj = new EquiString;
-				((EquiString*)newObj)->setString(0);
+				string op = "";
+				bool pre = false;
+				if (tok == "++" || tok == "--")
+				{
+					op = tok;
+					tok = type;
+					pre = false;
+				}
+				else
+				{
+					op = type;
+					pre = true;
+				}
+				
+				if (tokens.count(tok) == 0)
+				{
+					throwError("Undefined token");
+				}
+
+				if (childOut.size() != 0)
+				{
+					throwError("Cannot assign to an increment");
+				}
+
+				if (op == "++")
+					++(*tokens[tok]);
+				else
+					--(*tokens[tok]);
 			}
 			else
 			{
-				throwError("Unrecognized type name");
-			}
+				if (type == "int")
+				{
+					newObj = new EquiPrimitive<int>;
+					((EquiPrimitive<int>*)newObj)->setData(0);
+				}
+				else if (type == "long")
+				{
+					newObj = new EquiPrimitive<long>;
+					((EquiPrimitive<long>*)newObj)->setData(0);
+				}
+				else if (type == "double")
+				{
+					newObj = new EquiPrimitive<double>;
+					((EquiPrimitive<double>*)newObj)->setData(0);
+				}
+				else if (type == "float")
+				{
+					newObj = new EquiPrimitive<float>;
+					((EquiPrimitive<float>*)newObj)->setData(0);
+				}
+				else if (type == "bool")
+				{
+					newObj = new EquiPrimitive<bool>;
+					((EquiPrimitive<bool>*)newObj)->setData(0);
+				}
+				else if (type == "string")
+				{
+					newObj = new EquiString;
+					((EquiString*)newObj)->setString(0);
+				}
+				else
+				{
+					throwError("Unrecognized type name");
+				}
 
-			if(tokens.count(tok) != 0)
-			{
-				throwError("Reinstantiation of token");
-				delete tokens[tok];
-			}
+				if(tokens.count(tok) != 0)
+				{
+					throwError("Reinstantiation of token");
+					delete tokens[tok];
+				}
 
-			tokens[tok] = newObj;
+				tokens[tok] = newObj;
+			}
 		}
 		
 		if (tokens.count(tok) == 0)

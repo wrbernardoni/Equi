@@ -107,6 +107,28 @@ public:
 		return n;
 	}
 
+	virtual EquiObject& operator++()
+	{
+		throwError("Cannot increment " + getType() + ".");
+		return *this;
+	}
+
+	virtual EquiObject& operator++(int)
+	{
+		return ++(*this);
+	}
+
+	virtual EquiObject& operator--()
+	{
+		throwError("Cannot decrement " + getType() + ".");
+		return *this;
+	}
+
+	virtual EquiObject& operator--(int)
+	{
+		return --(*this);
+	}
+
 	virtual string to_string() { return "()"; };
 protected:
 	void* data;
@@ -869,6 +891,18 @@ public:
 		EquiPrimitive<T>* newT = new EquiPrimitive<T>;
 		newT->setData(-getData());
 		return newT;
+	};
+
+	virtual EquiObject& operator-- ()
+	{
+		setData(getData() - 1);
+		return *this;
+	};
+
+	virtual EquiObject& operator++ ()
+	{
+		setData(getData() + 1);
+		return *this;
 	};
 
 
