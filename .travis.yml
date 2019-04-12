@@ -66,6 +66,6 @@ install:
   - ./build.sh
 
 script:
-  - ./Interpreter/build/Equi ./EquiTest/LogicalFlowTest.equi 
-  - ./Interpreter/build/Equi ./EquiTest/LoopTest.equi 
+  - ./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi 
+  - ./Interpreter/build/Equi ./EquiTests/LoopTest.equi 
   
