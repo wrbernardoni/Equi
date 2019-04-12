@@ -30,8 +30,8 @@ line -> expression ";";
 
 expression -> commas;  
 commas -> equality ("," equality)\*;  
-equality -> comparison (("!=" | "==") equality)?;  
-comparison -> additive ((">" | ">=" | "<=" | "<") comparison)?;  
+equality -> comparison (("!=" | "==") comparison)?;  
+comparison -> additive ((">" | ">=" | "<=" | "<") additive)?;  
 additive -> multiplicative (("+"|"-") additive)?;  
 multiplicative -> unary (("/" | "\*" | "%") multiplicative)?;  
 unary -> ("!" | "-") unary | declaration | function | primary;  
