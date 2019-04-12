@@ -71,6 +71,7 @@ matrix:
 
 before_install:
     - eval "${MATRIX_EVAL}"
+    - chmod +x build.sh
 
 script:
-  - sudo ./build.sh
+  - ./build.sh
