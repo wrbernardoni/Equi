@@ -116,11 +116,7 @@ vector<string> getLine(istream* in, int& lineNum)
       if (bs)
       {
         bsResolv = false;
-        if (instring && ln[i] == '\\')
-        {
-          word = word + "\\";
-        }
-        else if (instring && ln[i] == '\"')
+        if (instring && ln[i] == '\"')
         {
           word = word + "\"";
         }
