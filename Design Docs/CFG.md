@@ -30,10 +30,10 @@ line -> expression ";";
 
 expression -> commas;  
 commas -> equality ("," equality)\*;  
-equality -> comparison (("!=" | "==") comparison)?;  
-comparison -> additive ((">" | ">=" | "<=" | "<") additive)?;  
-additive -> multiplicative (("+"|"-") multiplicative)?;  
-multiplicative -> unary (("/" | "\*" | "%") unary)?;  
+equality -> comparison (("!=" | "==") equality)?;  
+comparison -> additive ((">" | ">=" | "<=" | "<") comparison)?;  
+additive -> multiplicative (("+"|"-") additive)?;  
+multiplicative -> unary (("/" | "\*" | "%") multiplicative)?;  
 unary -> ("!" | "-") unary | declaration | function | primary;  
 declaration -> TOKEN (TOKEN | declaration) | (TOKEN "=")+ expression;  
 function -> TOKEN "(" expression ")";  
