@@ -73,4 +73,4 @@ before_install:
     - eval "${MATRIX_EVAL}"
 
 script:
-  - ./build.sh
+  - sudo ./build.sh
