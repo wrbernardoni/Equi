@@ -301,7 +301,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				else if (type == "string")
 				{
 					newObj = new EquiString;
-					((EquiString*)newObj)->setString(0);
+					((EquiString*)newObj)->setString("");
 				}
 				else
 				{
