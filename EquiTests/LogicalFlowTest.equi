@@ -1,0 +1,193 @@
+/*
+	Test program for version 0.0.2 of Equi.
+	Logical flow and logical operators
+*/
+
+int a = -5;
+int b = 5;
+
+int testNum = 0;
+bool fail = false;
+
+print("Beginning logical flow test");
+
+testNum = testNum + 1;
+if (a == a)
+{
+	print ("%i. good - if(a==a) {...}", testNum);
+}
+else
+{
+	print("%i. bad - if(a==a) {...}", testNum);
+	fail = true;
+}
+
+testNum = testNum + 1;
+if (a == a)
+	print ("%i. good - if(a==a) ...;", testNum);
+else
+{
+	print("%i. bad - if(a==a) ...;", testNum);
+	fail = true;
+}
+
+testNum = testNum + 1;
+if (a != a)
+{
+	print ("%i. bad - if(a!=a) {...}", testNum);
+	fail = true;
+}
+else
+{
+	print("%i. good - if(a!=a) {...}", testNum);
+}
+
+testNum = testNum + 1;
+if (a != a)
+{
+	print ("%i. bad - if(a!=a) ...;", testNum);
+	fail = true;
+}
+else
+	print("%i. good - if(a!=a) ...;", testNum);
+
+testNum = testNum + 1;
+if (a == b)
+{
+	print ("%i. bad - if(a==b) {...}", testNum);
+	fail = true;
+}
+else
+{
+	print("%i. good - if(a==b) {...}", testNum);
+}
+
+testNum = testNum + 1;
+if (a == b)
+{
+	print ("%i. bad - if(a=b) ...;", testNum);
+	fail = true;
+}
+else
+	print("%i. good - if(a==b) ...;", testNum);
+
+testNum = testNum + 1;
+if (a != b)
+{
+	print ("%i. good - if(a!=b) {...}", testNum);
+}
+else
+{
+	print("%i. bad - if(a!=b) {...}", testNum);
+	fail = true;
+}
+
+testNum = testNum + 1;
+if (a != b)
+	print ("%i. good - if(a!=b) ...;", testNum);
+else
+{
+	print("%i. bad - if(a!=b) ...;", testNum);
+	fail = true;
+}
+
+b = a;
+print ("Reassigning, b = a");
+
+testNum = testNum + 1;
+if (a == b)
+{
+	print ("%i. good - if(a==b) {...}", testNum);
+}
+else
+{
+	print("%i. bad - if(a==b) {...}", testNum);
+	fail = true;
+}
+
+testNum = testNum + 1;
+if (a == b)
+	print ("%i. good - if(a=b) ...;", testNum);
+else
+{
+	print("%i. bad - if(a==b) ...;", testNum);
+	fail = true;
+}
+
+testNum = testNum + 1;
+if (a != b)
+{
+	print ("%i. bad - if(a!=b) {...}", testNum);
+	fail = true;
+}
+else
+{
+	print("%i. good - if(a!=b) {...}", testNum);
+}
+
+testNum = testNum + 1;
+if (a != b)
+{
+	print ("%i. bad - if(a!=b) ...;", testNum);
+	fail = true;
+}
+else
+	print("%i. good - if(a!=b) ...;", testNum);
+
+print ("Fact: a < b < c");
+a = 0;
+b = 1; 
+int c = 2;
+
+testNum = testNum + 1;
+if (c > a)
+{
+	if (c > b)
+	{
+		print("%i. Good! c max", testNum);
+	}
+	else
+	{
+		print("%i. Bad! b max", testNum);
+		fail = true;
+	}
+}
+else if (b > a)
+{
+	print("%i. Bad! b max", testNum);
+	fail = true;
+}
+else
+{
+	print("%i. Bad! a max", testNum);
+	fail = true;
+}
+
+testNum = testNum + 1;
+if (c < a)
+{
+	if (c < b)
+	{
+		print("%i. Bad! c min", testNum);
+		fail = true;
+	}
+	else
+	{
+		print("%i. Bad! b min", testNum);
+		fail = true;
+	}
+}
+else if (b > a)
+	print("%i. Good! a min", testNum);
+else
+{
+	print("%i. Bad! b min", testNum);
+	fail = true;
+}
+
+print("%i tests ran.", testNum);
+
+if (fail)
+{
+	throw("Failed tests");
+}

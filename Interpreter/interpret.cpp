@@ -60,6 +60,11 @@ int interpret(string fn)
     catch (string m)
     {
       cerr << "Error on line: " << lineNum << ": " << m << endl;
+
+      if (!failsafe)
+      {
+        return 1;
+      }
     }
 
     core.resetScope();

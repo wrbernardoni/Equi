@@ -4,6 +4,8 @@
 #define P_VERB(a,b) if(verbose >= b) cout << a;
 
 extern int verbose;
+extern bool failsafe;
+
 #define TOKEN_PRINT_VERB 1
 #define ALL_STEP_VERB 2
 #define TOKEN_LIST_VERB 100

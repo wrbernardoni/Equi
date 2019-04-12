@@ -8,6 +8,7 @@
 using namespace std;
 
 int verbose;
+bool failsafe;
 
 struct cmdline
 {
@@ -17,6 +18,17 @@ struct cmdline
 cmdline argHandler(int argc, char* argv[])
 {
 	cmdline opts;
+	failsafe = false;
+
+	if (argc >= 2)
+	{
+		opts.file = argv[1];
+	}
+
+	if (opts.file == "--")
+	{
+		failsafe = true;
+	}
 
 	for (int i = 2; i < argc; i++)
 	{
@@ -33,11 +45,10 @@ cmdline argHandler(int argc, char* argv[])
 				cerr << "Missing verbosity level.\n";
 			}
 		}
-	}
-
-	if (argc >= 2)
-	{
-		opts.file = argv[1];
+		else if (arg == "-FS" || arg == "--failsafe")
+		{
+			failsafe = true;
+		}
 	}
 
 	P_VERB("Arguments: " << endl, ALL_STEP_VERB);
@@ -62,10 +73,10 @@ int main(int argc, char* argv[])
 
 	int error = interpret(opts.file);
 	if (error != 0)
-        {
-          cerr << "Terminating with error code: " << error << endl;
-          return 1;
-        }
+    {
+      cerr << "Terminating with error code: " << error << endl;
+      return 1;
+    }
 	return 0;
 }
 

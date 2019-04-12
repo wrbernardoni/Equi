@@ -4,6 +4,79 @@
 
 using namespace std;
 
+class cnsl_std_EquiThrow : public EquiFunction
+{
+public:
+	EQUI_FN(cnsl_std_EquiThrow)
+
+	virtual EquiObject* operator() (EquiObject* in)
+	{
+		if (in->getType() != E_TUPLE_TYPE)
+			throwError(in->to_string());
+		else
+		{
+			EquiTuple* tup = (EquiTuple*) in;
+			vector<EquiObject*> toPrint = tup->getTuple();
+			if ((toPrint.size() > 1) && (toPrint[0]->getType() == E_STRING_TYPE))
+			{
+				EquiString* str = (EquiString*)toPrint[0];
+				string s = str->getString();
+				vector<size_t> insert;
+				size_t found = -1;
+				do
+				{
+					found = s.find("%i", found + 1);
+					if (found != string::npos && !(found != 0 && s[found - 1] == '\\'))
+					{
+						insert.push_back(found);
+					}
+				}while (found != string::npos);
+
+				if (insert.size() != 0)
+				{
+					string build = "";
+					for (int i = 0; i < insert.size(); i++)
+					{
+						if (i == 0)
+						{
+							build += s.substr(0, insert[i]);
+							if (i < toPrint.size() - 1)
+								build += toPrint[i + 1]->to_string();
+							else
+								build += "()";
+						}
+						else
+						{
+							build += s.substr(insert[i - 1] + 2, (insert[i] - insert[i-1]) - 2);
+							if (i < toPrint.size() - 1)
+								build += toPrint[i + 1]->to_string();
+							else
+								build += "()";
+						}
+					}
+
+					build += s.substr(insert[insert.size() - 1] + 2);
+
+					throwError(build);
+				}
+				else
+				{
+					throwError(in->to_string());
+				}
+			}
+			else
+			{
+				throwError(in->to_string());
+			}
+		}
+
+		EquiVoid* n = new EquiVoid;
+		return n;
+	}
+private:
+
+};
+
 class cnsl_std_EquiPrint : public EquiFunction
 {
 public:
@@ -121,6 +194,9 @@ void loadConsoleStd(map<string, EquiObject*>* tok)
 {
 	cnsl_std_EquiPrint* print = new cnsl_std_EquiPrint;
 	(*tok)["print"] = print;
+
+	cnsl_std_EquiThrow* thrw = new cnsl_std_EquiThrow;
+	(*tok)["throw"] = thrw;
 
 	cnsl_std_EquiGetPrimitive<int>* getint = new cnsl_std_EquiGetPrimitive<int>;
 	(*tok)["getint"] = getint;
