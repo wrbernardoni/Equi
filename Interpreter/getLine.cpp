@@ -16,6 +16,8 @@ vector<string> getLine(istream* in, int& lineNum)
   int scope = 0;
   int paren = 0;
   bool oneMore = false;
+  bool bs = false;
+  bool bsResolv = true;
 
   do
   {
@@ -111,7 +113,54 @@ vector<string> getLine(istream* in, int& lineNum)
         potentialComment = false;
       }
 
-      if (iswspace(ln[i]) && !instring)
+      if (bs)
+      {
+        bsResolv = false;
+        if (instring && ln[i] == '\\')
+        {
+          word = word + "\\";
+        }
+        else if (instring && ln[i] == '\"')
+        {
+          word = word + "\"";
+        }
+        else if (ln[i] == 'n')
+        {
+          word = word + "\n";
+        }
+        else if (ln[i] == 't')
+        {
+          word = word + "\t";
+        }
+        else if (ln[i] == 'r')
+        {
+          word = word + "\r";
+        }
+        else if (ln[i] == 'a')
+        {
+          word = word + "\a";
+        }
+        else
+        {
+          word = word + "\\";
+          bsResolv = true;
+        }
+        bs = false;
+      }
+      else
+      {
+        bsResolv = true;
+        if (ln[i] == '\\')
+        {
+          bs = true;
+          bsResolv = false;
+        }
+      }
+
+      if (!bsResolv)
+      {
+      }
+      else if (iswspace(ln[i]) && !instring)
       {
         if (word != "")
         {
