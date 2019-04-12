@@ -108,6 +108,24 @@ Above we declare a function and a task, the task taking a function as an input (
 
 Note here the use of the generic type -- what this is basically is saying that at this scope we don't know the type of a variable, but we know we need to pass it along. If we cast a generic to something that it truly isn't, then we will get an error.
 
+### Explicit Concurrency Control
+In it's base form Equi is free to freeze a low priority task in order to complete a high priority task. In some applications it may be necessary to reach a certain point before a task may yield. To allow greater control over the concurrency of tasks on a single worker, you can enable an explicit yield block like so:  
+```
+task sampleT: () -> () ::
+{
+	//Do things
+	#explicitYield
+	// Will not yield without a yield command here.
+	...
+	yield();
+	// Given the yield() command the worker checks for higher priority tasks and yields to them.
+	...
+	#implicitYield
+	
+	// May yield at any point here
+}
+```
+
 ## Special Functions
 *array(collection)* -- takes a collection and formats it as an array  
 *sort(array, function)* -- takes an array and a function (formatted like a C style comparator) and sorts the array using the function, it returns the sorted array.  
