@@ -69,9 +69,17 @@ matrix:
       env:
         - MATRIX_EVAL="brew install gcc && CC=gcc-7 && CXX=g++-7"
 
+env:
+   - EQUI=
+
 before_install:
+    - mkdir Interpreter/build
     - eval "${MATRIX_EVAL}"
     - chmod +x build.sh
 
-script:
+install:
   - ./build.sh
+
+script:
+  - ./Interpreter/build/Equi ./TestEqui/FizzBuzz.equi 
+  
