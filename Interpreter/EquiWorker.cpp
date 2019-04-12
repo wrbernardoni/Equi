@@ -42,7 +42,7 @@ EquiWorker::~EquiWorker()
 
 EquiObject* EquiWorker::getToken(string n)
 {
-	for (int i = 0; i < tokens.size(); i++)
+	for (int i = tokens.size() - 1; i >= 0; i--)
 	{
 		if (tokens[i]->count(n) != 0)
 		{
@@ -67,7 +67,7 @@ bool EquiWorker::isToken(string n)
 
 void EquiWorker::emplaceToken(string n, EquiObject* o)
 {
-	if (isToken(n))
+	if (tokens[tokens.size() - 1]->count(n) != 0)
 		throwError("Token " + n + " already defined");
 
 
@@ -306,11 +306,6 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				else
 				{
 					throwError("Unrecognized type name");
-				}
-
-				if(isToken(tok))
-				{
-					throwError("Reinstantiation of token");
 				}
 
 				emplaceToken(tok, newObj);
