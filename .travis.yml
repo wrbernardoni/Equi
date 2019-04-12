@@ -81,5 +81,6 @@ install:
   - ./build.sh
 
 script:
-  - ./Interpreter/build/Equi ./TestEqui/FizzBuzz.equi 
+  - ./Interpreter/build/Equi ./EquiTest/LogicalFlowTest.equi 
+  - ./Interpreter/build/Equi ./EquiTest/LoopTest.equi 
   
