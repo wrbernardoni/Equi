@@ -28,6 +28,7 @@ Equi 1--helloworld.equi
   * Updated roadmap.
   * Added capability to have '\n' and '\"' in a string.
   * Added capability to redefine tokens in a lower scope.
+  
 **v.0.0.1 -> v.0.0.2**  
   * Added parsing and execution of if, else, and else if code blocks.  
   * Fixed minor error in CFG documentation, multiplicative should have been 1 or 2 arguments, not fixed at 2. In addition fixed minor spelling mistake.  
