@@ -43,7 +43,24 @@ int interpret(string fn)
       cout << endl;
     }
 
-    SyntaxTree* lineTree = lineParse(tokens);
+    SyntaxTree* lineTree = NULL;
+    try
+    {
+      lineTree = lineParse(tokens);
+    }
+    catch (string m)
+    {
+      cerr << "Error on line: " << lineNum << ": " << m << endl;
+
+      if (!failsafe)
+      {
+        return 1;
+      }
+    }
+
+    if (lineTree == NULL)
+      continue;
+
     if (verbose >= SYNTAX_TREE_LIST)
       lineTree->print(0);
 

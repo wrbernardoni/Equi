@@ -56,6 +56,8 @@ bool isToken(string s){
     s != "" && !isNum(s) && !isString(s));
 }
 
+extern void throwError(string s);
+
 #define SAFECHECK(a,b) (b < a.size() ? a[b] : "")
 
 //#define DEB 1
@@ -173,6 +175,8 @@ SyntaxTree* logicalBlock(vector<string> ln, int& state)
         // ERROR expecting )
         delete expr;
         delete log;
+
+        throwError("Expecting ), failed to find");
         return NULL;
       }
     }
@@ -219,6 +223,7 @@ SyntaxTree* logicalBlock(vector<string> ln, int& state)
       }
 
       // ERROR expecting }
+      throwError("Expecting }, failed to find");
     }
   }
   else
@@ -252,6 +257,7 @@ SyntaxTree* logicalBlock(vector<string> ln, int& state)
           DPRINT("No expression after logical block")
           // ERROR expecting expression after logical block
           delete lin;
+          throwError("No expression after logical block");
         }
       }
     }
@@ -308,6 +314,7 @@ SyntaxTree* doWhileLoop(vector<string> ln, int& state)
         DPRINT("Expecting }");
         // ERROR missing end } on do while;
         delete doWhl;
+        throwError("Missing end } on do while");
         return NULL;
       }
       DPRINT("eating }")
@@ -360,6 +367,7 @@ SyntaxTree* doWhileLoop(vector<string> ln, int& state)
         DPRINT("Error, missing ( after while")
         //ERROR missing ( after while
         delete doWhl;
+        throwError("Missing ( after while");
         return NULL;
       }
     }
@@ -368,6 +376,7 @@ SyntaxTree* doWhileLoop(vector<string> ln, int& state)
       DPRINT("Error, expecting while after do");
       //ERROR expecting while after do
       delete doWhl;
+      throwError("Expecting while after do");
       return NULL;
     }
 
@@ -397,6 +406,7 @@ SyntaxTree* whileLoop(vector<string> ln, int& state)
       DPRINT("ERROR missing )")
       // ERROR, missing )
       delete whl;
+      throwError("Missing )");
       return NULL;
     }
 
@@ -420,6 +430,7 @@ SyntaxTree* whileLoop(vector<string> ln, int& state)
         DPRINT("Expecting }");
         // ERROR missing end } on while;
         delete whl;
+        throwError("Missing end }");
         return NULL;
       }
       DPRINT("eating }")
@@ -477,6 +488,7 @@ SyntaxTree* forLoop(vector<string> ln, int& state)
       //ERROR, expecting ;
       DPRINT("ERROR, expecting ;");
       delete whl;
+      throwError("Expecting ; in for loop clauses");
       return NULL;
     }
     state++;
@@ -493,6 +505,7 @@ SyntaxTree* forLoop(vector<string> ln, int& state)
       //ERROR, expecting ;
       DPRINT("ERROR, expecting ;");
       delete whl;
+      throwError("Expecting ; in for loop clauses");
       return NULL;
     }
     state++;
@@ -509,6 +522,7 @@ SyntaxTree* forLoop(vector<string> ln, int& state)
       DPRINT("ERROR missing )")
       // ERROR, missing )
       delete whl;
+      throwError("Missing ) in for loop clause");
       return NULL;
     }
 
@@ -532,6 +546,7 @@ SyntaxTree* forLoop(vector<string> ln, int& state)
         DPRINT("Expecting }");
         // ERROR missing end } on while;
         delete whl;
+        throwError("Missing }");
         return NULL;
       }
       DPRINT("eating }")
@@ -624,6 +639,7 @@ SyntaxTree* commas(vector<string> ln, int& state)
       else
       {
         //ERROR trailing ,
+        throwError("Trailing ,");
       }
     }
 
@@ -669,6 +685,7 @@ SyntaxTree* equality(vector<string> ln, int& state)
       else
       {
         //ERROR trailing == or !=
+        throwError("Trailing == or !=");
       }
     }
 
@@ -725,6 +742,7 @@ SyntaxTree* comparison(vector<string> ln, int& state)
       else
       {
         //ERROR trailing == or !=
+        throwError("Trailing comparison operator");
       }
     }
 
@@ -774,6 +792,7 @@ SyntaxTree* additive(vector<string> ln, int& state)
       else
       {
         //ERROR trailing == or !=
+        throwError("Trailing additive operator");
       }
     }
 
@@ -826,6 +845,7 @@ SyntaxTree* multiplicative(vector<string> ln, int& state)
       else
       {
         //ERROR trailing == or !=
+        throwError("Trailing multiplicative operator");
       }
     }
 
