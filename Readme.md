@@ -1,7 +1,7 @@
  # Equicontinuous
  Equicontinuous (aka Equi, aka EquiParallel -- whichever sticks) will one day be an interpreted parallel programming language.
 
- Equi is currently in **v.0.0.2 -- Chihuahua Violet**
+ Equi is currently in **v.0.0.3 -- Chihuahua Purple**
 
  To run Equi, either set a system path to Equi (preferred), or run the executable in a shell script like so:
 
@@ -19,6 +19,15 @@ Equi 1--helloworld.equi
 
 
 ## Changelog
+**v.0.0.2 -> v.0.0.3**  
+  * Implemented modulus (%) operator for generic types. Now having a defined division, multiplication, and subtraction defines a modulus.
+  * Added for, while, and do...while loops.
+  * Added ++ and -- operators.
+  * Added scoping to memory. Things defined in a block statement will be deleted after the block statement is complete.
+  * Fixed crash on spawning strings.
+  * Updated roadmap.
+  * Added capability to have '\n' and '\"' in a string.
+  * Added capability to redefine tokens in a lower scope.
 **v.0.0.1 -> v.0.0.2**  
   * Added parsing and execution of if, else, and else if code blocks.  
   * Fixed minor error in CFG documentation, multiplicative should have been 1 or 2 arguments, not fixed at 2. In addition fixed minor spelling mistake.  
