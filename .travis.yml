@@ -98,5 +98,5 @@ deploy:
   draft: true
   on:
     repo: wrbernardoni/Equi
-    branch: heads/main-dev
+    branch: main-dev
     condition: $DEP = 1
