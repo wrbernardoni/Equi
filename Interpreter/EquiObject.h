@@ -36,7 +36,9 @@ protected:
 
 public:
 
-	EquiObject(){};
+	EquiObject()
+	{
+	};
 
 	virtual ~EquiObject()
 	{
@@ -192,8 +194,6 @@ public:
 
 	virtual ~EquiArray()
 	{
-		clearMem();
-
 		vector<T*>* nV = formatData();
 		for (int i = 0; i < nV->size(); i++)
 			delete (*nV)[i];
@@ -291,8 +291,6 @@ public:
 	};
 	~EquiString()
 	{
-		clearMem();
-
 		string* s = (string*)data;
 		delete s;
 	};
@@ -411,7 +409,6 @@ public:
 
 	~EquiTuple()
 	{
-		clearMem();
 		purgeData();
 		vector<EquiObject*>* tuple = ((vector<EquiObject*>*) data);	
 		delete tuple;
@@ -627,7 +624,6 @@ public:
 	};
 	~EquiPrimitive()
 	{
-		clearMem();
 		delete ((T*)data);
 	}
 
