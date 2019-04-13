@@ -35,10 +35,10 @@ comparison -> additive ((">" | ">=" | "<=" | "<") additive)?;
 additive -> multiplicative (("+"|"-") additive)?;  
 multiplicative -> unary (("/" | "\*" | "%") multiplicative)?;  
 unary -> ("!" | "-") unary | declaration | function | primary;  
-declaration -> TOKEN ("[" (NUMBER)? "]")? (TOKEN | declaration) | (TOKEN "=")+ expression;  
+declaration -> TOKEN ("[" (NUMBER | TOKEN)? "]")? (TOKEN | declaration) | (TOKEN "=")+ expression;  
 function -> TOKEN "(" expression ")";  
 primary -> special | array | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
-array -> TOKEN "[" NUMBER "]";  
+array -> TOKEN "[" (NUMBER | TOKEN) "]";  
 
 special -> "break" | "continue";  
 
