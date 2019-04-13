@@ -15,7 +15,7 @@ matrix:
     env:
     - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
     - FN=Equi
-    - FNAME=osx-Equi.exe
+    - FNAME=osx-Equi
     - DEP=1
   - os: linux
     addons:
@@ -26,7 +26,7 @@ matrix:
         - g++-4.9
     env:
     - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-    - FN=Equi.exe
+    - FN=Equi
     - FNAME=linux-Equi
     - DEP=0
   - os: linux
@@ -38,7 +38,7 @@ matrix:
         - g++-5
     env:
     - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-    - FN=Equi.exe
+    - FN=Equi
     - FNAME=linux-Equi
     - DEP=0
   - os: linux
@@ -50,7 +50,7 @@ matrix:
         - g++-6
     env:
     - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-    - FN=Equi.exe
+    - FN=Equi
     - FNAME=linux-Equi
     - DEP=0
   - os: linux
@@ -62,7 +62,7 @@ matrix:
         - g++-7
     env:
     - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-    - FN=Equi.exe
+    - FN=Equi
     - FNAME=linux-Equi
     - DEP=1
 before_install:
@@ -89,7 +89,7 @@ after_failure:
 
 before_deploy:
   - mv ./Interpreter/build/$FN ./Interpreter/build/$FNAME
-  - export TRAVIS_TAG = dev
+  - export TRAVIS_TAG=dev
 deploy:
   provider: releases
   api_key:
