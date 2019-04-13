@@ -1,6 +1,6 @@
  # Equicontinuous
- Main: [![Build Status](https://travis-ci.com/wrbernardoni/Equi.svg?token=bRFz62XyihcjsQqousQJ&branch=master)](https://travis-ci.com/wrbernardoni/Equi)  
- Dev: [![Build Status](https://travis-ci.com/wrbernardoni/Equi.svg?token=bRFz62XyihcjsQqousQJ&branch=main-dev)](https://travis-ci.com/wrbernardoni/Equi)  
+ **Main:** [![Build Status](https://travis-ci.com/wrbernardoni/Equi.svg?token=bRFz62XyihcjsQqousQJ&branch=master)](https://travis-ci.com/wrbernardoni/Equi)  
+ **Dev:** [![Build Status](https://travis-ci.com/wrbernardoni/Equi.svg?token=bRFz62XyihcjsQqousQJ&branch=main-dev)](https://travis-ci.com/wrbernardoni/Equi)  
  
  Equicontinuous (aka Equi, aka EquiParallel -- whichever sticks) will one day be an interpreted parallel programming language.
 
