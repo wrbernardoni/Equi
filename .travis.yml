@@ -5,6 +5,14 @@ compiler:
 
 matrix:
   include:
+    - os: osx
+      osx_image: xcode8
+      env:
+        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+
+    - os: windows
+      env:
+        - MATRIX_EVAL="CC=gcc && CXX=g++"
     # works on Precise and Trusty
     - os: linux
       addons:
@@ -48,15 +56,6 @@ matrix:
             - g++-7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-
-    - os: osx
-      osx_image: xcode8
-      env:
-        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-
-    - os: windows
-      env:
-        - MATRIX_EVAL="CC=gcc && CXX=g++"
 
 before_install:
     - mkdir Interpreter/build
