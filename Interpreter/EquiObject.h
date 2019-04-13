@@ -180,7 +180,7 @@ public:
 	virtual EquiObject* operator[](int i)
 	{
 		vector<T*>* nV = formatData();
-		if (i >= nV->size())
+		if (i >= nV->size() || i < 0)
 			throwError("Array index out of bounds");
 
 		return (*nV)[i];
