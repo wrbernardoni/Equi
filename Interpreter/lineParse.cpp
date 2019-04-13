@@ -53,7 +53,7 @@ bool isToken(string s){
     s != "<=" && s != "+" && s != "-" && s != "/" &&
     s != "*" && s != "%" && s != "!" && s != "=" &&
     s != "(" && s != ")" && s != "false" && s != "true" &&
-    s != "{" && s != "}" && s != "[" && s != "]" &&
+    s != "{" && s != "}" && s != "[" && s != "]" && s != "." &&
     s != "" && !isNum(s) && !isString(s));
 }
 
@@ -1032,7 +1032,7 @@ SyntaxTree* funct(vector<string> ln, int& state)
   SyntaxTree* fn = new SyntaxTree(EQ_TR_FUNCTION);
 
   int ps = state;
-  SyntaxTree* pm = primary(ln, ps);
+  SyntaxTree* pm = eq_array(ln, ps);
   if (pm != NULL)
   {
     state = ps;
@@ -1056,7 +1056,7 @@ SyntaxTree* funct(vector<string> ln, int& state)
   }
   else
   {
-    pm = eq_array(ln, state);
+    pm = primary(ln, state);
     fn->addChild(pm);
     DPRINT("Eating operand");
 
@@ -1167,7 +1167,6 @@ SyntaxTree* eq_array(vector<string> ln, int& state)
     return NULL;
   }
 
-
   if (!(SAFECHECK(ln, state) == "]"))
   {
     throwError("Expecting ]");
@@ -1176,6 +1175,7 @@ SyntaxTree* eq_array(vector<string> ln, int& state)
   }
   state++;
   DPRINT("Eating ]")
+
   return ar;
 }
 
