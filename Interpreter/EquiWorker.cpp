@@ -358,6 +358,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					newObj = new EquiString;
 					((EquiString*)newObj)->setString("");
 				}
+				else if (type == "()")
+				{
+					newObj = new EquiTuple;
+				}
 				else
 				{
 					throwError("Unrecognized type name");
@@ -518,6 +522,16 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 						tO = new EquiString;
 						tO->setString("");
 						((EquiArray<EquiString>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "()")
+				{
+					newObj = new EquiArray<EquiTuple>;
+					EquiTuple* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiTuple;
+						((EquiArray<EquiTuple>*)newObj)->append(tO);
 					}
 				}
 				else

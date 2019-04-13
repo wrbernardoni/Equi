@@ -924,11 +924,31 @@ SyntaxTree* declaration(vector<string> ln, int& state)
 { 
   DEBUG("declaration")
   SyntaxTree* dec = new SyntaxTree(EQ_TR_DECLARATION);
-  if (isToken(SAFECHECK(ln, state)))
+  if (isToken(SAFECHECK(ln, state)) || SAFECHECK(ln, state) == "(")
   {
-    DPRINT("Eating token " << SAFECHECK(ln, state))
-    dec->addToken(SAFECHECK(ln, state));
-    state++;
+    if (isToken(SAFECHECK(ln, state)))
+    {
+      DPRINT("Eating token " << SAFECHECK(ln, state))
+      dec->addToken(SAFECHECK(ln, state));
+      state++;
+    }
+    else
+    {
+      DPRINT("Eating (");
+      state++;
+
+      if (SAFECHECK(ln, state) == ")")
+      {
+        state++;
+        dec->addToken("()");
+      }
+      else
+      {
+        delete dec;
+        return NULL;
+      }
+    }
+
     if (SAFECHECK(ln, state) == "[")
     {
       DPRINT("Eating [")
