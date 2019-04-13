@@ -44,8 +44,6 @@ matrix:
     - FN=Equi
     - FNAME=linux-Equi
     - DEP=0
-    on:
-    - tags: false
 
   - os: linux
     addons:
@@ -59,8 +57,6 @@ matrix:
     - FN=Equi
     - FNAME=linux-Equi
     - DEP=0
-    on:
-    - tags: false
     
   - os: linux
     addons:
@@ -74,9 +70,6 @@ matrix:
     - FN=Equi
     - FNAME=linux-Equi
     - DEP=0
-    on:
-    - tags: false
-    
 before_install:
 - mkdir Interpreter/build
 - eval "${MATRIX_EVAL}"
