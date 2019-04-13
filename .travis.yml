@@ -69,6 +69,7 @@ install:
 script:
   - ./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi 
   - ./Interpreter/build/Equi ./EquiTests/LoopTest.equi 
+  - ./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi 
 
 after_success:
   - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
