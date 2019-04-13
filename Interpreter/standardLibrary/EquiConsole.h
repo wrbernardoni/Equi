@@ -1,4 +1,4 @@
-#include "../EquiObject.h"
+#include "EquiObject.h"
 #include <map>
 #include <iostream>
 

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "standardLibrary/EquiConsole.h"
+#include "EquiConsole.h"
 
 extern void throwError(string s)
 {
