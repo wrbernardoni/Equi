@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
+#include <map>
 
 #define E_GENERIC_TYPE "generic"
 #define E_VOID_TYPE "void"
@@ -12,6 +13,7 @@
 #define E_PRIMITIVE_TYPE "primitive"
 #define E_STRING_TYPE "string"
 #define E_FUNCTION_TYPE "function"
+#define E_ARRAY_TYPE "array"
 
 using namespace std;
 
@@ -20,9 +22,26 @@ extern void throwError(string s);
 
 class EquiObject
 {
+protected:
+	void* data;
+	map<string, EquiObject*> members;
+
+	void clearMem()
+	{
+		for (auto i : members)
+		{
+			delete i.second;
+		}
+	}
+
 public:
-	EquiObject() {};
-	virtual ~EquiObject() {};
+
+	EquiObject(){};
+
+	virtual ~EquiObject()
+	{
+		clearMem();
+	};
 
 	virtual EquiObject* spawnMyType() { return new EquiObject; };
 	virtual EquiObject* clone() { return spawnMyType(); };
@@ -136,9 +155,16 @@ public:
 		return n;
 	}
 
+	virtual EquiObject* operator[](string i)
+	{
+		if (members.count(i) == 0)
+			throwError(getType() + " has no member named " + i);
+
+		return members[i];
+	}
+
 	virtual string to_string() { return "()"; };
-protected:
-	void* data;
+
 };
 
 template <class T>
@@ -150,6 +176,14 @@ private:
 		return (vector<T*>*)data;
 	}
 public:
+
+	virtual inline string getType() { return E_ARRAY_TYPE; };
+	virtual string getDataType() 
+	{ 
+		T t;
+		return t.getType();
+	}
+
 	EquiArray()
 	{
 		vector<T*>* nV = new vector<T*>;
@@ -158,6 +192,8 @@ public:
 
 	virtual ~EquiArray()
 	{
+		clearMem();
+
 		vector<T*>* nV = formatData();
 		for (int i = 0; i < nV->size(); i++)
 			delete (*nV)[i];
@@ -255,6 +291,8 @@ public:
 	};
 	~EquiString()
 	{
+		clearMem();
+
 		string* s = (string*)data;
 		delete s;
 	};
@@ -373,6 +411,7 @@ public:
 
 	~EquiTuple()
 	{
+		clearMem();
 		purgeData();
 		vector<EquiObject*>* tuple = ((vector<EquiObject*>*) data);	
 		delete tuple;
@@ -492,6 +531,15 @@ public:
 		return v;
 	};
 
+	virtual EquiObject* operator[](int i)
+	{
+		vector<EquiObject*> nV = getTuple();
+		if (i >= nV.size() || i < 0)
+			throwError("Array index out of bounds");
+
+		return nV[i];
+	}
+
 	virtual string to_string() {
 		string s = "{";
 		vector<EquiObject*>* tuple = (vector<EquiObject*>*) data;	
@@ -579,6 +627,7 @@ public:
 	};
 	~EquiPrimitive()
 	{
+		clearMem();
 		delete ((T*)data);
 	}
 

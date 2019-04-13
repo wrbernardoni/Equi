@@ -253,34 +253,22 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_ARRAY)
 	{
-		if (childOut.size() > 0 || (code->getTokens().size() != 2))
+		if (childOut.size() != 2)
 			throwError("Invalid number of operators on array index reference");
 
-		string tok = code->getTokens()[0];
-		int index = 0;
+		string ts = childOut[1]->to_string();
+		EquiObject* arr = childOut[0];
 
-		if (!isNum(code->getTokens()[1]))
+		if (!isNum(ts))
 		{
-			string ind = code->getTokens()[1];
-			if (!isToken(ind))
-			{
-				throwError("Undefined token " + ind);
-			}
 
-			EquiObject* o = getToken(ind);
-			string oS = o->to_string();
-			if (!isNum(oS))
-			{
-				throwError("Must index by a numeric");
-			}
-
-			index = stoi(oS);
+			out = (*arr)[ts]->clone();
 		}
 		else
-			index = stoi(code->getTokens()[1]);
+			out = (*arr)[stoi(ts)]->clone();
 
-		EquiObject* arr = getToken(tok);
-		out = (*arr)[index]->clone();
+		
+		
 	}
 	else if (code->getType() == EQ_TR_DECLARATION)
 	{

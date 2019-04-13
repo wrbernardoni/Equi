@@ -908,11 +908,21 @@ SyntaxTree* unary(vector<string> ln, int& state)
       else
       {
         ps = state;
-        SyntaxTree* prim = primary(ln, ps);
+        SyntaxTree* prim = eq_array(ln, ps);
         if (prim != NULL)
         {
           state = ps;
           return prim;
+        }
+        else
+        {
+          ps = state;
+          prim = primary(ln, ps);
+          if (prim != NULL)
+          {
+            state = ps;
+            return prim;
+          }
         }
       }
     }
@@ -1021,9 +1031,32 @@ SyntaxTree* funct(vector<string> ln, int& state)
   DEBUG("funct")
   SyntaxTree* fn = new SyntaxTree(EQ_TR_FUNCTION);
 
-  SyntaxTree* pm = primary(ln, state);
+  int ps = state;
+  SyntaxTree* pm = primary(ln, ps);
   if (pm != NULL)
   {
+    state = ps;
+    fn->addChild(pm);
+    DPRINT("Eating operand");
+
+    if (SAFECHECK(ln,state) == "(")
+    {
+      state++;
+      DPRINT("Eating (")
+      SyntaxTree* exp = expression(ln, state);
+      if (SAFECHECK(ln,state) == ")")
+      {
+        state++;
+        DPRINT("Eating )");
+        if (exp != NULL)
+          fn->addChild(exp);
+        return fn;
+      }
+    }
+  }
+  else
+  {
+    pm = eq_array(ln, state);
     fn->addChild(pm);
     DPRINT("Eating operand");
 
@@ -1058,12 +1091,6 @@ SyntaxTree* primary(vector<string> ln, int& state)
   }
 
   ps = state;
-  spec = eq_array(ln, ps);
-  if (spec != NULL)
-  {
-    state = ps;
-    return spec;
-  }
 
   if (isNum(SAFECHECK(ln,state)) || isString(SAFECHECK(ln,state)) || SAFECHECK(ln,state) == "true" || SAFECHECK(ln,state) == "false" || SAFECHECK(ln,state) == "null")
   {
@@ -1105,18 +1132,19 @@ SyntaxTree* eq_array(vector<string> ln, int& state)
 {
   DEBUG("array");
 
-  if(!isToken(SAFECHECK(ln, state)))
-  {
-    return NULL;
-  }
-
-  string s = SAFECHECK(ln, state);
-  state++;
-  DPRINT("Eating token" << s)
-
   SyntaxTree* ar = new SyntaxTree(EQ_TR_ARRAY);
 
-  ar->addToken(s);
+  SyntaxTree* tok = primary(ln, state);
+
+  if (tok != NULL)
+  {
+    ar->addChild(tok);
+  }
+  else
+  {
+    delete ar;
+    return NULL;
+  }
 
   if (!(SAFECHECK(ln, state) == "["))
   {
@@ -1127,16 +1155,17 @@ SyntaxTree* eq_array(vector<string> ln, int& state)
   state++;
   DPRINT("Eating [")
 
-  if (!isNum(SAFECHECK(ln,state)) && !isToken(SAFECHECK(ln,state)))
+  SyntaxTree* child = primary(ln,state);
+
+  if (child != NULL)
+  {
+    ar->addChild(child);
+  }
+  else
   {
     delete ar;
     return NULL;
   }
-
-  ar->addToken(ln[state]);
-  DPRINT("Eating num " << ln[state]);
-
-  state++;
 
 
   if (!(SAFECHECK(ln, state) == "]"))

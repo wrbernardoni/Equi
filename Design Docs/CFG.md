@@ -34,11 +34,12 @@ equality -> comparison (("!=" | "==") comparison)?;
 comparison -> additive ((">" | ">=" | "<=" | "<") additive)?;  
 additive -> multiplicative (("+"|"-") additive)?;  
 multiplicative -> unary (("/" | "\*" | "%") multiplicative)?;  
-unary -> ("!" | "-") unary | declaration | function | primary;  
+unary -> ("!" | "-") unary | declaration | function | primary | array;  
 declaration -> (TOKEN | "("")") ("[" (NUMBER | TOKEN)? "]")? (TOKEN | declaration) | (TOKEN "=")+ expression;  
-function -> primary "(" expression ")";  
+function -> (primary | array) "(" expression ")";  
 primary -> special | array | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
-array -> TOKEN "[" (NUMBER | TOKEN) "]";  
+
+array -> primary "[" primary "]";  
 
 special -> "break" | "continue";  
 
