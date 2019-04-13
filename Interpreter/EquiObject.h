@@ -129,9 +129,74 @@ public:
 		return --(*this);
 	}
 
+	virtual EquiObject* operator[](int)
+	{
+		throwError("Cannot index " + getType() + " as an array");
+		EquiObject* n = new EquiObject;
+		return n;
+	}
+
 	virtual string to_string() { return "()"; };
 protected:
 	void* data;
+};
+
+template <class T>
+class EquiArray : public EquiObject
+{
+private:
+	vector<T*>* formatData()
+	{
+		return (vector<T*>*)data;
+	}
+public:
+	EquiArray()
+	{
+		vector<T*>* nV = new vector<T*>;
+		data = (void*)nV;
+	}
+
+	virtual ~EquiArray()
+	{
+		vector<T*>* nV = formatData();
+		for (int i = 0; i < nV->size(); i++)
+			delete (*nV)[i];
+
+		delete nV;
+	}
+
+	vector<T*> getArray()
+	{
+		vector<T*>* nV = formatData();
+		return *nV;
+	}
+
+	void append(T* nT)
+	{
+		vector<T*>* nV = formatData();
+		nV->push_back(nT);
+	}
+
+	virtual EquiObject* operator[](int i)
+	{
+		vector<T*>* nV = formatData();
+		if (i >= nV->size())
+			throwError("Array index out of bounds");
+
+		return (*nV)[i];
+	}
+
+	virtual EquiObject* spawnMyType() { return new EquiArray<T>; };
+
+	virtual EquiObject* clone()
+	{ 
+		EquiArray<T>* newAr = new EquiArray<T>;
+		vector<T*>* nV = formatData();
+		for (int i = 0; i < nV->size(); i++)
+			newAr->append((T*)((*nV)[i])->clone());
+
+		return newAr;
+	};
 };
 
 #define EQUI_FN(a) virtual string getDataType() { return #a; }; \
