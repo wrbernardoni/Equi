@@ -13,6 +13,29 @@ extern bool isNum(string s);
 
 extern bool isString(string s);
 
+bool tokQ(string s)
+{
+  return (s != "," && s != ";" && s != "!=" &&
+    s != "==" && s != ">" && s != "<" && s != ">=" &&
+    s != "<=" && s != "+" && s != "-" && s != "/" &&
+    s != "*" && s != "%" && s != "!" && s != "=" &&
+    s != "(" && s != ")" && s != "false" && s != "true" &&
+    s != "{" && s != "}" && s != "[" && s != "]" &&
+    s != "" && !isNum(s) && !isString(s));
+}
+
+bool tokenFormat(string si){
+	for (int i = 0; i < si.size(); i++)
+	{
+		string s = si.substr(i, 1);
+		if (!tokQ(s))
+		{
+			return false;
+		}
+	}
+  return true;
+}
+
 EquiWorker::EquiWorker()
 {
 	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
@@ -49,7 +72,7 @@ EquiObject* EquiWorker::getToken(string n)
 			return (*tokens[i])[n];
 		}
 	}
-	throwError("Token not found");
+	throwError("Token " + n + " not found");
 	return NULL;
 }
 
@@ -228,13 +251,45 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			out = r;
 		}
 	}
+	else if (code->getType() == EQ_TR_ARRAY)
+	{
+		if (childOut.size() > 0 || (code->getTokens().size() != 2))
+			throwError("Invalid number of operators on array index reference");
+
+		string tok = code->getTokens()[0];
+		int index = 0;
+
+		if (!isNum(code->getTokens()[1]))
+		{
+			string ind = code->getTokens()[1];
+			if (!isToken(ind))
+			{
+				throwError("Undefined token " + ind);
+			}
+
+			EquiObject* o = getToken(ind);
+			string oS = o->to_string();
+			if (!isNum(oS))
+			{
+				throwError("Must index by a numeric");
+			}
+
+			index = stoi(oS);
+		}
+		else
+			index = stoi(code->getTokens()[1]);
+
+		EquiObject* arr = getToken(tok);
+		out = (*arr)[index]->clone();
+	}
 	else if (code->getType() == EQ_TR_DECLARATION)
 	{
-		if (childOut.size() > 1 || (code->getTokens().size() != 1 && code->getTokens().size() != 2))
+		if (childOut.size() > 1 || (code->getTokens().size() > 3))
 			throwError("Invalid number of arguments on unary operation");
 
 		string tok = code->getTokens()[0];
-		if (code->getTokens().size() == 2)
+		EquiObject* obj = NULL;
+		if (code->getTokens().size() == 2 && (tokenFormat(code->getTokens()[1]) || code->getTokens()[1] == "++" || code->getTokens()[1] == "--"))
 		{
 			string type = code->getTokens()[0];
 			tok = code->getTokens()[1];
@@ -258,7 +313,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				
 				if (!isToken(tok))
 				{
-					throwError("Undefined token");
+					throwError("Undefined token " + tok);
 				}
 
 				if (childOut.size() != 0)
@@ -311,16 +366,185 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				emplaceToken(tok, newObj);
 			}
 		}
-		
-		if (!isToken(tok))
+		else if (code->getTokens().size() == 2)
 		{
-			throwError("Undefined token");
+			if (!isToken(tok))
+			{
+				throwError("Undefined token " + tok);
+			}
+
+			int index = 0;
+			if (isNum(code->getTokens()[1]))
+				index = stoi(code->getTokens()[1]);
+			else
+			{
+				string ind = code->getTokens()[1].substr(1, code->getTokens()[1].size() - 2);
+				if (!isToken(ind))
+				{
+					throwError("Undefined token " + ind);
+				}
+
+				EquiObject* o = getToken(ind);
+				string oS = o->to_string();
+				if (!isNum(oS))
+				{
+					throwError("Must index by a numeric");
+				}
+
+				index = stoi(oS);
+			}
+
+			obj = (*getToken(tok))[index];
+		}
+		else if (code->getTokens().size() == 3)
+		{
+			string type = code->getTokens()[0];
+
+			int index = 0;
+
+			if (isNum(code->getTokens()[1]))
+			{
+				index = stoi(code->getTokens()[1]);
+			}
+			else
+			{
+				string ind = code->getTokens()[1].substr(1, code->getTokens()[1].size() - 2);
+				if (!isToken(ind))
+				{
+					throwError("Undefined token " + ind);
+				}
+
+				EquiObject* o = getToken(ind);
+				string oS = o->to_string();
+				if (!isNum(oS))
+				{
+					throwError("Must index by a numeric");
+				}
+
+				index = stoi(oS);
+			}
+
+
+			tok = code->getTokens()[2];
+
+			if (tok == "++" || tok == "--")
+			{
+				//a[32]++
+				if (!isToken(type))
+				{
+					throwError("Undefined token " + type);
+				}
+
+				if (childOut.size() != 0)
+				{
+					throwError("Cannot assign to an increment");
+				}
+
+				obj = (*getToken(type))[index];
+
+				if (tok == "++")
+					++(*obj);
+				else
+					--(*obj);
+			}
+			else
+			{
+				//int[32] a;
+				EquiObject* newObj = NULL;
+				if (type == "int")
+				{
+					newObj = new EquiArray<EquiPrimitive<int>>;
+					EquiPrimitive<int>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<int>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<int>>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "long")
+				{
+					newObj = new EquiArray<EquiPrimitive<long>>;
+					EquiPrimitive<long>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<long>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "double")
+				{
+					newObj = new EquiArray<EquiPrimitive<long>>;
+					EquiPrimitive<long>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<long>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+					}
+
+					newObj = new EquiPrimitive<double>;
+					((EquiPrimitive<double>*)newObj)->setData(0);
+				}
+				else if (type == "float")
+				{
+					newObj = new EquiArray<EquiPrimitive<float>>;
+					EquiPrimitive<float>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<float>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<float>>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "bool")
+				{
+					newObj = new EquiArray<EquiPrimitive<bool>>;
+					EquiPrimitive<bool>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<bool>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<bool>>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "string")
+				{
+					newObj = new EquiArray<EquiString>;
+					EquiString* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiString;
+						tO->setString("");
+						((EquiArray<EquiString>*)newObj)->append(tO);
+					}
+				}
+				else
+				{
+					throwError("Unrecognized type name");
+				}
+
+				emplaceToken(tok, newObj);
+
+				obj = newObj;
+			}
+		}
+		
+		if (obj == NULL)
+		{
+			if (!isToken(tok))
+			{
+				throwError("Undefined token " + tok);
+			}
+
+			obj = getToken(tok);
 		}
 
 		if (childOut.size() == 1)
-			out = (*getToken(tok) = *(childOut[0])).clone();
+			out = (*obj = *(childOut[0])).clone();
 		else
-			out = (getToken(tok)->clone());
+			out = (obj->clone());
 	}
 	else if (code->getType() == EQ_TR_CONST)
 	{
