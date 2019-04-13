@@ -1020,11 +1020,13 @@ SyntaxTree* funct(vector<string> ln, int& state)
 {
   DEBUG("funct")
   SyntaxTree* fn = new SyntaxTree(EQ_TR_FUNCTION);
-  if (isToken(SAFECHECK(ln,state)))
+
+  SyntaxTree* pm = primary(ln, state);
+  if (pm != NULL)
   {
-    fn->addToken(ln[state]);
-    state++;
-    DPRINT("Eating token");
+    fn->addChild(pm);
+    DPRINT("Eating operand");
+
     if (SAFECHECK(ln,state) == "(")
     {
       state++;

@@ -611,34 +611,16 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{
-		if (childOut.size() > 1 || code->getTokens().size() != 1 )
+		if (childOut.size() == 0 || childOut.size() > 2)
 			throwError("Invalid number of arguments for functions");
-		string tok = code->getTokens()[0];
 
-		EquiObject* in = NULL;
-		if (childOut.size() == 0)
-			in = new EquiVoid;
-		else
-			in = childOut[0];
-
-		if (!isToken(tok))
+		if (childOut.size()  == 1)
 		{
-			if (childOut.size()  == 0)
-			{
-				EquiVoid* v = (EquiVoid*) in;
-				delete v;
-			}
+			EquiVoid* v = new EquiVoid;
+			childOut.push_back(v);
+		}	
 
-			throwError("No function of the name " + tok);
-		}		
-
-		out = (*getToken(tok))(in);
-
-		if (childOut.size()  == 0)
-		{
-			EquiVoid* v = (EquiVoid*) in;
-			delete v;
-		}
+		out = (*childOut[0])(childOut[1]);
 	}
 	else if (code->getType() == EQ_TR_SPECIAL)
 	{
