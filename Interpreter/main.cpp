@@ -49,6 +49,10 @@ cmdline argHandler(int argc, char* argv[])
 		{
 			failsafe = true;
 		}
+		else if (arg == "-NFS" || arg == "--notfailsafe")
+		{
+			failsafe = false;
+		}
 	}
 
 	P_VERB("Arguments: " << endl, ALL_STEP_VERB);
