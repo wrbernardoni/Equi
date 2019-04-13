@@ -197,6 +197,20 @@ public:
 
 		return newAr;
 	};
+
+	virtual string to_string()
+	{ 
+		string s = "[";
+		vector<T*>* nV = formatData();	
+		for (int i = 0; i < nV->size(); i++)
+		{
+			s += (*nV)[i]->to_string();
+			if (i != nV->size() - 1)
+				s += ", ";
+		}
+		s += "]";
+		return s;
+	};
 };
 
 #define EQUI_FN(a) virtual string getDataType() { return #a; }; \
