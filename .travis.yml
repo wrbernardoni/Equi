@@ -10,6 +10,7 @@ matrix:
     - FN=Equi.exe
     - FNAME=64b-Win-Equi.exe
     - DEP=1
+
   - os: osx
     osx_image: xcode8
     env:
@@ -17,42 +18,7 @@ matrix:
     - FN=Equi
     - FNAME=osx-Equi
     - DEP=1
-  - os: linux
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - g++-4.9
-    env:
-    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-    - FN=Equi
-    - FNAME=linux-Equi
-    - DEP=0
-  - os: linux
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - g++-5
-    env:
-    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-    - FN=Equi
-    - FNAME=linux-Equi
-    - DEP=0
-  - os: linux
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - g++-6
-    env:
-    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-    - FN=Equi
-    - FNAME=linux-Equi
-    - DEP=0
+
   - os: linux
     addons:
       apt:
@@ -65,6 +31,45 @@ matrix:
     - FN=Equi
     - FNAME=linux-Equi
     - DEP=1
+
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-4.9
+    env:
+    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+    - FN=Equi
+    - FNAME=linux-Equi
+    - DEP=0
+
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-5
+    env:
+    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+    - FN=Equi
+    - FNAME=linux-Equi
+    - DEP=0
+    
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-6
+    env:
+    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+    - FN=Equi
+    - FNAME=linux-Equi
+    - DEP=0
 before_install:
 - mkdir Interpreter/build
 - eval "${MATRIX_EVAL}"
