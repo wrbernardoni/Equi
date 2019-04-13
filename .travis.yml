@@ -89,7 +89,6 @@ after_failure:
 
 before_deploy:
   - mv ./Interpreter/build/$FN ./Interpreter/build/$FNAME
-  - export TRAVIS_TAG=dev
 deploy:
   provider: releases
   api_key:
@@ -99,5 +98,5 @@ deploy:
   overwrite: true
   on:
     repo: wrbernardoni/Equi
-    branch: main-dev
     condition: $DEP = 1
+    tags: true
