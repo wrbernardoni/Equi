@@ -37,7 +37,7 @@ multiplicative -> unary (("/" | "\*" | "%") multiplicative)?;
 unary -> ("!" | "-") unary | declaration | function | primary | array;  
 declaration -> (TOKEN | "("")") ("[" (NUMBER | TOKEN)? "]")? (TOKEN | declaration) | (TOKEN "=")+ expression;  
 function -> (primary | array) "(" expression ")";  
-primary -> special | array | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
+primary -> special | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
 
 array -> primary "[" primary "]";  
 
