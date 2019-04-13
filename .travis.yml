@@ -54,13 +54,12 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
 
-env:
-   - EQUI=
-
 before_install:
     - mkdir Interpreter/build
     - eval "${MATRIX_EVAL}"
     - chmod +x build.sh
+    - chmod +x startTest.sh
+    - ./startTest.sh $WEBHOOK_URL
 
 install:
   - ./build.sh
@@ -77,5 +76,4 @@ after_failure:
   - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
   - chmod +x send.sh
   - ./send.sh failure $WEBHOOK_URL
-  
   
