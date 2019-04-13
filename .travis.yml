@@ -95,6 +95,7 @@ deploy:
     secure: Zi7RUONCB7bGAFHev5hikactNGSgknJYQathqct+6s0MLGddyn1JkIXCJEyo17Yq+BWkss6AxUgZGT64WtTqWLQ75BESoE5V4dqzJQIckRdYQn5pfjixdiFE8YsKw7oryoz2CtrnAz7uBmYD8FMGh21oImM6L35XoFwt+r1q/zECdWYDcZWyFeOePKGjP5atGzRhh3I+Azc2KZV9pQ/A7F/q5qDEkWDLpxilLqZ6O7nFdqkq5+qWINMAdkR8uPv1s7XVFOhqKQwMDUMh3nKejudDnNnkDw0xEfcQEOG5FXIbU0u9/d0emtZO6kv8/WX6T/eE/srYCNnmWVzxk0JkWgbKyU3JQOue3VNeHttm64bjtUAC2dQ68QUs1+MZfM639UJhYb1ByWgAKsqNr/cZx8F8hq1t1Da2LwGGR7qrN7OaZFjd0yrfGfKiMhCJbKiYkh8HRvSUFbLneTu8xVbCbvaFgFCbO0gAQmBogpa0LiaYiLrkPukUSELVUg+3ZYgVG6AitezVn5BCWo/r8++AyFztR7GA/6LMVEs04nI01S4yZeImHU2570ShkgRYgkrta4/W5+8nqUJlxmYna4PulLLbTwyXnaZRGeuZ/K8mUWViFfPMGoIpcG+f3cN7/GgSZUVXYnJdoT/J1Cl1uGD1WQIWorn0sUUJmO8o1ieRcWc=
   file: "./Interpreter/build/$FNAME"
   skip_cleanup: true
+  draft: true
   on:
     repo: wrbernardoni/Equi
     branch: heads/main-dev
