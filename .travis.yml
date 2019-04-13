@@ -54,6 +54,12 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
 
+    - os: windows
+      before_install:
+        - choco install mingw
+      env:
+        - MATRIX_EVAL="CC=gcc && CXX=g++"
+
 before_install:
     - mkdir Interpreter/build
     - eval "${MATRIX_EVAL}"
