@@ -58,8 +58,6 @@ before_install:
     - mkdir Interpreter/build
     - eval "${MATRIX_EVAL}"
     - chmod +x build.sh
-    - chmod +x startTest.sh
-    - ./startTest.sh $WEBHOOK_URL
 
 install:
   - ./build.sh
