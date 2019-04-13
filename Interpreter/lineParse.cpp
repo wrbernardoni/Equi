@@ -26,7 +26,7 @@ SyntaxTree* unary(vector<string>, int&);
 SyntaxTree* declaration(vector<string>, int&);
 SyntaxTree* funct(vector<string>, int&);
 SyntaxTree* primary(vector<string>, int&);
-SyntaxTree* array(vector<string>, int&);
+SyntaxTree* eq_array(vector<string>, int&);
 SyntaxTree* special(vector<string>, int&);
 
 bool isNum(string s)
@@ -1036,7 +1036,7 @@ SyntaxTree* primary(vector<string> ln, int& state)
   }
 
   ps = state;
-  spec = array(ln, ps);
+  spec = eq_array(ln, ps);
   if (spec != NULL)
   {
     state = ps;
@@ -1079,7 +1079,7 @@ SyntaxTree* primary(vector<string> ln, int& state)
   return NULL;
 }
 
-SyntaxTree* array(vector<string> ln, int& state)
+SyntaxTree* eq_array(vector<string> ln, int& state)
 {
   DEBUG("array");
 
