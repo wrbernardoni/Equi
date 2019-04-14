@@ -1158,7 +1158,7 @@ SyntaxTree* eq_array(vector<string> ln, int& state)
         return NULL;
       }
       state++;
-      DPRINT("Earting ]")
+      DPRINT("Eating ]")
     }
   }
 
