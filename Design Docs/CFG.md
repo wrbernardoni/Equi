@@ -39,7 +39,7 @@ declaration -> (TOKEN | "("")") ("[" (NUMBER | TOKEN)? "]")? (TOKEN | declaratio
 function -> (primary | array) "(" expression ")";  
 primary -> special | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
 
-array -> primary "[" primary "]";  
+array -> (primary "[" primary "]")\*;  
 
 special -> "break" | "continue";  
 
