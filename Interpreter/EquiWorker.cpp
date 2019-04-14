@@ -266,9 +266,14 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		}
 		else
 			out = (*arr)[stoi(ts)]->clone();
+	}
+	else if (code->getType() == EQ_TR_MEMACCESS)
+	{
+		if (childOut.size() != 1 || code->getTokens().size() != 1)
+			throwError("Invalid number of operators on memory dereference");
 
-		
-		
+		EquiObject* arr = childOut[0];
+		out = (*arr)[code->getTokens()[0]]->clone();
 	}
 	else if (code->getType() == EQ_TR_DECLARATION)
 	{

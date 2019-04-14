@@ -40,6 +40,7 @@ function -> (primary | array) "(" expression ")";
 primary -> special | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
 
 array -> (primary "[" primary "]")\*;  
+memAccess -> primary ("." TOKEN)+;  
 
 special -> "break" | "continue";  
 
