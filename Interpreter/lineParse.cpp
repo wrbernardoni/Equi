@@ -1133,50 +1133,63 @@ SyntaxTree* eq_array(vector<string> ln, int& state)
   DEBUG("array");
 
   SyntaxTree* ar = new SyntaxTree(EQ_TR_ARRAY);
+  vector<SyntaxTree*> linAr;
 
   SyntaxTree* tok = primary(ln, state);
 
-  if (tok != NULL)
+  while (tok != NULL)
   {
-    ar->addChild(tok);
+    linAr.push_back(tok);
+
+    if (!(SAFECHECK(ln, state) == "["))
+    {
+      tok = NULL;
+    }
+    else
+    {
+      DPRINT("Eating [")
+      state++;
+      tok = primary(ln, state);
+
+      if (!(SAFECHECK(ln, state) == "]"))
+      {
+        throwError("Expecting ]");
+        delete ar;
+        return NULL;
+      }
+      state++;
+      DPRINT("Earting ]")
+    }
   }
-  else
+
+  if (linAr.size() == 0)
   {
-    delete ar;
+    return NULL;
+  }
+  else if (linAr.size() == 1)
+  {
+    delete linAr[0];
     return NULL;
   }
 
-  if (!(SAFECHECK(ln, state) == "["))
+  SyntaxTree* par = NULL;
+  for (int i = 1; i < linAr.size(); i++)
   {
-    delete ar;
-    return NULL;
+    SyntaxTree* ar = new SyntaxTree(EQ_TR_ARRAY);
+    if (par == NULL)
+    {
+      ar->addChild(linAr[0]);
+    }
+    else
+    {
+      ar->addChild(par);
+    }
+
+    ar->addChild(linAr[i]);
+    par = ar;
   }
 
-  state++;
-  DPRINT("Eating [")
-
-  SyntaxTree* child = primary(ln,state);
-
-  if (child != NULL)
-  {
-    ar->addChild(child);
-  }
-  else
-  {
-    delete ar;
-    return NULL;
-  }
-
-  if (!(SAFECHECK(ln, state) == "]"))
-  {
-    throwError("Expecting ]");
-    delete ar;
-    return NULL;
-  }
-  state++;
-  DPRINT("Eating ]")
-
-  return ar;
+  return par;
 }
 
 SyntaxTree* special(vector<string> ln, int& state)
