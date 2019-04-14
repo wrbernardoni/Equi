@@ -30,7 +30,8 @@ protected:
 	{
 		for (auto i : members)
 		{
-			delete i.second;
+			if (i.first != "this")
+				delete i.second;
 		}
 	}
 
@@ -38,6 +39,7 @@ public:
 
 	EquiObject()
 	{
+		members["this"] = this;
 	};
 
 	virtual ~EquiObject()
@@ -163,6 +165,17 @@ public:
 			throwError(getType() + " has no member named " + i);
 
 		return members[i];
+	}
+
+	void setMember(string i, EquiObject* o)
+	{
+		if (members.count(i) == 0)
+			throwError(getType() + " has no member named " + i);
+
+		if (i != "this")
+			delete members[i];
+
+		members[i] = o;
 	}
 
 	virtual string to_string() { return "()"; };
