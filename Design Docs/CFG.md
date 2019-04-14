@@ -44,3 +44,4 @@ memAccess -> (primary | array | function) ("." TOKEN)+;
 
 special -> "break" | "continue";  
 
+Note: primary must alays be called last, and memAccess must be called before array  

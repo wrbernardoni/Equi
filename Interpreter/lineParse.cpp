@@ -62,7 +62,7 @@ extern void throwError(string s);
 
 #define SAFECHECK(a,b) (b < a.size() ? a[b] : "")
 
-//#define DEB 1
+#define DEB 1
 #ifdef DEB
 #define DEBUG(a) cout << "In " << a << " looking at: " << SAFECHECK(ln,state) << endl;
 #define DPRINT(a) cout << a << endl;
@@ -909,7 +909,7 @@ SyntaxTree* unary(vector<string> ln, int& state)
       else
       {
         ps = state;
-        SyntaxTree* prim = eq_array(ln, ps);
+        SyntaxTree* prim = memAccess(ln, ps);
         if (prim != NULL)
         {
           state = ps;
@@ -918,7 +918,7 @@ SyntaxTree* unary(vector<string> ln, int& state)
         else
         {
           ps = state;
-          prim = memAccess(ln, ps);
+          prim = eq_array(ln, ps);
           if (prim != NULL)
           {
             state = ps;
@@ -1041,11 +1041,11 @@ SyntaxTree* funct(vector<string> ln, int& state)
   SyntaxTree* fn = new SyntaxTree(EQ_TR_FUNCTION);
 
   int ps = state;
-  SyntaxTree* pm = eq_array(ln, ps);
+  SyntaxTree* pm = memAccess(ln, ps);
   if (pm == NULL)
   {
     ps = state;
-    pm = memAccess(ln, ps);
+    pm = eq_array(ln, ps);
 
     if (pm == NULL)
     {
@@ -1203,7 +1203,22 @@ SyntaxTree* memAccess(vector<string> ln, int& state)
   SyntaxTree* ar = new SyntaxTree(EQ_TR_ARRAY);
   vector<string> linAr;
 
-  SyntaxTree* tok = primary(ln, state);
+  int ps = state;
+  ps = state;
+  SyntaxTree* tok = eq_array(ln, ps);
+  if (tok == NULL)
+  {
+    ps = state;
+    tok = primary(ln, ps);
+
+    if (tok == NULL)
+    {
+      return NULL;
+    }
+  }
+
+  state = ps;
+  
 
   while (SAFECHECK(ln, state) == ".")
   {
