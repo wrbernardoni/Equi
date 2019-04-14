@@ -23,6 +23,8 @@ for (int i = 0; i < max; i++)
 	}
 }
 
+print("Initializing loop complete");
+
 bool err = false;
 
 for (int i = 0; i < max; i++)
@@ -61,6 +63,7 @@ for (int i = 0; i < max; i++)
 		}
 	}
 }
+print("Test loop complete.");
 
 if (err)
 	throw("Bad");
