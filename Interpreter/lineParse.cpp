@@ -1199,8 +1199,6 @@ SyntaxTree* eq_array(vector<string> ln, int& state)
 SyntaxTree* memAccess(vector<string> ln, int& state)
 {
   DEBUG("memAccess");
-
-  SyntaxTree* ar = new SyntaxTree(EQ_TR_ARRAY);
   vector<string> linAr;
 
   int ps = state;
@@ -1232,7 +1230,7 @@ SyntaxTree* memAccess(vector<string> ln, int& state)
     }
     else
     {
-      delete ar;
+      delete tok;
       throwError("Expecting token after .");
     }
   }

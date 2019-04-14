@@ -753,6 +753,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					continueFlag = false;
 
 				EquiObject* endDec = run(children[2]);
+				delete endDec;
 				if (continueFlag)
 					continueFlag = false;
 
