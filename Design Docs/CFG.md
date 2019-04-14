@@ -34,13 +34,13 @@ equality -> comparison (("!=" | "==") comparison)?;
 comparison -> additive ((">" | ">=" | "<=" | "<") additive)?;  
 additive -> multiplicative (("+"|"-") additive)?;  
 multiplicative -> unary (("/" | "\*" | "%") multiplicative)?;  
-unary -> ("!" | "-") unary | declaration | function | primary | array;  
+unary -> ("!" | "-") unary | declaration | function | primary | array | memAccess;  
 declaration -> (TOKEN | "("")") ("[" (NUMBER | TOKEN)? "]")? (TOKEN | declaration) | (TOKEN "=")+ expression;  
-function -> (primary | array) "(" expression ")";  
+function -> (primary | array | memAccess) "(" expression ")";  
 primary -> special | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
 
 array -> (primary "[" primary "]")\*;  
-memAccess -> primary ("." TOKEN)+;  
+memAccess -> (primary | array | function) ("." TOKEN)+;  
 
 special -> "break" | "continue";  
 
