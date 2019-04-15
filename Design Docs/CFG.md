@@ -17,17 +17,13 @@ Left Associative: a\*b\*c = (a\*b)\*c
 code -> (block | line)\*;  
 
 block -> logicalBlock | loopBlock;  
-
 logicalBlock -> ((("if" | ("else" "if")) "(" expression ")") | "else") (("{" code "}" (";")?) | (line | block));  
-
 loopBlock -> doWhileLoop | whileLoop | forLoop;  
 doWhileLoop -> "do" ( (line | block) | "{" code "}" ) "while" "(" expression ")" ";";  
 whileLoop -> "while" "(" expression ")" ( (line | block) | "{" code "}" )  ";"?;  
 forLoop -> "for" "(" expression ";" expression ";" expression ")" ( (line | block) | "{" code "}" )  ";"?;  
 
 line -> expression ";";   
-
-
 expression -> commas;  
 commas -> equality ("," equality)\*;  
 equality -> comparison (("!=" | "==") comparison)?;  
@@ -37,11 +33,9 @@ multiplicative -> unary (("/" | "\*" | "%") multiplicative)?;
 unary -> ("!" | "-") unary | declaration | function | primary | array | memAccess;  
 declaration -> (TOKEN | "("")") ("[" (NUMBER | TOKEN)? "]")? (TOKEN | declaration) | (TOKEN "=")+ expression;  
 function -> (primary | array | memAccess) "(" expression ")";  
-primary -> special | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
-
-array -> (primary "[" primary "]")\*;  
 memAccess -> (primary | array | function) ("." TOKEN)+;  
-
+array -> primary ("[" primary "]")+;  
+primary -> special | NUMBER | STRING | "false" | "true" | "null" | "(" expression ")" | TOKEN;  
 special -> "break" | "continue";  
 
-Note: primary must alays be called last, and memAccess must be called before array  
+Note: primary must always be called last, and memAccess must be called before array  
