@@ -125,27 +125,32 @@ void EquiWorker::resetScope()
 	}
 }
 
-EquiObject* EquiWorker::run(SyntaxTree* code)
+pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 {
 	if (breakFlag || continueFlag)
 	{
-		return new EquiVoid;
+		pair<EquiObject*, bool> retPair(new EquiVoid, false);
+		return retPair;
 	}
 
 	vector<SyntaxTree*> children = code->getChildren();;
 	vector<EquiObject*> childOut;
+	vector<bool> killKid;
 	if (code->getType() != EQ_TR_LOGICAL_BLOCK && code->getType() != EQ_TR_DO_WHILE
 		&& code->getType() != EQ_TR_WHILE && code->getType() != EQ_TR_FOR)
 	{
 		for (int i = 0; i < children.size(); i++)
 		{
-			childOut.push_back(run(children[i]));
+			pair<EquiObject*, bool> cO = run(children[i]);
+			childOut.push_back(cO.first);
+			killKid.push_back(cO.second);
 		}
 	}
 
 	bool killChildren = true;
 
 	EquiObject* out = NULL;
+	bool killOut = true;
 
 	if (code->getType() == EQ_TR_ROOT)
 	{
@@ -153,17 +158,30 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_CODE)
 	{
-		EquiTuple* t = new EquiTuple;
-		t->setTuple(childOut);
-		out = t;
-		killChildren = false;
+		if (childOut.size() > 1 || childOut.size() == 0)
+		{
+			EquiVoid* v = new EquiVoid;
+			out = v;
+		}
+		else
+		{
+			killOut = killKid[0];
+			out = childOut[0];
+			killChildren = false;
+		}
+		
 	}
 	else if (code->getType() == EQ_TR_COMMA)
 	{
 		EquiTuple* t = new EquiTuple;
-		t->setTuple(childOut);
+		vector<EquiObject*> o;
+		for (int i = 0; i < childOut.size(); i++)
+		{
+			o.push_back(childOut[i]->clone());
+		}
+
+		t->setTuple(o);
 		out = t;
-		killChildren = false;
 	}
 	else if (code->getType() == EQ_TR_EQUALITY)
 	{
@@ -259,13 +277,15 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		string ts = childOut[1]->to_string();
 		EquiObject* arr = childOut[0];
 
+		killOut = false;
+
 		if (!isNum(ts))
 		{
 
-			out = (*arr)[ts]->clone();
+			out = (*arr)[ts];
 		}
 		else
-			out = (*arr)[stoi(ts)]->clone();
+			out = (*arr)[stoi(ts)];
 	}
 	else if (code->getType() == EQ_TR_MEMACCESS)
 	{
@@ -273,7 +293,8 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			throwError("Invalid number of operators on memory dereference");
 
 		EquiObject* arr = childOut[0];
-		out = (*arr)[code->getTokens()[0]]->clone();
+		out = (*arr)[code->getTokens()[0]];
+		killOut = false;
 	}
 	else if (code->getType() == EQ_TR_DECLARATION)
 	{
@@ -548,10 +569,16 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			obj = getToken(tok);
 		}
 
+		killOut = false;
 		if (childOut.size() == 1)
-			out = (*obj = *(childOut[0])).clone();
+		{
+			*obj = *(childOut[0]);
+			out = obj;
+		}
 		else
-			out = (obj->clone());
+		{
+			out = (obj);
+		}
 	}
 	else if (code->getType() == EQ_TR_CONST)
 	{
@@ -600,7 +627,8 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			throwError("Undefined reference to token " + tok);
 		}
 
-		out = getToken(tok)->clone();
+		killOut = false;
+		out = getToken(tok);
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{
@@ -641,8 +669,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		do
 		{
 			scopeUp();
-			EquiObject* rn = run(children[0]);
-			delete rn;
+			pair<EquiObject*, bool> rn = run(children[0]);
+			if (rn.second)
+				delete rn.first;
 			scopeDown();
 			if(breakFlag)
 			{
@@ -656,9 +685,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
-				EquiObject* eval = run(children[1]);
-				keepRun = (fals) != (*eval);
-				delete eval;
+				pair<EquiObject*, bool> eval = run(children[1]);
+				keepRun = (fals) != (*(eval.first));
+				if (eval.second)
+					delete eval.first;
 			}
 		}while(keepRun);
 	}
@@ -673,9 +703,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		scopeUp();
 		EquiPrimitive<bool> fals;
 		fals.setData(false);
-		EquiObject* eval = run(children[0]);
-		keepRun =  (fals) != (*eval);
-		delete eval;
+		pair<EquiObject*, bool> eval = run(children[0]);
+		keepRun =  (fals) != (*(eval.first));
+		if (eval.second)
+			delete eval.first;
 		scopeDown();
 		
 		if(breakFlag)
@@ -689,8 +720,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		while(keepRun)
 		{
 			scopeUp();
-			EquiObject* rn = run(children[1]);
-			delete rn;
+			pair<EquiObject*, bool> rn = run(children[1]);
+			if (rn.second)
+				delete rn.first;
 			scopeDown();
 			if(breakFlag)
 			{
@@ -704,9 +736,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
-				EquiObject* eval = run(children[0]);
-				keepRun = (fals) != (*eval);
-				delete eval;
+				pair<EquiObject*, bool> eval = run(children[0]);
+				keepRun = (fals) != (*(eval.first));
+				if (eval.second)
+					delete eval.first;
 			}
 		}
 	}
@@ -721,12 +754,14 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		fals.setData(false);
 
 		scopeUp();
-		EquiObject* dec = run(children[0]);
-		delete dec;
+		pair<EquiObject*, bool> dec = run(children[0]);
+		if (dec.second)
+			delete dec.first;
 		
-		EquiObject* eval = run(children[1]);
-		bool keepRun = (fals) != (*eval);
-		delete eval;
+		pair<EquiObject*, bool> eval = run(children[1]);
+		bool keepRun = (fals) != (*(eval.first));
+		if (eval.second)
+			delete eval.first;
 				
 		if(breakFlag)
 		{
@@ -739,8 +774,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		while(keepRun)
 		{
 			scopeUp();
-			EquiObject* rn = run(children[3]);
-			delete rn;
+			pair<EquiObject*, bool> rn = run(children[3]);
+			if (rn.second)
+				delete rn.first;
 			scopeDown();
 			if(breakFlag)
 			{
@@ -752,8 +788,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				if (continueFlag)
 					continueFlag = false;
 
-				EquiObject* endDec = run(children[2]);
-				delete endDec;
+				pair<EquiObject*, bool> endDec = run(children[2]);
+				if (endDec.second)
+					delete endDec.first;
 				if (continueFlag)
 					continueFlag = false;
 
@@ -765,8 +802,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				else
 				{
 					eval = run(children[1]);
-					keepRun = (fals) != (*eval);
-					delete eval;
+					keepRun = (fals) != (*(eval.first));
+					if (eval.second)
+						delete eval.first;
 				}
 			}
 		}
@@ -785,7 +823,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					throwError("Incorrect number of arguments on else");
 				}
 
-				childOut.push_back(run(children[0]));
+				pair<EquiObject*, bool> cond = run(children[0]);
+				childOut.push_back(cond.first);
+				killKid.push_back(cond.second);
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
 				if (fals != *childOut[0])
@@ -793,7 +833,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
 					tru->setData(true);
 					out = tru;
-					childOut.push_back(run(children[1]));
+					pair<EquiObject*, bool> cod = run(children[1]);
+					childOut.push_back(cod.first);
+					killKid.push_back(cod.second);
 					runElse = false;
 				}
 				else
@@ -817,7 +859,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
 					tru->setData(true);
 					out = tru;
-					childOut.push_back(run(children[0]));
+					pair<EquiObject*, bool> cod = run(children[0]);
+					childOut.push_back(cod.first);
+					killKid.push_back(cod.second);
 				}
 				else
 				{
@@ -841,7 +885,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 
 			if (runElse)
 			{
-				childOut.push_back(run(children[0]));
+				pair<EquiObject*, bool> rn = run(children[0]);
+				childOut.push_back(rn.first);
+				killKid.push_back(rn.second);
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
 				if (fals != *childOut[0])
@@ -849,7 +895,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
 					tru->setData(true);
 					out = tru;
-					childOut.push_back(run(children[1]));
+					pair<EquiObject*, bool> cod = run(children[1]);
+					childOut.push_back(cod.first);
+					killKid.push_back(cod.second);
 					runElse = false;
 				}
 				else
@@ -887,12 +935,15 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	{
 		for (int i = 0; i < childOut.size(); i++)
 		{
-			delete childOut[i];
+			if (killKid[i])
+				delete childOut[i];
 		}
 	}
 
 	if (out == NULL)
 		out = new EquiVoid;
-	return out;
+
+	pair<EquiObject*, bool> retPair(out, killOut);
+	return retPair;
 }
 

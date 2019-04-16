@@ -32,7 +32,7 @@ public:
 	EquiWorker();
 	~EquiWorker();
 	
-	EquiObject* run(SyntaxTree*);
+	pair<EquiObject*, bool> run(SyntaxTree*);
 };
 
 #endif

@@ -70,9 +70,10 @@ int interpret(string fn)
     EquiObject* o = NULL;
     try
     {
-      EquiObject* o = core.run(lineTree);
-      P_VERB("-->" << o->to_string() << endl, TOKEN_PRINT_VERB);
-      delete o;
+      pair<EquiObject*, bool> rn = core.run(lineTree);
+      P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
+      if (rn.second)
+        delete rn.first;
     }
     catch (string m)
     {
