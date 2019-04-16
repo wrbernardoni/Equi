@@ -85,3 +85,4 @@ EquiString::EquiString()
 	members["at"] = new E_STRING_at(this);
 	members["size"] = new E_STRING_size(this);
 };
+
