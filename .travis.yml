@@ -81,6 +81,7 @@ script:
 - "./Interpreter/build/Equi ./EquiTests/LoopTest.equi"
 - "./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi"
 - "./Interpreter/build/Equi ./EquiTests/integerArithmatic.equi"
+- "./Interpreter/build/Equi ./EquiTests/stringAtSizeTest.equi"
 after_success:
 - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh

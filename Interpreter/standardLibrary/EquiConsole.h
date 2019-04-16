@@ -1,3 +1,6 @@
+#ifndef EQUI_CNSL_STD
+#define EQUI_CNSL_STD
+
 #include "EquiObject.h"
 #include <map>
 #include <iostream>
@@ -213,3 +216,6 @@ void loadConsoleStd(map<string, EquiObject*>* tok)
 	cnsl_std_EquiGetLine* getline = new cnsl_std_EquiGetLine;
 	(*tok)["getline"] = getline;
 }
+
+
+#endif

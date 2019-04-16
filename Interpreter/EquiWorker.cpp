@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "EquiConsole.h"
+#include "EquiInterface.h"
 
 extern void throwError(string s)
 {
@@ -47,7 +48,7 @@ EquiWorker::EquiWorker()
 	breakFlag = false;
 	continueFlag = false;
 
-
+	loadInterface(tok);
 	loadConsoleStd(tok);
 	tokens.push_back(tok);
 }
