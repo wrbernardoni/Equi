@@ -64,6 +64,10 @@ cmdline argHandler(int argc, char* argv[])
 		{
 			fullParse = true;
 		}
+		else
+		{
+			cerr << "Unrecognized command line " << arg << endl;
+		}
 	}
 
 	P_VERB("Arguments: " << endl, ALL_STEP_VERB);
