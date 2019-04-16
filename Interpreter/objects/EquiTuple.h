@@ -47,6 +47,7 @@ public:
 
 	inline void setTuple(vector<EquiObject*> o)
 	{
+		purgeData();
 		vector<EquiObject*>* tuple = (vector<EquiObject*>*) data;
 		*tuple = o; 
 	};
@@ -109,7 +110,7 @@ public:
 				EquiObject* e = oT[i]->spawnMyType();
 				*e = *(oT[i]);
 				tuple->push_back(e);
-			}						
+			}
 		}
 		else
 		{
@@ -123,8 +124,15 @@ public:
 
 	virtual EquiObject* operator+ (EquiObject& o)
 	{
-		EquiTuple* newTup = (EquiTuple*)clone();//new EquiTuple;
-		vector<EquiObject*> tuple = newTup->getTuple();
+		EquiTuple* newTup = new EquiTuple;
+		vector<EquiObject*> tuple = getTuple();
+		vector<EquiObject*> newT;
+		for (int i = 0; i < tuple.size(); i++)
+		{
+			EquiObject* e = tuple[i]->spawnMyType();
+			*e = *(tuple[i]);
+			newT.push_back(e);
+		}
 		
 		if (o.getType() == E_TUPLE_TYPE)
 		{
@@ -135,17 +143,17 @@ public:
 			{
 				EquiObject* e = oT[i]->spawnMyType();
 				*e = *(oT[i]);
-				tuple.push_back(e);
+				newT.push_back(e);
 			}		
 		}
 		else
 		{
 			EquiObject* e = o.spawnMyType();
 			*e = o;
-			tuple.push_back(e);
+			newT.push_back(e);
 		}
 
-		newTup->setTuple(tuple);
+		newTup->setTuple(newT);
 		
 		return newTup;
 	};
