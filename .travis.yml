@@ -77,11 +77,18 @@ before_install:
 install:
 - "./build.sh"
 script:
-- "./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi"
-- "./Interpreter/build/Equi ./EquiTests/LoopTest.equi"
-- "./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi"
-- "./Interpreter/build/Equi ./EquiTests/integerArithmatic.equi"
-- "./Interpreter/build/Equi ./EquiTests/stringAtSizeTest.equi"
+- export PARSE=-PL
+- "./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/LoopTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/integerArithmatic.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/stringAtSizeTest.equi $PARSE"
+- export PARSE=-PF
+- "./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/LoopTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/integerArithmatic.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/stringAtSizeTest.equi $PARSE"
 after_success:
 - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh
