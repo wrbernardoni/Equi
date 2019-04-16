@@ -8,10 +8,8 @@ class EquiString : public EquiObject
 private:
 
 public:
-	EquiString()
-	{
-		data = new string;
-	};
+	EquiString();
+	
 	~EquiString()
 	{
 		string* s = (string*)data;
