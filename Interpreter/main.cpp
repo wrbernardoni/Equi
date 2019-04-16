@@ -56,11 +56,11 @@ cmdline argHandler(int argc, char* argv[])
 		{
 			failsafe = false;
 		}
-		else if (arg == "-PL")
+		else if (arg == "-PL" || arg == "--parseline")
 		{
 			fullParse = false;
 		}
-		else if (arg == "-PF")
+		else if (arg == "-PF" || arg == "--parsefull")
 		{
 			fullParse = true;
 		}
