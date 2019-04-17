@@ -56,6 +56,35 @@ public:
 		return (*nV)[i];
 	}
 
+	virtual EquiObject& operator= (EquiObject& o)
+	{
+		if (o.getType() != E_ARRAY_TYPE)
+			throwError("Cannot set an array to be a non-array");
+		else if (o.getDataType() != getDataType())
+			throwError(o.getDataType() + " is the wrong type of array to set this to, must be " + getDataType());
+		
+		EquiArray* oArr = (EquiArray<T>*) &o;
+
+		vector<T*>* nV = formatData();
+		for (int i = 0; i < nV->size(); i++)
+			delete (*nV)[i];
+
+		delete nV;
+
+		nV = new vector<T*>;
+		data = (void*)nV;
+
+		vector<T*> toBeArray = oArr->getArray();
+
+		for (int i = 0; i < toBeArray.size(); i++)
+		{
+			T* pB = (T*)toBeArray[i]->clone();
+			nV->push_back(pB);
+		}
+
+		return *this;
+	};
+
 	virtual EquiObject* spawnMyType() { return new EquiArray<T>; };
 
 	virtual EquiObject* clone()
