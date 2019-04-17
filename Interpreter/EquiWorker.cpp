@@ -297,6 +297,15 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		out = (*arr)[code->getTokens()[0]];
 		killOut = false;
 	}
+	else if (code->getType() == EQ_TR_ASSIGNMENT)
+	{
+		if (childOut.size() != 2)
+			throwError("Invalid number of arguments on assignment");
+
+		((*childOut[0]) = (*childOut[1]));
+		out = childOut[0];
+		killOut = killKid[0];
+	}
 	else if (code->getType() == EQ_TR_DECLARATION)
 	{
 		if (childOut.size() > 1 || (code->getTokens().size() > 3))
@@ -571,15 +580,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		}
 
 		killOut = false;
-		if (childOut.size() == 1)
-		{
-			*obj = *(childOut[0]);
-			out = obj;
-		}
-		else
-		{
-			out = (obj);
-		}
+		out = (obj);
 	}
 	else if (code->getType() == EQ_TR_CONST)
 	{

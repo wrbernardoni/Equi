@@ -23,6 +23,7 @@ SyntaxTree* comparison(vector<string>, int&);
 SyntaxTree* additive(vector<string>, int&);
 SyntaxTree* multiplicative(vector<string>, int&);
 SyntaxTree* unary(vector<string>, int&);
+SyntaxTree* assignment(vector<string>, int&);
 SyntaxTree* declaration(vector<string>, int&);
 SyntaxTree* funct(vector<string>, int&);
 SyntaxTree* primary(vector<string>, int&);
@@ -891,7 +892,7 @@ SyntaxTree* unary(vector<string> ln, int& state)
   else
   {
     delete un;
-    SyntaxTree* dec = declaration(ln, ps);
+    SyntaxTree* dec = assignment(ln, ps);
     if (dec != NULL)
     {
       state = ps;
@@ -899,6 +900,14 @@ SyntaxTree* unary(vector<string> ln, int& state)
     }
     else
     {
+      ps = state;
+      dec = declaration(ln, ps);
+      if (dec != NULL)
+      {
+        state = ps;
+        return dec;
+      }
+
       ps = state;
       SyntaxTree* func = funct(ln, ps);
       if (func != NULL)
@@ -937,6 +946,59 @@ SyntaxTree* unary(vector<string> ln, int& state)
     }
   }
   return NULL;
+}
+
+SyntaxTree* assignment(vector<string> ln, int& state)
+{
+  DEBUG("assignment")
+  SyntaxTree* assign = new SyntaxTree(EQ_TR_ASSIGNMENT);
+
+  int ps = state;
+  SyntaxTree* lhs = declaration(ln, ps);
+  if (lhs == NULL)
+  {
+    ps = state;
+    lhs = memAccess(ln, ps);
+    if (lhs == NULL)
+    {
+      ps = state;
+      lhs = eq_array(ln, ps);
+      if (lhs == NULL)
+      {
+        ps = state;
+        lhs = primary(ln, ps);
+        if (lhs == NULL)
+        {
+          delete assign;
+          return NULL;
+        }
+      }
+    }
+  }
+
+  state = ps;
+  assign->addChild(lhs);
+
+  if (SAFECHECK(ln, state) != "=")
+  {
+    delete assign;
+    return NULL;
+  }
+
+  state++;
+
+  SyntaxTree* rhs = expression(ln, state);
+
+  if (rhs == NULL)
+  {
+    delete assign;
+    throwError("Expecting expression after = sign");
+    return NULL;
+  }
+
+  assign->addChild(rhs);
+
+  return assign;
 }
 
 SyntaxTree* declaration(vector<string> ln, int& state)
@@ -1005,30 +1067,7 @@ SyntaxTree* declaration(vector<string> ln, int& state)
       dec->addToken(SAFECHECK(ln, state));
       state++;
 
-      if (SAFECHECK(ln, state) == "=")
-      {
-        state++;
-        SyntaxTree* expr = expression(ln, state);
-        if (expr != NULL)
-        {
-          dec->addChild(expr);
-          return dec;
-        }
-      }
-      else
-      {
-        return dec;
-      }
-    }
-    else if (SAFECHECK(ln, state) == "=")
-    {
-      state++;
-      SyntaxTree* expr = expression(ln, state);
-      if (expr != NULL)
-      {
-        dec->addChild(expr);
-        return dec;
-      } 
+      return dec;
     }
   }
   delete dec;
