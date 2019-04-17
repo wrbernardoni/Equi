@@ -4,9 +4,11 @@
  
  Equicontinuous (aka Equi, aka EquiParallel -- whichever sticks) will one day be an interpreted parallel programming language.
 
- Equi is currently in **v.0.0.3 -- Chihuahua Purple**
+ Equi is currently in **v.0.0.4 -- Chihuahua Magenta**
 
- To run Equi, either set a system path to Equi (preferred), or run the executable in a shell script like so:
+ To run Equi, either set a system path to Equi (preferred), or run the executable in a shell script.
+
+ Then call the executable ala:
 
  ```
 Equi -- -V 1
@@ -22,6 +24,15 @@ Equi 1--helloworld.equi
 
 
 ## Changelog
+**v.0.0.3 -> v.0.0.4**
+  * Added two command line options -PF (parse whole file and then run) and -PF (parse line by line and run as you get each line), by default when ran on a file it runs in PF, when run on command line input it runs on PL
+  * Made evaluating the parse tree spawn fewer objects, and be slightly more memory efficient.
+  * Fixed a memory leak in the for loops and one in the tuple object
+  * Added member functions to arrays and tuples (just size() and at() right now), in a way that is very general.
+  * Added arrays and added tuple declaration
+  * Syntax parser is now a little more verbose in errors (still work to do though)
+  * Now builds and tests on Travis CI
+
 **v.0.0.2 -> v.0.0.3**  
   * Implemented modulus (%) operator for generic types. Now having a defined division, multiplication, and subtraction defines a modulus.
   * Added for, while, and do...while loops.
