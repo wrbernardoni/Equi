@@ -4,8 +4,8 @@
 ~~*Chihuahua Blue*: **v.0.0.1** -- Hello world, console I/O and basic int operations~~  
 ~~*Chihuahua Violet*: **v.0.0.2** -- Logic flow, ifs, elses, else ifs, logical operators~~  
 ~~*Chihuahua Purple*: **v.0.0.3** -- Loops~~  
-*Chihuahua Magenta*: **v.0.0.4** -- Arrays, Collections, Tuples   
-*Chihuahua Crimson*: **v.0.0.5** -- Objects, Classes, Functions  
+~~*Chihuahua Magenta*: **v.0.0.4** -- Arrays, Tuples, member functions~~   
+*Chihuahua Crimson*: **v.0.0.5** -- Objects, Classes, Custom Functions, Collections  
 *Chihuahua Red*: **v.0.0.6** -- Importing modules (+ preprocessing)   
 *Chihuahua Orange*: **v.0.0.7** -- Tasks, Services  
 *Chihuahua Yellow*: **v.0.0.8** -- File I/O  

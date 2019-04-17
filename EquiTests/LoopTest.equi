@@ -5,6 +5,7 @@ bool fail = false;
 int i = 0;
 int c = 0;
 
+print("While loop counter");
 while(i++ < 1000)
 {
 	reached = true;
@@ -21,11 +22,14 @@ if (!reached)
 	fail = true;
 	print("Inside while loop not reached");
 }
+else
+	print("Good");
 
 reached = false;
 
 c = 0;
 
+print("For loop counter");
 for (i = 0; i < 1000; i++)
 {
 	reached = true;
@@ -42,11 +46,15 @@ if (!reached)
 	fail = true;
 	print("Inside for loop not reached");
 }
+else
+	print("Good");
 
 reached = false;
 
 c = 0;
+i = 0;
 
+print("do...while counter")
 do
 {
 	reached = true;
@@ -62,6 +70,85 @@ if (!reached)
 {
 	fail = true;
 	print("Inside do...while loop not reached");
+}
+else
+	print("Good");
+
+c = 0;
+print("False while loop");
+while(i++ > 1000)
+{
+	reached = true;
+	c = c + 1;
+	if (c > 1000)
+	{
+		fail = true;
+		throw("Nonterminating while loop");
+	}
+}
+
+if (reached)
+{
+	fail = true;
+	print("Inside while loop reached when condition false");
+}
+else
+{
+	print("Good");
+}
+
+reached = false;
+
+c = 0;
+
+print("False for loop");
+for (i = 0; i > 1000; i++)
+{
+	reached = true;
+	c = c + 1;
+	if (c > 1000)
+	{
+		fail = true;
+		throw("Nonterminating for loop");
+	}
+}
+
+if (reached)
+{
+	fail = true;
+	print("Inside for loop reached when condition false");
+}
+else
+	print("Good");
+
+reached = false;
+
+c = 0;
+i = 0;
+do
+{
+	reached = true;
+	c = c + 1;
+	if (c > 1000)
+	{
+		fail = true;
+		throw("Nonterminating do...while loop");
+	}
+} while(i++ > 1000)
+
+if (!reached)
+{
+	fail = true;
+	print("Inside do...while loop not reached with false condition");
+}
+else if (c > 1)
+{
+	fail = true;
+	print("Inside do...while loopwith false condition ran more than once");
+}
+else
+{
+	print("Good");
 }
 
 if (fail)

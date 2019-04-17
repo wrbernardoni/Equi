@@ -23,10 +23,13 @@ SyntaxTree* comparison(vector<string>, int&);
 SyntaxTree* additive(vector<string>, int&);
 SyntaxTree* multiplicative(vector<string>, int&);
 SyntaxTree* unary(vector<string>, int&);
+SyntaxTree* assignment(vector<string>, int&);
 SyntaxTree* declaration(vector<string>, int&);
 SyntaxTree* funct(vector<string>, int&);
 SyntaxTree* primary(vector<string>, int&);
+SyntaxTree* eq_array(vector<string>, int&);
 SyntaxTree* special(vector<string>, int&);
+SyntaxTree* memAccess(vector<string> ln, int& state);
 
 bool isNum(string s)
 {
@@ -52,9 +55,11 @@ bool isToken(string s){
     s != "<=" && s != "+" && s != "-" && s != "/" &&
     s != "*" && s != "%" && s != "!" && s != "=" &&
     s != "(" && s != ")" && s != "false" && s != "true" &&
-    s != "{" && s != "}" &&
+    s != "{" && s != "}" && s != "[" && s != "]" && s != "." &&
     s != "" && !isNum(s) && !isString(s));
 }
+
+extern void throwError(string s);
 
 #define SAFECHECK(a,b) (b < a.size() ? a[b] : "")
 
@@ -173,6 +178,8 @@ SyntaxTree* logicalBlock(vector<string> ln, int& state)
         // ERROR expecting )
         delete expr;
         delete log;
+
+        throwError("Expecting ), failed to find");
         return NULL;
       }
     }
@@ -219,6 +226,7 @@ SyntaxTree* logicalBlock(vector<string> ln, int& state)
       }
 
       // ERROR expecting }
+      throwError("Expecting }, failed to find");
     }
   }
   else
@@ -252,6 +260,7 @@ SyntaxTree* logicalBlock(vector<string> ln, int& state)
           DPRINT("No expression after logical block")
           // ERROR expecting expression after logical block
           delete lin;
+          throwError("No expression after logical block");
         }
       }
     }
@@ -308,6 +317,7 @@ SyntaxTree* doWhileLoop(vector<string> ln, int& state)
         DPRINT("Expecting }");
         // ERROR missing end } on do while;
         delete doWhl;
+        throwError("Missing end } on do while");
         return NULL;
       }
       DPRINT("eating }")
@@ -360,6 +370,7 @@ SyntaxTree* doWhileLoop(vector<string> ln, int& state)
         DPRINT("Error, missing ( after while")
         //ERROR missing ( after while
         delete doWhl;
+        throwError("Missing ( after while");
         return NULL;
       }
     }
@@ -368,6 +379,7 @@ SyntaxTree* doWhileLoop(vector<string> ln, int& state)
       DPRINT("Error, expecting while after do");
       //ERROR expecting while after do
       delete doWhl;
+      throwError("Expecting while after do");
       return NULL;
     }
 
@@ -397,6 +409,7 @@ SyntaxTree* whileLoop(vector<string> ln, int& state)
       DPRINT("ERROR missing )")
       // ERROR, missing )
       delete whl;
+      throwError("Missing )");
       return NULL;
     }
 
@@ -420,6 +433,7 @@ SyntaxTree* whileLoop(vector<string> ln, int& state)
         DPRINT("Expecting }");
         // ERROR missing end } on while;
         delete whl;
+        throwError("Missing end }");
         return NULL;
       }
       DPRINT("eating }")
@@ -477,6 +491,7 @@ SyntaxTree* forLoop(vector<string> ln, int& state)
       //ERROR, expecting ;
       DPRINT("ERROR, expecting ;");
       delete whl;
+      throwError("Expecting ; in for loop clauses");
       return NULL;
     }
     state++;
@@ -493,6 +508,7 @@ SyntaxTree* forLoop(vector<string> ln, int& state)
       //ERROR, expecting ;
       DPRINT("ERROR, expecting ;");
       delete whl;
+      throwError("Expecting ; in for loop clauses");
       return NULL;
     }
     state++;
@@ -509,6 +525,7 @@ SyntaxTree* forLoop(vector<string> ln, int& state)
       DPRINT("ERROR missing )")
       // ERROR, missing )
       delete whl;
+      throwError("Missing ) in for loop clause");
       return NULL;
     }
 
@@ -532,6 +549,7 @@ SyntaxTree* forLoop(vector<string> ln, int& state)
         DPRINT("Expecting }");
         // ERROR missing end } on while;
         delete whl;
+        throwError("Missing }");
         return NULL;
       }
       DPRINT("eating }")
@@ -624,6 +642,7 @@ SyntaxTree* commas(vector<string> ln, int& state)
       else
       {
         //ERROR trailing ,
+        throwError("Trailing ,");
       }
     }
 
@@ -669,6 +688,7 @@ SyntaxTree* equality(vector<string> ln, int& state)
       else
       {
         //ERROR trailing == or !=
+        throwError("Trailing == or !=");
       }
     }
 
@@ -725,6 +745,7 @@ SyntaxTree* comparison(vector<string> ln, int& state)
       else
       {
         //ERROR trailing == or !=
+        throwError("Trailing comparison operator");
       }
     }
 
@@ -774,6 +795,7 @@ SyntaxTree* additive(vector<string> ln, int& state)
       else
       {
         //ERROR trailing == or !=
+        throwError("Trailing additive operator");
       }
     }
 
@@ -826,6 +848,7 @@ SyntaxTree* multiplicative(vector<string> ln, int& state)
       else
       {
         //ERROR trailing == or !=
+        throwError("Trailing multiplicative operator");
       }
     }
 
@@ -869,7 +892,7 @@ SyntaxTree* unary(vector<string> ln, int& state)
   else
   {
     delete un;
-    SyntaxTree* dec = declaration(ln, ps);
+    SyntaxTree* dec = assignment(ln, ps);
     if (dec != NULL)
     {
       state = ps;
@@ -877,6 +900,14 @@ SyntaxTree* unary(vector<string> ln, int& state)
     }
     else
     {
+      ps = state;
+      dec = declaration(ln, ps);
+      if (dec != NULL)
+      {
+        state = ps;
+        return dec;
+      }
+
       ps = state;
       SyntaxTree* func = funct(ln, ps);
       if (func != NULL)
@@ -887,11 +918,29 @@ SyntaxTree* unary(vector<string> ln, int& state)
       else
       {
         ps = state;
-        SyntaxTree* prim = primary(ln, ps);
+        SyntaxTree* prim = memAccess(ln, ps);
         if (prim != NULL)
         {
           state = ps;
           return prim;
+        }
+        else
+        {
+          ps = state;
+          prim = eq_array(ln, ps);
+          if (prim != NULL)
+          {
+            state = ps;
+            return prim;
+          }
+
+          ps = state;
+          prim = primary(ln, ps);
+          if (prim != NULL)
+          {
+            state = ps;
+            return prim;
+          }
         }
       }
     }
@@ -899,45 +948,126 @@ SyntaxTree* unary(vector<string> ln, int& state)
   return NULL;
 }
 
+SyntaxTree* assignment(vector<string> ln, int& state)
+{
+  DEBUG("assignment")
+  SyntaxTree* assign = new SyntaxTree(EQ_TR_ASSIGNMENT);
+
+  int ps = state;
+  SyntaxTree* lhs = declaration(ln, ps);
+  if (lhs == NULL)
+  {
+    ps = state;
+    lhs = memAccess(ln, ps);
+    if (lhs == NULL)
+    {
+      ps = state;
+      lhs = eq_array(ln, ps);
+      if (lhs == NULL)
+      {
+        ps = state;
+        lhs = primary(ln, ps);
+        if (lhs == NULL)
+        {
+          delete assign;
+          return NULL;
+        }
+      }
+    }
+  }
+
+  state = ps;
+  assign->addChild(lhs);
+
+  if (SAFECHECK(ln, state) != "=")
+  {
+    delete assign;
+    return NULL;
+  }
+
+  state++;
+
+  SyntaxTree* rhs = expression(ln, state);
+
+  if (rhs == NULL)
+  {
+    delete assign;
+    throwError("Expecting expression after = sign");
+    return NULL;
+  }
+
+  assign->addChild(rhs);
+
+  return assign;
+}
+
 SyntaxTree* declaration(vector<string> ln, int& state)
 { 
   DEBUG("declaration")
   SyntaxTree* dec = new SyntaxTree(EQ_TR_DECLARATION);
-  if (isToken(SAFECHECK(ln, state)))
+  if (isToken(SAFECHECK(ln, state)) || SAFECHECK(ln, state) == "(")
   {
-    DPRINT("Eating token " << SAFECHECK(ln, state))
-    dec->addToken(SAFECHECK(ln, state));
-    state++;
+    if (isToken(SAFECHECK(ln, state)))
+    {
+      DPRINT("Eating token " << SAFECHECK(ln, state))
+      dec->addToken(SAFECHECK(ln, state));
+      state++;
+    }
+    else
+    {
+      DPRINT("Eating (");
+      state++;
+
+      if (SAFECHECK(ln, state) == ")")
+      {
+        state++;
+        dec->addToken("()");
+      }
+      else
+      {
+        delete dec;
+        return NULL;
+      }
+    }
+
+    if (SAFECHECK(ln, state) == "[")
+    {
+      DPRINT("Eating [")
+      state++;
+
+      if (isNum(SAFECHECK(ln, state)))
+      {
+        dec->addToken(ln[state]);
+        state++;
+      }
+      else if (isToken(SAFECHECK(ln, state)))
+      {
+        dec->addToken("[" + ln[state] + "]");
+        state++;
+      }
+      else
+      {
+        dec->addToken("0");
+      }
+
+      if (SAFECHECK(ln, state) == "]")
+      {
+        state++;
+      }
+      else
+      {
+        delete dec;
+        return NULL;
+      }
+    }
+
     if (isToken(SAFECHECK(ln, state)))
     {
       DPRINT("Eating token " << SAFECHECK(ln, state))
       dec->addToken(SAFECHECK(ln, state));
       state++;
 
-      if (SAFECHECK(ln, state) == "=")
-      {
-        state++;
-        SyntaxTree* expr = expression(ln, state);
-        if (expr != NULL)
-        {
-          dec->addChild(expr);
-          return dec;
-        }
-      }
-      else
-      {
-        return dec;
-      }
-    }
-    else if (SAFECHECK(ln, state) == "=")
-    {
-      state++;
-      SyntaxTree* expr = expression(ln, state);
-      if (expr != NULL)
-      {
-        dec->addChild(expr);
-        return dec;
-      } 
+      return dec;
     }
   }
   delete dec;
@@ -948,11 +1078,27 @@ SyntaxTree* funct(vector<string> ln, int& state)
 {
   DEBUG("funct")
   SyntaxTree* fn = new SyntaxTree(EQ_TR_FUNCTION);
-  if (isToken(SAFECHECK(ln,state)))
+
+  int ps = state;
+  SyntaxTree* pm = memAccess(ln, ps);
+  if (pm == NULL)
   {
-    fn->addToken(ln[state]);
-    state++;
-    DPRINT("Eating token");
+    ps = state;
+    pm = eq_array(ln, ps);
+
+    if (pm == NULL)
+    {
+      ps = state;
+      pm = primary(ln, ps);
+    }
+  }
+
+  if (pm != NULL)
+  {
+    state = ps;
+    fn->addChild(pm);
+    DPRINT("Eating operand");
+
     if (SAFECHECK(ln,state) == "(")
     {
       state++;
@@ -982,6 +1128,8 @@ SyntaxTree* primary(vector<string> ln, int& state)
     state = ps;
     return spec;
   }
+
+  ps = state;
 
   if (isNum(SAFECHECK(ln,state)) || isString(SAFECHECK(ln,state)) || SAFECHECK(ln,state) == "true" || SAFECHECK(ln,state) == "false" || SAFECHECK(ln,state) == "null")
   {
@@ -1017,6 +1165,132 @@ SyntaxTree* primary(vector<string> ln, int& state)
   }
   
   return NULL;
+}
+
+SyntaxTree* eq_array(vector<string> ln, int& state)
+{
+  DEBUG("array");
+  vector<SyntaxTree*> linAr;
+
+  SyntaxTree* tok = primary(ln, state);
+
+  while (tok != NULL)
+  {
+    linAr.push_back(tok);
+
+    if (!(SAFECHECK(ln, state) == "["))
+    {
+      tok = NULL;
+    }
+    else
+    {
+      DPRINT("Eating [")
+      state++;
+      tok = primary(ln, state);
+
+      if (!(SAFECHECK(ln, state) == "]"))
+      {
+        throwError("Expecting ]");
+        delete tok;
+
+        for (int i = 0; i < linAr.size(); i++)
+        {
+          delete linAr[i];
+        }
+
+        return NULL;
+      }
+      state++;
+      DPRINT("Eating ]")
+    }
+  }
+
+  if (linAr.size() == 0)
+  {
+    return NULL;
+  }
+  else if (linAr.size() == 1)
+  {
+    delete linAr[0];
+    return NULL;
+  }
+
+  SyntaxTree* par = NULL;
+  for (int i = 1; i < linAr.size(); i++)
+  {
+    SyntaxTree* ar = new SyntaxTree(EQ_TR_ARRAY);
+    if (par == NULL)
+    {
+      ar->addChild(linAr[0]);
+    }
+    else
+    {
+      ar->addChild(par);
+    }
+
+    ar->addChild(linAr[i]);
+    par = ar;
+  }
+
+  return par;
+}
+
+SyntaxTree* memAccess(vector<string> ln, int& state)
+{
+  DEBUG("memAccess");
+  vector<string> linAr;
+
+  int ps = state;
+  ps = state;
+  SyntaxTree* tok = eq_array(ln, ps);
+  if (tok == NULL)
+  {
+    ps = state;
+    tok = primary(ln, ps);
+
+    if (tok == NULL)
+    {
+      return NULL;
+    }
+  }
+
+  state = ps;
+  
+
+  while (SAFECHECK(ln, state) == ".")
+  {
+    DPRINT("Eating .")
+    state++;
+    if (isToken(SAFECHECK(ln,state)))
+    {
+      DPRINT("Eating token " << ln[state])
+      linAr.push_back(ln[state]);
+      state++;
+    }
+    else
+    {
+      delete tok;
+      throwError("Expecting token after .");
+    }
+  }
+
+  if (linAr.size() == 0)
+  {
+    delete tok;
+    return NULL;
+  }
+
+  DPRINT("Constructing memAccess tree")
+
+  SyntaxTree* par = tok;
+  for (int i = 0; i < linAr.size(); i++)
+  {
+    SyntaxTree* ar = new SyntaxTree(EQ_TR_MEMACCESS);
+    ar->addChild(par);
+    ar->addToken(linAr[i]);
+    par = ar;
+  }
+  return par;
 }
 
 SyntaxTree* special(vector<string> ln, int& state)

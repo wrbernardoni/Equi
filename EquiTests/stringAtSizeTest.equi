@@ -1,0 +1,28 @@
+string h = "Hello world";
+bool fail = false;
+
+print("h = %i", h);
+
+if (h.at(4) != "o")
+{
+	fail = true;
+	print("h.at(4) != o");
+}
+
+if (h.size() != 11)
+{
+	fail = true;
+	print("h.size() = %i, not 11", h.size());
+}
+
+h = h + "!";
+if (h.size() != 12)
+{
+	fail = true;
+	print("(h + \"!\").size() = %i, not 12", (h + "!").size());
+}
+
+if (fail)
+	throw("Test failed");
+
+print("Test passed");

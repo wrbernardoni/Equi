@@ -1,71 +1,116 @@
 language: cpp
 sudo: required
 compiler:
-    - gcc
-
+- gcc
 matrix:
   include:
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.9
-      env:
-         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+  - os: windows
+    env:
+    - MATRIX_EVAL="CC=gcc && CXX=g++"
+    - FN=Equi.exe
+    - FNAME=64b-Win-Equi.exe
+    - DEP=1
 
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env:
-         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+  - os: osx
+    osx_image: xcode8
+    env:
+    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+    - FN=Equi
+    - FNAME=osx-Equi
+    - DEP=1
 
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-      env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-7
+    env:
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    - FN=Equi
+    - FNAME=linux-Equi
+    - DEP=1
 
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-4.9
+    env:
+    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+    - FN=Equi
+    - FNAME=linux-Equi
+    - DEP=0
 
-    - os: osx
-      osx_image: xcode8
-      env:
-        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-
-env:
-   - EQUI=
-
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-5
+    env:
+    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+    - FN=Equi
+    - FNAME=linux-Equi
+    - DEP=0
+    
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-6
+    env:
+    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+    - FN=Equi
+    - FNAME=linux-Equi
+    - DEP=0
 before_install:
-    - mkdir Interpreter/build
-    - eval "${MATRIX_EVAL}"
-    - chmod +x build.sh
-
+- mkdir Interpreter/build
+- eval "${MATRIX_EVAL}"
+- chmod +x build.sh
 install:
-  - ./build.sh
-
+- "./build.sh"
 script:
-  - ./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi 
-  - ./Interpreter/build/Equi ./EquiTests/LoopTest.equi 
-  
+- export PARSE=-PL
+- "./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/LoopTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/integerArithmatic.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/stringAtSizeTest.equi $PARSE"
+- export PARSE=-PF
+- "./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/LoopTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/integerArithmatic.equi $PARSE"
+- "./Interpreter/build/Equi ./EquiTests/stringAtSizeTest.equi $PARSE"
+after_success:
+- wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+- chmod +x send.sh
+- "./send.sh success $WEBHOOK_URL"
+after_failure:
+- wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+- chmod +x send.sh
+- "./send.sh failure $WEBHOOK_URL"
+- "./send.sh failure $WEB_FAIL"
+
+
+
+before_deploy:
+  - mv ./Interpreter/build/$FN ./Interpreter/build/$FNAME
+deploy:
+  provider: releases
+  api_key:
+    secure: Zi7RUONCB7bGAFHev5hikactNGSgknJYQathqct+6s0MLGddyn1JkIXCJEyo17Yq+BWkss6AxUgZGT64WtTqWLQ75BESoE5V4dqzJQIckRdYQn5pfjixdiFE8YsKw7oryoz2CtrnAz7uBmYD8FMGh21oImM6L35XoFwt+r1q/zECdWYDcZWyFeOePKGjP5atGzRhh3I+Azc2KZV9pQ/A7F/q5qDEkWDLpxilLqZ6O7nFdqkq5+qWINMAdkR8uPv1s7XVFOhqKQwMDUMh3nKejudDnNnkDw0xEfcQEOG5FXIbU0u9/d0emtZO6kv8/WX6T/eE/srYCNnmWVzxk0JkWgbKyU3JQOue3VNeHttm64bjtUAC2dQ68QUs1+MZfM639UJhYb1ByWgAKsqNr/cZx8F8hq1t1Da2LwGGR7qrN7OaZFjd0yrfGfKiMhCJbKiYkh8HRvSUFbLneTu8xVbCbvaFgFCbO0gAQmBogpa0LiaYiLrkPukUSELVUg+3ZYgVG6AitezVn5BCWo/r8++AyFztR7GA/6LMVEs04nI01S4yZeImHU2570ShkgRYgkrta4/W5+8nqUJlxmYna4PulLLbTwyXnaZRGeuZ/K8mUWViFfPMGoIpcG+f3cN7/GgSZUVXYnJdoT/J1Cl1uGD1WQIWorn0sUUJmO8o1ieRcWc=
+  file: "./Interpreter/build/$FNAME"
+  skip_cleanup: true
+  overwrite: true
+  on:
+    repo: wrbernardoni/Equi
+    condition: $DEP = 1
+    tags: true

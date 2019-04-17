@@ -16,8 +16,11 @@ using namespace std;
 #define EQ_TR_MULTIPLICATIVE "multiplicative"
 #define EQ_TR_UNARY "unary"
 #define EQ_TR_DECLARATION "declaration"
+#define EQ_TR_ASSIGNMENT "assign"
 #define EQ_TR_CONST "constant"
 #define EQ_TR_TOKEN "token"
+#define EQ_TR_ARRAY "array"
+#define EQ_TR_MEMACCESS "memaccess"
 #define EQ_TR_FUNCTION "function"
 
 #define EQ_TR_LOGICAL_BLOCK "logicalBlock"

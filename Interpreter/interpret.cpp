@@ -27,49 +27,142 @@ int interpret(string fn)
   // Spawn single worker
   EquiWorker core;
 
-  while(!in->eof())
+
+  if (!fullParse)
   {
-    vector<string> tokens = getLine(in, lineNum);
-    if (tokens.size() == 0)
-      continue;
-
-    if (verbose >= TOKEN_LIST_VERB)
+    while(!in->eof())
     {
-      cout << "<<" << lineNum << ">>: ";
-      for (int i = 0; i < tokens.size(); i++)
+      vector<string> tokens = getLine(in, lineNum);
+      if (tokens.size() == 0)
+        continue;
+
+      if (verbose >= TOKEN_LIST_VERB)
       {
-        cout << "[" << tokens[i] << "] ";
+        cout << "<<" << lineNum << ">>: ";
+        for (int i = 0; i < tokens.size(); i++)
+        {
+          cout << "[" << tokens[i] << "] ";
+        }
+        cout << endl;
       }
-      cout << endl;
-    }
 
-    SyntaxTree* lineTree = lineParse(tokens);
-    if (verbose >= SYNTAX_TREE_LIST)
-      lineTree->print(0);
-
-    if (verbose >= SYNTAX_TREE_LIST)
-      cout << endl;
-
-    EquiObject* o = NULL;
-    try
-    {
-      EquiObject* o = core.run(lineTree);
-      P_VERB("-->" << o->to_string() << endl, TOKEN_PRINT_VERB);
-      delete o;
-    }
-    catch (string m)
-    {
-      cerr << "Error on line: " << lineNum << ": " << m << endl;
-
-      if (!failsafe)
+      SyntaxTree* lineTree = NULL;
+      try
       {
-        return 1;
+        lineTree = lineParse(tokens);
       }
+      catch (string m)
+      {
+        cerr << "Error on line: " << lineNum << ": " << m << endl;
+
+        if (!failsafe)
+        {
+          return 1;
+        }
+      }
+
+      if (lineTree == NULL)
+        continue;
+
+      if (verbose >= SYNTAX_TREE_LIST)
+        lineTree->print(0);
+
+      if (verbose >= SYNTAX_TREE_LIST)
+        cout << endl;
+
+      EquiObject* o = NULL;
+      try
+      {
+        pair<EquiObject*, bool> rn = core.run(lineTree);
+        P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
+        if (rn.second)
+          delete rn.first;
+      }
+      catch (string m)
+      {
+        cerr << "Error on line: " << lineNum << ": " << m << endl;
+
+        if (!failsafe)
+        {
+          return 1;
+        }
+      }
+
+      core.resetScope();
+
+      delete lineTree;
+    }
+  }
+  else
+  {
+    vector<SyntaxTree*> code;
+    while(!in->eof())
+    {
+      vector<string> tokens = getLine(in, lineNum);
+      if (tokens.size() == 0)
+        continue;
+
+      if (verbose >= TOKEN_LIST_VERB)
+      {
+        cout << "<<" << lineNum << ">>: ";
+        for (int i = 0; i < tokens.size(); i++)
+        {
+          cout << "[" << tokens[i] << "] ";
+        }
+        cout << endl;
+      }
+
+      SyntaxTree* lineTree = NULL;
+      try
+      {
+        lineTree = lineParse(tokens);
+      }
+      catch (string m)
+      {
+        cerr << "Error on line: " << lineNum << ": " << m << endl;
+
+        if (!failsafe)
+        {
+          return 1;
+        }
+      }
+
+      if (lineTree == NULL)
+        continue;
+
+      if (verbose >= SYNTAX_TREE_LIST)
+        lineTree->print(0);
+
+      if (verbose >= SYNTAX_TREE_LIST)
+        cout << endl;
+
+      code.push_back(lineTree);
     }
 
-    core.resetScope();
+    for(int i = 0; i < code.size(); i++)
+    {
+      EquiObject* o = NULL;
+      try
+      {
+        pair<EquiObject*, bool> rn = core.run(code[i]);
+        P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
+        if (rn.second)
+          delete rn.first;
+      }
+      catch (string m)
+      {
+        cerr << "Error on line: " << lineNum << ": " << m << endl;
 
-    delete lineTree;
+        if (!failsafe)
+        {
+          return 1;
+        }
+      }
+
+      core.resetScope();
+
+      delete code[i];
+    }
   }
 
   return 0;

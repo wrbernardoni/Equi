@@ -2,7 +2,8 @@
 #include <iostream>
 #include <cmath>
 
-#include "standardLibrary/EquiConsole.h"
+#include "EquiConsole.h"
+#include "EquiInterface.h"
 
 extern void throwError(string s)
 {
@@ -12,6 +13,29 @@ extern void throwError(string s)
 extern bool isNum(string s);
 
 extern bool isString(string s);
+
+bool tokQ(string s)
+{
+  return (s != "," && s != ";" && s != "!=" &&
+    s != "==" && s != ">" && s != "<" && s != ">=" &&
+    s != "<=" && s != "+" && s != "-" && s != "/" &&
+    s != "*" && s != "%" && s != "!" && s != "=" &&
+    s != "(" && s != ")" && s != "false" && s != "true" &&
+    s != "{" && s != "}" && s != "[" && s != "]" &&
+    s != "" && !isNum(s) && !isString(s));
+}
+
+bool tokenFormat(string si){
+	for (int i = 0; i < si.size(); i++)
+	{
+		string s = si.substr(i, 1);
+		if (!tokQ(s))
+		{
+			return false;
+		}
+	}
+  return true;
+}
 
 EquiWorker::EquiWorker()
 {
@@ -24,7 +48,7 @@ EquiWorker::EquiWorker()
 	breakFlag = false;
 	continueFlag = false;
 
-
+	loadInterface(tok);
 	loadConsoleStd(tok);
 	tokens.push_back(tok);
 }
@@ -49,7 +73,7 @@ EquiObject* EquiWorker::getToken(string n)
 			return (*tokens[i])[n];
 		}
 	}
-	throwError("Token not found");
+	throwError("Token " + n + " not found");
 	return NULL;
 }
 
@@ -102,27 +126,32 @@ void EquiWorker::resetScope()
 	}
 }
 
-EquiObject* EquiWorker::run(SyntaxTree* code)
+pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 {
 	if (breakFlag || continueFlag)
 	{
-		return new EquiVoid;
+		pair<EquiObject*, bool> retPair(new EquiVoid, false);
+		return retPair;
 	}
 
 	vector<SyntaxTree*> children = code->getChildren();;
 	vector<EquiObject*> childOut;
+	vector<bool> killKid;
 	if (code->getType() != EQ_TR_LOGICAL_BLOCK && code->getType() != EQ_TR_DO_WHILE
 		&& code->getType() != EQ_TR_WHILE && code->getType() != EQ_TR_FOR)
 	{
 		for (int i = 0; i < children.size(); i++)
 		{
-			childOut.push_back(run(children[i]));
+			pair<EquiObject*, bool> cO = run(children[i]);
+			childOut.push_back(cO.first);
+			killKid.push_back(cO.second);
 		}
 	}
 
 	bool killChildren = true;
 
 	EquiObject* out = NULL;
+	bool killOut = true;
 
 	if (code->getType() == EQ_TR_ROOT)
 	{
@@ -130,17 +159,30 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_CODE)
 	{
-		EquiTuple* t = new EquiTuple;
-		t->setTuple(childOut);
-		out = t;
-		killChildren = false;
+		if (childOut.size() > 1 || childOut.size() == 0)
+		{
+			EquiVoid* v = new EquiVoid;
+			out = v;
+		}
+		else
+		{
+			killOut = killKid[0];
+			out = childOut[0];
+			killChildren = false;
+		}
+		
 	}
 	else if (code->getType() == EQ_TR_COMMA)
 	{
 		EquiTuple* t = new EquiTuple;
-		t->setTuple(childOut);
+		vector<EquiObject*> o;
+		for (int i = 0; i < childOut.size(); i++)
+		{
+			o.push_back(childOut[i]->clone());
+		}
+
+		t->setTuple(o);
 		out = t;
-		killChildren = false;
 	}
 	else if (code->getType() == EQ_TR_EQUALITY)
 	{
@@ -228,13 +270,50 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			out = r;
 		}
 	}
+	else if (code->getType() == EQ_TR_ARRAY)
+	{
+		if (childOut.size() != 2)
+			throwError("Invalid number of operators on array index reference");
+
+		string ts = childOut[1]->to_string();
+		EquiObject* arr = childOut[0];
+
+		killOut = false;
+
+		if (!isNum(ts))
+		{
+
+			out = (*arr)[ts];
+		}
+		else
+			out = (*arr)[stoi(ts)];
+	}
+	else if (code->getType() == EQ_TR_MEMACCESS)
+	{
+		if (childOut.size() != 1 || code->getTokens().size() != 1)
+			throwError("Invalid number of operators on memory dereference");
+
+		EquiObject* arr = childOut[0];
+		out = (*arr)[code->getTokens()[0]];
+		killOut = false;
+	}
+	else if (code->getType() == EQ_TR_ASSIGNMENT)
+	{
+		if (childOut.size() != 2)
+			throwError("Invalid number of arguments on assignment");
+
+		((*childOut[0]) = (*childOut[1]));
+		out = childOut[0];
+		killOut = killKid[0];
+	}
 	else if (code->getType() == EQ_TR_DECLARATION)
 	{
-		if (childOut.size() > 1 || (code->getTokens().size() != 1 && code->getTokens().size() != 2))
+		if (childOut.size() > 1 || (code->getTokens().size() > 3))
 			throwError("Invalid number of arguments on unary operation");
 
 		string tok = code->getTokens()[0];
-		if (code->getTokens().size() == 2)
+		EquiObject* obj = NULL;
+		if (code->getTokens().size() == 2 && (tokenFormat(code->getTokens()[1]) || code->getTokens()[1] == "++" || code->getTokens()[1] == "--"))
 		{
 			string type = code->getTokens()[0];
 			tok = code->getTokens()[1];
@@ -258,7 +337,7 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				
 				if (!isToken(tok))
 				{
-					throwError("Undefined token");
+					throwError("Undefined token " + tok);
 				}
 
 				if (childOut.size() != 0)
@@ -303,6 +382,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					newObj = new EquiString;
 					((EquiString*)newObj)->setString("");
 				}
+				else if (type == "()")
+				{
+					newObj = new EquiTuple;
+				}
 				else
 				{
 					throwError("Unrecognized type name");
@@ -311,16 +394,193 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				emplaceToken(tok, newObj);
 			}
 		}
-		
-		if (!isToken(tok))
+		else if (code->getTokens().size() == 2)
 		{
-			throwError("Undefined token");
+			if (!isToken(tok))
+			{
+				throwError("Undefined token " + tok);
+			}
+
+			int index = 0;
+			if (isNum(code->getTokens()[1]))
+				index = stoi(code->getTokens()[1]);
+			else
+			{
+				string ind = code->getTokens()[1].substr(1, code->getTokens()[1].size() - 2);
+				if (!isToken(ind))
+				{
+					throwError("Undefined token " + ind);
+				}
+
+				EquiObject* o = getToken(ind);
+				string oS = o->to_string();
+				if (!isNum(oS))
+				{
+					throwError("Must index by a numeric");
+				}
+
+				index = stoi(oS);
+			}
+
+			obj = (*getToken(tok))[index];
+		}
+		else if (code->getTokens().size() == 3)
+		{
+			string type = code->getTokens()[0];
+
+			int index = 0;
+
+			if (isNum(code->getTokens()[1]))
+			{
+				index = stoi(code->getTokens()[1]);
+			}
+			else
+			{
+				string ind = code->getTokens()[1].substr(1, code->getTokens()[1].size() - 2);
+				if (!isToken(ind))
+				{
+					throwError("Undefined token " + ind);
+				}
+
+				EquiObject* o = getToken(ind);
+				string oS = o->to_string();
+				if (!isNum(oS))
+				{
+					throwError("Must index by a numeric");
+				}
+
+				index = stoi(oS);
+			}
+
+
+			tok = code->getTokens()[2];
+
+			if (tok == "++" || tok == "--")
+			{
+				//a[32]++
+				if (!isToken(type))
+				{
+					throwError("Undefined token " + type);
+				}
+
+				if (childOut.size() != 0)
+				{
+					throwError("Cannot assign to an increment");
+				}
+
+				obj = (*getToken(type))[index];
+
+				if (tok == "++")
+					++(*obj);
+				else
+					--(*obj);
+			}
+			else
+			{
+				//int[32] a;
+				EquiObject* newObj = NULL;
+				if (type == "int")
+				{
+					newObj = new EquiArray<EquiPrimitive<int>>;
+					EquiPrimitive<int>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<int>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<int>>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "long")
+				{
+					newObj = new EquiArray<EquiPrimitive<long>>;
+					EquiPrimitive<long>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<long>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "double")
+				{
+					newObj = new EquiArray<EquiPrimitive<long>>;
+					EquiPrimitive<long>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<long>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+					}
+
+					newObj = new EquiPrimitive<double>;
+					((EquiPrimitive<double>*)newObj)->setData(0);
+				}
+				else if (type == "float")
+				{
+					newObj = new EquiArray<EquiPrimitive<float>>;
+					EquiPrimitive<float>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<float>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<float>>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "bool")
+				{
+					newObj = new EquiArray<EquiPrimitive<bool>>;
+					EquiPrimitive<bool>* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiPrimitive<bool>;
+						tO->setData(0);
+						((EquiArray<EquiPrimitive<bool>>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "string")
+				{
+					newObj = new EquiArray<EquiString>;
+					EquiString* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiString;
+						tO->setString("");
+						((EquiArray<EquiString>*)newObj)->append(tO);
+					}
+				}
+				else if (type == "()")
+				{
+					newObj = new EquiArray<EquiTuple>;
+					EquiTuple* tO;
+					for (int i = 0; i < index; i++)
+					{
+						tO = new EquiTuple;
+						((EquiArray<EquiTuple>*)newObj)->append(tO);
+					}
+				}
+				else
+				{
+					throwError("Unrecognized type name");
+				}
+
+				emplaceToken(tok, newObj);
+
+				obj = newObj;
+			}
+		}
+		
+		if (obj == NULL)
+		{
+			if (!isToken(tok))
+			{
+				throwError("Undefined token " + tok);
+			}
+
+			obj = getToken(tok);
 		}
 
-		if (childOut.size() == 1)
-			out = (*getToken(tok) = *(childOut[0])).clone();
-		else
-			out = (getToken(tok)->clone());
+		killOut = false;
+		out = (obj);
 	}
 	else if (code->getType() == EQ_TR_CONST)
 	{
@@ -369,38 +629,21 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 			throwError("Undefined reference to token " + tok);
 		}
 
-		out = getToken(tok)->clone();
+		killOut = false;
+		out = getToken(tok);
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{
-		if (childOut.size() > 1 || code->getTokens().size() != 1 )
+		if (childOut.size() == 0 || childOut.size() > 2)
 			throwError("Invalid number of arguments for functions");
-		string tok = code->getTokens()[0];
 
-		EquiObject* in = NULL;
-		if (childOut.size() == 0)
-			in = new EquiVoid;
-		else
-			in = childOut[0];
-
-		if (!isToken(tok))
+		if (childOut.size()  == 1)
 		{
-			if (childOut.size()  == 0)
-			{
-				EquiVoid* v = (EquiVoid*) in;
-				delete v;
-			}
+			EquiVoid* v = new EquiVoid;
+			childOut.push_back(v);
+		}	
 
-			throwError("No function of the name " + tok);
-		}		
-
-		out = (*getToken(tok))(in);
-
-		if (childOut.size()  == 0)
-		{
-			EquiVoid* v = (EquiVoid*) in;
-			delete v;
-		}
+		out = (*childOut[0])(childOut[1]);
 	}
 	else if (code->getType() == EQ_TR_SPECIAL)
 	{
@@ -428,8 +671,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		do
 		{
 			scopeUp();
-			EquiObject* rn = run(children[0]);
-			delete rn;
+			pair<EquiObject*, bool> rn = run(children[0]);
+			if (rn.second)
+				delete rn.first;
 			scopeDown();
 			if(breakFlag)
 			{
@@ -443,9 +687,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
-				EquiObject* eval = run(children[1]);
-				keepRun = (fals) != (*eval);
-				delete eval;
+				pair<EquiObject*, bool> eval = run(children[1]);
+				keepRun = (fals) != (*(eval.first));
+				if (eval.second)
+					delete eval.first;
 			}
 		}while(keepRun);
 	}
@@ -460,9 +705,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		scopeUp();
 		EquiPrimitive<bool> fals;
 		fals.setData(false);
-		EquiObject* eval = run(children[0]);
-		keepRun =  (fals) != (*eval);
-		delete eval;
+		pair<EquiObject*, bool> eval = run(children[0]);
+		keepRun =  (fals) != (*(eval.first));
+		if (eval.second)
+			delete eval.first;
 		scopeDown();
 		
 		if(breakFlag)
@@ -476,8 +722,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		while(keepRun)
 		{
 			scopeUp();
-			EquiObject* rn = run(children[1]);
-			delete rn;
+			pair<EquiObject*, bool> rn = run(children[1]);
+			if (rn.second)
+				delete rn.first;
 			scopeDown();
 			if(breakFlag)
 			{
@@ -491,9 +738,10 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
-				EquiObject* eval = run(children[0]);
-				keepRun = (fals) != (*eval);
-				delete eval;
+				pair<EquiObject*, bool> eval = run(children[0]);
+				keepRun = (fals) != (*(eval.first));
+				if (eval.second)
+					delete eval.first;
 			}
 		}
 	}
@@ -508,12 +756,14 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		fals.setData(false);
 
 		scopeUp();
-		EquiObject* dec = run(children[0]);
-		delete dec;
+		pair<EquiObject*, bool> dec = run(children[0]);
+		if (dec.second)
+			delete dec.first;
 		
-		EquiObject* eval = run(children[1]);
-		bool keepRun = (fals) != (*eval);
-		delete eval;
+		pair<EquiObject*, bool> eval = run(children[1]);
+		bool keepRun = (fals) != (*(eval.first));
+		if (eval.second)
+			delete eval.first;
 				
 		if(breakFlag)
 		{
@@ -526,8 +776,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 		while(keepRun)
 		{
 			scopeUp();
-			EquiObject* rn = run(children[3]);
-			delete rn;
+			pair<EquiObject*, bool> rn = run(children[3]);
+			if (rn.second)
+				delete rn.first;
 			scopeDown();
 			if(breakFlag)
 			{
@@ -539,7 +790,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				if (continueFlag)
 					continueFlag = false;
 
-				EquiObject* endDec = run(children[2]);
+				pair<EquiObject*, bool> endDec = run(children[2]);
+				if (endDec.second)
+					delete endDec.first;
 				if (continueFlag)
 					continueFlag = false;
 
@@ -551,8 +804,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 				else
 				{
 					eval = run(children[1]);
-					keepRun = (fals) != (*eval);
-					delete eval;
+					keepRun = (fals) != (*(eval.first));
+					if (eval.second)
+						delete eval.first;
 				}
 			}
 		}
@@ -571,7 +825,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					throwError("Incorrect number of arguments on else");
 				}
 
-				childOut.push_back(run(children[0]));
+				pair<EquiObject*, bool> cond = run(children[0]);
+				childOut.push_back(cond.first);
+				killKid.push_back(cond.second);
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
 				if (fals != *childOut[0])
@@ -579,7 +835,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
 					tru->setData(true);
 					out = tru;
-					childOut.push_back(run(children[1]));
+					pair<EquiObject*, bool> cod = run(children[1]);
+					childOut.push_back(cod.first);
+					killKid.push_back(cod.second);
 					runElse = false;
 				}
 				else
@@ -603,7 +861,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
 					tru->setData(true);
 					out = tru;
-					childOut.push_back(run(children[0]));
+					pair<EquiObject*, bool> cod = run(children[0]);
+					childOut.push_back(cod.first);
+					killKid.push_back(cod.second);
 				}
 				else
 				{
@@ -627,7 +887,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 
 			if (runElse)
 			{
-				childOut.push_back(run(children[0]));
+				pair<EquiObject*, bool> rn = run(children[0]);
+				childOut.push_back(rn.first);
+				killKid.push_back(rn.second);
 				EquiPrimitive<bool> fals;
 				fals.setData(false);
 				if (fals != *childOut[0])
@@ -635,7 +897,9 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 					EquiPrimitive<bool>* tru = new EquiPrimitive<bool>;
 					tru->setData(true);
 					out = tru;
-					childOut.push_back(run(children[1]));
+					pair<EquiObject*, bool> cod = run(children[1]);
+					childOut.push_back(cod.first);
+					killKid.push_back(cod.second);
 					runElse = false;
 				}
 				else
@@ -673,12 +937,15 @@ EquiObject* EquiWorker::run(SyntaxTree* code)
 	{
 		for (int i = 0; i < childOut.size(); i++)
 		{
-			delete childOut[i];
+			if (killKid[i])
+				delete childOut[i];
 		}
 	}
 
 	if (out == NULL)
 		out = new EquiVoid;
-	return out;
+
+	pair<EquiObject*, bool> retPair(out, killOut);
+	return retPair;
 }
 

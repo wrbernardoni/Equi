@@ -3,7 +3,7 @@
 
 #include "global.h"
 #include "syntaxTree.h"
-#include "EquiObject.h"
+#include "AllObj.h"
 
 #include <map>
 #include <string>
@@ -32,7 +32,7 @@ public:
 	EquiWorker();
 	~EquiWorker();
 	
-	EquiObject* run(SyntaxTree*);
+	pair<EquiObject*, bool> run(SyntaxTree*);
 };
 
 #endif

@@ -1,0 +1,27 @@
+bool fail = false;
+
+print("Beginning basic integer arithmatic test");
+for (int tN = -249; tN < 250; tN++)
+{
+  if (tN == 0)
+    continue;
+
+  for (int i = -249; i < 250; i++)
+  {
+    int remainder = i % tN;
+    int lO = i / tN;
+    if (i - tN * lO != remainder)
+    {
+      print("%i - %i != %i", i, lO, remainder);
+      fail = true;
+    }
+  }
+}
+
+if (fail)
+  throw("Test failed");
+
+print("Test succeeded");
+
+
+

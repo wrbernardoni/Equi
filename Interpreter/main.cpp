@@ -9,6 +9,7 @@ using namespace std;
 
 int verbose;
 bool failsafe;
+bool fullParse;
 
 struct cmdline
 {
@@ -19,6 +20,7 @@ cmdline argHandler(int argc, char* argv[])
 {
 	cmdline opts;
 	failsafe = false;
+	fullParse = true;
 
 	if (argc >= 2)
 	{
@@ -28,6 +30,7 @@ cmdline argHandler(int argc, char* argv[])
 	if (opts.file == "--")
 	{
 		failsafe = true;
+		fullParse = false;
 	}
 
 	for (int i = 2; i < argc; i++)
@@ -48,6 +51,22 @@ cmdline argHandler(int argc, char* argv[])
 		else if (arg == "-FS" || arg == "--failsafe")
 		{
 			failsafe = true;
+		}
+		else if (arg == "-NFS" || arg == "--notfailsafe")
+		{
+			failsafe = false;
+		}
+		else if (arg == "-PL" || arg == "--parseline")
+		{
+			fullParse = false;
+		}
+		else if (arg == "-PF" || arg == "--parsefull")
+		{
+			fullParse = true;
+		}
+		else
+		{
+			cerr << "Unrecognized command line " << arg << endl;
 		}
 	}
 

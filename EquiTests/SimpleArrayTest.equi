@@ -1,0 +1,71 @@
+print("Beginning array FizzBuzz test");
+
+int max = 10000;
+string[max] fb;
+
+for (int i = 0; i < max; i++)
+{
+	if ((i%3) + (i%5) == 0)
+	{
+		fb[i] = "FizzBuzz";
+	}
+	else if ((i%3) == 0)
+	{
+		fb[i] = "Fizz";
+	}
+	else if ((i%5) == 0)
+	{
+		fb[i] = "Buzz";
+	}
+	else
+	{
+		fb[i] = i;
+	}
+}
+
+print("Initializing loop complete");
+
+bool err = false;
+
+for (int i = 0; i < max; i++)
+{
+	if ((i%3) + (i%5) == 0)
+	{
+		if (fb[i] != "FizzBuzz")
+		{
+			err = true;
+			print ("At %i, fb[%i] = %i, not \"FizzBuzz\"", i, i, fb[i]);
+		}
+	}
+	else if ((i%3) == 0)
+	{
+		if (fb[i] != "Fizz")
+		{
+			err = true;
+			print ("At %i, fb[%i] = %i, not \"Fizz\"", i, i, fb[i]);
+		}
+	}
+	else if ((i%5) == 0)
+	{
+		if (fb[i] != "Buzz")
+		{
+			err = true;
+			print ("At %i, fb[%i] = %i, not \"Buzz\"", i, i, fb[i]);
+		}
+	}
+	else
+	{
+		string s = i;
+		if (fb[i] != s)
+		{
+			err = true;
+			print ("At %i, fb[%i] = %i, not \"%i\"", i, i, fb[i], s);
+		}
+	}
+}
+print("Test loop complete.");
+
+if (err)
+	throw("Bad");
+
+print("Test successful");
