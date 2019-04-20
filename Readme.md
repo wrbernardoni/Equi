@@ -4,7 +4,7 @@
  
  Equicontinuous (aka Equi, aka EquiParallel -- whichever sticks) will one day be an interpreted parallel programming language.
 
- Equi is currently in **v.0.0.4 -- Chihuahua Magenta**
+ Equi is currently in **v.0.0.4r1 -- Chihuahua Magenta**
 
  To run Equi, either set a system path to Equi (preferred), or run the executable in a shell script.
 
@@ -24,6 +24,9 @@ Equi 1--helloworld.equi
 
 
 ## Changelog
+**v.0.0.4 -> v.0.0.4r1**
+  * Fixes issue where temporary variables were deleted before you could access their member functions (i.e. `"hi".size()` now works)
+  * Added tuple style compound assigment `(a,b,c) = (1,2,3)` will set `a = 1`, `b=2`, and `c=3`.
 **v.0.0.3 -> v.0.0.4**
   * Added two command line options -PF (parse whole file and then run) and -PF (parse line by line and run as you get each line), by default when ran on a file it runs in PF, when run on command line input it runs on PL
   * Made evaluating the parse tree spawn fewer objects, and be slightly more memory efficient.
