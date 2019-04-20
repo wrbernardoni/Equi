@@ -22,6 +22,10 @@ extern void throwError(string s);
 
 class EquiObject
 {
+private:
+	bool isTemp;
+	vector<EquiObject*> dependants;
+
 protected:
 	void* data;
 	map<string, EquiObject*> members;
@@ -37,15 +41,30 @@ protected:
 
 public:
 
+	void setTemp(bool b) { isTemp = b; };
+	bool getTemp() { return isTemp; };
+
 	EquiObject()
 	{
 		members["this"] = this;
+		isTemp = true;
 	};
 
 	virtual ~EquiObject()
 	{
 		clearMem();
+		for (int i = 0; i < dependants.size(); i++)
+		{
+			if (dependants[i]->getTemp())
+				delete dependants[i];
+		}
 	};
+
+	void addDependant(EquiObject* o)
+	{
+		dependants.push_back(o);
+	}
+
 
 	virtual EquiObject* spawnMyType() { return new EquiObject; };
 	virtual EquiObject* clone() { return spawnMyType(); };
