@@ -292,6 +292,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			out = (*arr)[stoi(ts)];
 		}
 		out->setTemp(arr->getTemp());
+		if (killKid[0])
+		{
+			killKid[0] = false;
+			out->addDependant(arr);
+		}
 	}
 	else if (code->getType() == EQ_TR_MEMACCESS)
 	{
@@ -299,10 +304,14 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			throwError("Invalid number of operators on memory dereference");
 
 		EquiObject* arr = childOut[0];
-		arr->setTemp(childOut[0]->getTemp());
 		out = (*arr)[code->getTokens()[0]];
 		killOut = false;
 		out->setTemp(arr->getTemp());
+		if (killKid[0])
+		{
+			out->addDependant(childOut[0]);
+			killKid[0] = false;
+		}
 	}
 	else if (code->getType() == EQ_TR_ASSIGNMENT)
 	{
