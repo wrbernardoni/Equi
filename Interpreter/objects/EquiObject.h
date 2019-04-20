@@ -25,6 +25,7 @@ class EquiObject
 protected:
 	void* data;
 	map<string, EquiObject*> members;
+	bool isTemp;
 
 	void clearMem()
 	{
@@ -40,12 +41,16 @@ public:
 	EquiObject()
 	{
 		members["this"] = this;
+		isTemp = true;
 	};
 
 	virtual ~EquiObject()
 	{
 		clearMem();
 	};
+
+	void setTemp(bool b) { isTemp = b; };
+	bool getTemp() { return isTemp; };
 
 	virtual EquiObject* spawnMyType() { return new EquiObject; };
 	virtual EquiObject* clone() { return spawnMyType(); };

@@ -94,7 +94,7 @@ void EquiWorker::emplaceToken(string n, EquiObject* o)
 	if (tokens[tokens.size() - 1]->count(n) != 0)
 		throwError("Token " + n + " already defined");
 
-
+	o->setTemp(false);
 	(*tokens[tokens.size() - 1])[n] = o;
 }
 
@@ -178,10 +178,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		vector<EquiObject*> o;
 		for (int i = 0; i < childOut.size(); i++)
 		{
-			o.push_back(childOut[i]->clone());
+			o.push_back(childOut[i]);
 		}
 
 		t->setTuple(o);
+		killChildren = false;
 		out = t;
 	}
 	else if (code->getType() == EQ_TR_EQUALITY)
@@ -277,6 +278,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 
 		string ts = childOut[1]->to_string();
 		EquiObject* arr = childOut[0];
+		arr->setTemp(childOut[0]->getTemp());
 
 		killOut = false;
 
@@ -286,7 +288,10 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			out = (*arr)[ts];
 		}
 		else
+		{
 			out = (*arr)[stoi(ts)];
+		}
+		out->setTemp(arr->getTemp());
 	}
 	else if (code->getType() == EQ_TR_MEMACCESS)
 	{
@@ -294,17 +299,55 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			throwError("Invalid number of operators on memory dereference");
 
 		EquiObject* arr = childOut[0];
+		arr->setTemp(childOut[0]->getTemp());
 		out = (*arr)[code->getTokens()[0]];
 		killOut = false;
+		out->setTemp(arr->getTemp());
 	}
 	else if (code->getType() == EQ_TR_ASSIGNMENT)
 	{
 		if (childOut.size() != 2)
 			throwError("Invalid number of arguments on assignment");
 
-		((*childOut[0]) = (*childOut[1]));
+		if (! childOut[0]->getTemp())
+		{
+			((*childOut[0]) = (*childOut[1]));
+		}
+		else if (childOut[0]->getType() == E_TUPLE_TYPE)
+		{
+			EquiTuple* tupA = (EquiTuple*)childOut[0];
+			vector<EquiObject*> oA = tupA->getTuple();
+			if (childOut[1]->getType() == E_TUPLE_TYPE)
+			{
+				EquiTuple* tupB = (EquiTuple*)childOut[1];
+				vector<EquiObject*> oB = tupB->getTuple();
+				if (oA.size() != oB.size())
+					throwError("Tuple assignment must be between tuples of the same size");
+				for (int i = 0; i < oA.size(); i++)
+				{
+					if (oA[i]->getTemp())
+						throwError("Cannot assign to a temporary variable");
+					((*oA[i]) = (*oB[i]));
+				}
+			}
+			else
+			{
+				for (int i = 0; i < oA.size(); i++)
+				{
+					if (oA[i]->getTemp())
+						throwError("Cannot assign to a temporary variable");
+					((*oA[i]) = (*childOut[1]));
+				}
+			}
+		}
+		else
+		{
+			throwError("Cannot assign to a temporary variable.");
+		}
 		out = childOut[0];
 		killOut = killKid[0];
+		killKid[0] = false;
+
 	}
 	else if (code->getType() == EQ_TR_DECLARATION)
 	{

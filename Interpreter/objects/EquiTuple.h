@@ -11,7 +11,10 @@ private:
 	{
 		vector<EquiObject*>* tuple = ((vector<EquiObject*>*) data);
 		for (int i = 0; i < tuple->size(); i++)
-			delete (*tuple)[i];
+		{
+			if ((*tuple)[i]->getTemp())
+				delete (*tuple)[i];
+		}
 		tuple->clear();	
 	};
 public:
