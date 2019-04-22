@@ -1131,7 +1131,7 @@
 
 	  ps = state;
 
-	  if (isNum(SAFECHECK(ln,state)) || isString(SAFECHECK(ln,state)) || SAFECHECK(ln,state) == "true" || SAFECHECK(ln,state) == "false" || SAFECHECK(ln,state) == "null")
+	  if (isNum(SAFECHECK(ln,state)) || isString(SAFECHECK(ln,state)) || SAFECHECK(ln,state) == "true" || SAFECHECK(ln,state) == "false" || SAFECHECK(ln,state) == "null" || (SAFECHECK(ln, state) == "(" && SAFECHECK(ln, state + 1) == ")"))
 	  {
 	    SyntaxTree* cons = new SyntaxTree(EQ_TR_CONST);
             if (isNum(SAFECHECK(ln, state)) && (SAFECHECK(ln, state + 1) == ".") && isNum(SAFECHECK(ln, state + 2)))
@@ -1145,9 +1145,18 @@
             }
             else
             {
-	      DPRINT("Eating constant " << SAFECHECK(ln,state))
-	      cons->addToken(SAFECHECK(ln,state));
-              state++;
+              if (SAFECHECK(ln, state) == "(")
+              {
+                DPRINT("Eating constant ()");
+                cons->addToken("()");
+                state += 2;
+              }
+              else
+              {
+	        DPRINT("Eating constant " << SAFECHECK(ln,state))
+	        cons->addToken(SAFECHECK(ln,state));
+                state++;
+              }
             }
             return cons;
 	  }

@@ -651,6 +651,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			tru->setData(true);
 			out = tru;
 		}
+		else if (code->getTokens()[0] == "()")
+		{
+			EquiTuple* tup = new EquiTuple;
+			out = tup;
+		}
 		else if (isString(code->getTokens()[0]))
 		{
 			string s = code->getTokens()[0].substr(1, code->getTokens()[0].size() - 2);
