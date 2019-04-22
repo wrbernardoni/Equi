@@ -78,17 +78,9 @@ install:
 - "./build.sh"
 script:
 - export PARSE=-PL
-- "./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi $PARSE"
-- "./Interpreter/build/Equi ./EquiTests/LoopTest.equi $PARSE"
-- "./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi $PARSE"
-- "./Interpreter/build/Equi ./EquiTests/integerArithmatic.equi $PARSE"
-- "./Interpreter/build/Equi ./EquiTests/stringAtSizeTest.equi $PARSE"
+- "./EquiTests/runTests.sh ./Interpreter/build/Equi $PARSE"
 - export PARSE=-PF
-- "./Interpreter/build/Equi ./EquiTests/LogicalFlowTest.equi $PARSE"
-- "./Interpreter/build/Equi ./EquiTests/LoopTest.equi $PARSE"
-- "./Interpreter/build/Equi ./EquiTests/SimpleArrayTest.equi $PARSE"
-- "./Interpreter/build/Equi ./EquiTests/integerArithmatic.equi $PARSE"
-- "./Interpreter/build/Equi ./EquiTests/stringAtSizeTest.equi $PARSE"
+- "./EquiTests/runTests.sh ./Interpreter/build/Equi $PARSE"
 after_success:
 - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh
