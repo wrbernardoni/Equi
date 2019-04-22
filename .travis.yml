@@ -77,10 +77,11 @@ before_install:
 install:
 - "./build.sh"
 script:
+- cd EquiTests
 - export PARSE=-PL
-- "./EquiTests/runTests.sh ./Interpreter/build/Equi $PARSE"
+- "./runTests.sh ./../Interpreter/build/Equi $PARSE"
 - export PARSE=-PF
-- "./EquiTests/runTests.sh ./Interpreter/build/Equi $PARSE"
+- "./runTests.sh ./../Interpreter/build/Equi $PARSE"
 after_success:
 - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh
