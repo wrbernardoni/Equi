@@ -1,0 +1,35 @@
+int num = getint();
+bool[num] isP;
+
+for (int i = 2; i < isP.size(); i++)
+{
+  isP[i] = true;
+}
+
+for (int i = 2; i < isP.size(); i++)
+{
+  if (isP[i] == false) continue;
+
+  for (int k = 2; k * i < isP.size(); k++)
+  {
+    isP[k * i] = false;
+  }
+}
+
+string s = "";
+
+for (int i = 0; i < isP.size(); i++)
+{
+  if (isP[i])
+  {
+    if (s != "")
+      s = s + ", " + i;
+    else
+      s = i;
+  }
+}
+
+print("The primes up to %i are:\n %i", num, s);
+
+
+
