@@ -27,6 +27,7 @@ using namespace std;
 #define EQ_TR_DO_WHILE "dowhile"
 #define EQ_TR_WHILE "while"
 #define EQ_TR_FOR "for"
+#define EQ_TR_FUNCTION_DEC "function declaration"
 
 #define EQ_TR_SPECIAL "keyword"
 

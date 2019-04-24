@@ -11,6 +11,11 @@
 
 using namespace std;
 
+struct EquiFrame
+{
+	deque<map<string, EquiObject*>*> tokens;
+};
+
 class EquiWorker
 {
 private:
