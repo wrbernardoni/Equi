@@ -138,7 +138,8 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	vector<EquiObject*> childOut;
 	vector<bool> killKid;
 	if (code->getType() != EQ_TR_LOGICAL_BLOCK && code->getType() != EQ_TR_DO_WHILE
-		&& code->getType() != EQ_TR_WHILE && code->getType() != EQ_TR_FOR)
+		&& code->getType() != EQ_TR_WHILE && code->getType() != EQ_TR_FOR
+		&& code->getType() != EQ_TR_FUNCTION_DEC)
 	{
 		for (int i = 0; i < children.size(); i++)
 		{
