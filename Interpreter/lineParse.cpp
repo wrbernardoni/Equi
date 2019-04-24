@@ -1359,7 +1359,7 @@
 	    {
 	      DPRINT("Eating [")
 	      state++;
-	      tok = primary(ln, state);
+	      tok = expression(ln, state);
 
 	      if (!(SAFECHECK(ln, state) == "]"))
 	      {
