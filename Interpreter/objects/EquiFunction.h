@@ -3,7 +3,7 @@
 
 #include "EquiObject.h"
 
-#define EQUI_FN(a) virtual string getDataType() { return #a; }; \
+#define EQUI_FN(a) virtual string getDataType() { return E_FUNCTION_TYPE; }; \
 	virtual EquiObject* clone() { return new a; }; \
 	virtual EquiObject* spawnMyType() { return new a; }; 
 

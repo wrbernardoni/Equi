@@ -19,7 +19,7 @@ public:
 	virtual string getDataType() 
 	{ 
 		T t;
-		return t.getType();
+		return t.getDataType();
 	}
 
 	virtual ~EquiArray()
@@ -113,7 +113,6 @@ private:
 	private:
 		EquiArray<T>* ths;
 	public:
-		virtual string getDataType() { return "E_ARRAY_at"; };
 		virtual EquiObject* clone() { return new E_ARRAY_at(ths); };
 		virtual EquiObject* spawnMyType() { return new E_ARRAY_at; };
 
@@ -154,7 +153,6 @@ private:
 	private:
 		EquiArray<T>* ths;
 	public:
-		virtual string getDataType() { return "E_ARRAY_size"; };
 		virtual EquiObject* clone() { return new E_ARRAY_size(ths); };
 		virtual EquiObject* spawnMyType() { return new E_ARRAY_size; };
 
