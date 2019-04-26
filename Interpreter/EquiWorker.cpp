@@ -41,6 +41,8 @@ EquiWorker::EquiWorker()
 	runElse = false;
 	breakFlag = false;
 	continueFlag = false;
+	returnFlag = false;
+	killReturn = false;
 
 	EquiFrame def;
 	setFrame(def);
@@ -226,6 +228,7 @@ void EquiWorker::resetScope()
 {
 	breakFlag = false;
 	continueFlag = false;
+	returnFlag = false;
 	while (tokens.size() > 1)
 	{
 		scopeDown();
@@ -237,6 +240,12 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	if (breakFlag || continueFlag)
 	{
 		pair<EquiObject*, bool> retPair(new EquiVoid, false);
+		return retPair;
+	}
+
+	if (returnFlag)
+	{
+		pair<EquiObject*, bool> retPair(returnItem, false);
 		return retPair;
 	}
 
@@ -260,7 +269,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	EquiObject* out = NULL;
 	bool killOut = true;
 
-	if (code->getType() == EQ_TR_ROOT)
+	if (returnFlag)
+	{
+
+	}
+	else if (code->getType() == EQ_TR_ROOT)
 	{
 		
 	}
@@ -786,7 +799,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_SPECIAL)
 	{
-		if (childOut.size() > 0 || code->getTokens().size() != 1 )
+		if (code->getTokens().size() != 1 )
 			throwError("Invalid number of arguments for keyword");
 		string tok = code->getTokens()[0];
 
@@ -797,6 +810,21 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		else if (tok == "continue")
 		{
 			continueFlag = true;
+		}
+		else if (tok == "return")
+		{
+			returnFlag = true;
+			if (childOut.size() == 0)
+			{
+				returnItem = new EquiVoid;
+				killReturn = true;
+			}
+			else
+			{
+				returnItem = childOut[0];
+				killReturn = killKid[0];
+				killKid[0] = false;
+			}
 		}
 	}
 	else if (code->getType() == EQ_TR_DO_WHILE)
@@ -809,6 +837,12 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		bool keepRun = true;
 		do
 		{
+			if (returnFlag)
+			{
+				keepRun = false;
+				break;
+			}
+
 			scopeUp();
 			pair<EquiObject*, bool> rn = run(children[0]);
 			if (rn.second)
@@ -817,6 +851,10 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			if(breakFlag)
 			{
 				breakFlag = false;
+				keepRun = false;
+			}
+			else if (returnFlag)
+			{
 				keepRun = false;
 			}
 			else
@@ -855,6 +893,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			breakFlag = false;
 			keepRun = false;
 		}
+		else if (returnFlag)
+		{
+			keepRun = false;
+		}
+
 		if (continueFlag)
 			continueFlag = false;
 
@@ -868,6 +911,10 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			if(breakFlag)
 			{
 				breakFlag = false;
+				keepRun = false;
+			}
+			else if (returnFlag)
+			{
 				keepRun = false;
 			}
 			else
@@ -912,6 +959,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		if (continueFlag)
 			continueFlag = false;
 
+		if (returnFlag)
+		{
+			keepRun = false;
+		}
+
 		while(keepRun)
 		{
 			scopeUp();
@@ -922,6 +974,10 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			if(breakFlag)
 			{
 				breakFlag = false;
+				keepRun = false;
+			}
+			else if (returnFlag)
+			{
 				keepRun = false;
 			}
 			else
@@ -1083,6 +1139,15 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 
 	if (out == NULL)
 		out = new EquiVoid;
+
+	if (returnFlag)
+	{
+		if (killOut)
+			delete out;
+
+		pair<EquiObject*, bool> retPair(returnItem, false);
+		return retPair;
+	}
 
 	pair<EquiObject*, bool> retPair(out, killOut);
 	return retPair;

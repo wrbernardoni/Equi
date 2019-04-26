@@ -20,6 +20,9 @@ private:
 	bool runElse;
 	bool breakFlag;
 	bool continueFlag;
+	bool returnFlag;
+	bool killReturn;
+	EquiObject* returnItem;
 	
 	EquiObject* getToken(string);
 	EquiObject* getType(string);
@@ -32,6 +35,7 @@ private:
 	void scopeDown();
 
 public:
+	inline bool killAnyways() { return returnFlag && killReturn; };
 	EquiFrame getFrame();
 	void setFrame(const EquiFrame&);
 	

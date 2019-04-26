@@ -57,6 +57,7 @@
 	    s != "*" && s != "%" && s != "!" && s != "=" &&
 	    s != "(" && s != ")" && s != "false" && s != "true" &&
 	    s != "{" && s != "}" && s != "[" && s != "]" && s != "." &&
+	    s != "break" && s != "continue" && s != "return" &&
 	    s != "" && !isNum(s) && !isString(s));
 	}
 
@@ -1486,6 +1487,23 @@ SyntaxTree* special(vector<string> ln, int& state)
     expr->addToken("continue");
     return expr;
   }
+  else if (SAFECHECK(ln, state) == "return")
+  {
+  	DPRINT("Eating return");
+  	state++;
+  	int ps = state;
+  	SyntaxTree* expr = new SyntaxTree(EQ_TR_SPECIAL);
+  	expr->addToken("return");
+  	SyntaxTree* o = expression(ln, ps);
+  	if (o != NULL)
+  	{
+  		state = ps;
+  		expr->addChild(o);
+  	}
+
+  	return expr;
+  }
+
   return NULL;
 }
 

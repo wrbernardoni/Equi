@@ -183,11 +183,12 @@ public:
 		work.setFrame(f);
 
 		pair<EquiObject*, bool> o = work.run(code);
+		EquiObject* t = o.first->clone();
 
-		if (o.first->getTemp())
-			return o.first;
-		else
-			return o.first->clone();
+		if (o.second || work.killAnyways())
+			delete o.first;
+
+		return t;
 	}
 };
 
