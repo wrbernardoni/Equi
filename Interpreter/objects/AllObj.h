@@ -5,4 +5,5 @@
 #include "EquiPrimitive.h"
 #include "EquiTuple.h"
 #include "EquiVoid.h"
+#include "EquiFunctionHandle.h"
 

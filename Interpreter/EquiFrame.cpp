@@ -21,6 +21,7 @@ EquiFrame::EquiFrame()
 	(*typ)["long"] = new EquiPrimitive<long>;
 	(*typ)["string"] = new EquiString;
 	(*typ)["()"] = new EquiTuple;
+	(*typ)["function"] = new EquiFunctionHandle;
 	types.push_back(typ);
 }
 
