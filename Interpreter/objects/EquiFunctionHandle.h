@@ -27,7 +27,7 @@ public:
 			delete f;
 	}
 
-	virtual inline string getType() { return E_FUNCTION; };
+	virtual inline string getType() { return E_FUNCTION_TYPE; };
 	virtual inline string getDataType() { return E_FUNCTION_HANDLE_TYPE; };
 
 	virtual EquiObject* spawnMyType() { return new EquiFunctionHandle; };
