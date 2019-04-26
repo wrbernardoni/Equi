@@ -91,7 +91,7 @@ public:
 
 	virtual EquiObject* operator() (EquiObject* in)
 	{
-		EquiFrame f = frame;
+		EquiFrame f(frame);
 
 		if (inType.size() > 1 && in->getType() != E_TUPLE_TYPE)
 		{
