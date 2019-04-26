@@ -196,6 +196,9 @@ void EquiWorker::scopeUp()
 {
 	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
 	tokens.push_back(tok);
+
+	map<string, EquiObject*>* typ = new map<string, EquiObject*>;
+	types.push_back(typ);
 }
 
 void EquiWorker::scopeDown()
@@ -208,6 +211,15 @@ void EquiWorker::scopeDown()
 
 	delete tok;
 	tokens.pop_back();
+
+	map<string, EquiObject*>* typ = types[types.size() - 1];
+	for (auto const& y : *typ)
+	{
+		delete y.second;
+	}
+
+	delete typ;
+	types.pop_back();
 }
 
 void EquiWorker::resetScope()
