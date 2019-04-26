@@ -100,7 +100,8 @@ void EquiWorker::setFrame(const EquiFrame& o)
 		map<string, EquiObject*>* tok = new map<string, EquiObject*>;
 		for (auto y : *x)
 		{
-			EquiObject* o = y.second->clone();
+			EquiObject* o = y.second->spawnMyType();
+			*o = *y.second;
 			o->setTemp(false);
 			(*tok)[y.first] = o;
 		}
@@ -113,7 +114,8 @@ void EquiWorker::setFrame(const EquiFrame& o)
 		map<string, EquiObject*>* tok = new map<string, EquiObject*>;
 		for (auto y : *x)
 		{
-			EquiObject* o = y.second->clone();
+			EquiObject* o = y.second->spawnMyType();
+			*o = *y.second;
 			o->setTemp(false);
 			(*tok)[y.first] = o;
 		}
@@ -167,6 +169,27 @@ void EquiWorker::emplaceToken(string n, EquiObject* o)
 
 	o->setTemp(false);
 	(*tokens[tokens.size() - 1])[n] = o;
+}
+
+bool EquiWorker::isType(string n)
+{
+	for (int i = 0; i < types.size(); i++)
+	{
+		if (types[i]->count(n) != 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void EquiWorker::emplaceType(string n, EquiObject* o)
+{
+	if (types[types.size() - 1]->count(n) != 0)
+		throwError("Token " + n + " already defined");
+
+	o->setTemp(false);
+	(*types[types.size() - 1])[n] = o;
 }
 
 void EquiWorker::scopeUp()
@@ -252,7 +275,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		SyntaxTree* cd = new SyntaxTree("");
 		(*cd) = *(code->getChildren()[0]);
 		EQUI_custom_function* newF = new EQUI_custom_function(code->getTokens(), cd,f);
-		emplaceToken(fn, newF);
+		emplaceType(fn, newF);
 	}
 	else if (code->getType() == EQ_TR_COMMA)
 	{
@@ -725,13 +748,16 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			throwError("Invalid number of arguments on token???");
 
 		string tok = code->getTokens()[0];
-		if (!isToken(tok))
+		if (!isToken(tok) && !isType(tok))
 		{
 			throwError("Undefined reference to token " + tok);
 		}
 
 		killOut = false;
-		out = getToken(tok);
+		if (isToken(tok))
+			out = getToken(tok);
+		else
+			out = getType(tok);
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{

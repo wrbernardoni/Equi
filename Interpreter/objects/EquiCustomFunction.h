@@ -14,13 +14,20 @@ private:
 	EquiFrame frame;
 	string name;
 	vector<pair<string,string>> inType;
+	vector<string> init;
 public:
 	string getDataType() { return E_FUNCTION_TYPE; };
-	virtual EquiObject* clone() { throwError("Cannot clone custom funct"); return NULL; }; \
+	virtual EquiObject* clone()
+	{
+		SyntaxTree* tempC = new SyntaxTree("");
+		*tempC = *code;
+		return new EQUI_custom_function(init, tempC, frame);
+	};
 	virtual EquiObject* spawnMyType() { return clone(); }; 
 
 	EQUI_custom_function(vector<string> tok, SyntaxTree* c, EquiFrame f)
 	{
+		init = tok;
 		code = c;
 		frame = f;
 		name = tok[0];

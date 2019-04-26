@@ -25,6 +25,8 @@ private:
 	EquiObject* getType(string);
 	bool isToken(string);
 	void emplaceToken(string, EquiObject*);
+	bool isType(string);
+	void emplaceType(string, EquiObject*);
 
 	void scopeUp();
 	void scopeDown();
