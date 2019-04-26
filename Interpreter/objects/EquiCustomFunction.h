@@ -65,11 +65,6 @@ public:
 				tp.push_back(s);
 			}
 
-			if (tp[0] == "()")
-			{
-				tp[0] = "tuple";
-			}
-
 			if (tp.size() == 2)
 			{
 				pair<string, string> p(tp[0], tp[1]);
@@ -112,16 +107,27 @@ public:
 						t = t + inType[0].first[i];
 					}
 
-					if (in->getDataType()  != t)
+					if (!frame.isType(t))
+						throwError("Unrecognized desired type for input " + t);
+
+					string dataT = frame.getType(t)->getDataType();
+
+					if (in->getDataType()  != dataT)
 					{
 						throwError("Desired input type " + t + " got: " + in->getDataType());
 					}
 				}
 				else
 				{
-					if (in->getDataType() != inType[0].first)
+					if (!frame.isType(inType[0].first))
+						throwError("Unrecognized desired type for input " + inType[0].first);
+
+					string dataT = frame.getType(inType[0].first)->getDataType();
+
+
+					if (in->getDataType() != dataT)
 					{
-						throwError("Desired input type " + inType[0].first + " got: " + in->getDataType());
+						throwError("Desired input type " + dataT + " got: " + in->getDataType());
 					}
 				}
 
@@ -168,16 +174,27 @@ public:
 							t = t + inType[i].first[j];
 						}
 
-						if (tp[i]->getDataType()  != t)
+						if (!frame.isType(t))
+							throwError("Unrecognized desired type for input " + t);
+
+						string dataT = frame.getType(t)->getDataType();
+
+						if (tp[i]->getDataType()  != dataT)
 						{
 							throwError("Desired input type " + t + " got: " + tp[i]->getDataType());
 						}
 					}
 					else
 					{
-						if (tp[i]->getDataType() != inType[i].first)
+
+						if (!frame.isType(inType[i].first))
+							throwError("Unrecognized desired type for input " + inType[i].first);
+
+						string dataT = frame.getType(inType[i].first)->getDataType();
+
+						if (tp[i]->getDataType() != dataT)
 						{
-							throwError("Desired input type " + inType[i].first + " got: " + tp[i]->getDataType());
+							throwError("Desired input type " + dataT + " got: " + tp[i]->getDataType());
 						}
 					}
 
