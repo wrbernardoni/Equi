@@ -48,6 +48,8 @@ public:
   inline vector<SyntaxTree*> getChildren() { return children; };
   inline vector<string> getTokens() { return tokens; };
 
+  SyntaxTree& operator=(SyntaxTree&);
+
 };
 
 #endif
