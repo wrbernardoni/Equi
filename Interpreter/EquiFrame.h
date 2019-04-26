@@ -16,6 +16,11 @@ public:
 	deque<map<string, EquiObject*>*> tokens;
 	deque<map<string, EquiObject*>*> types;
 
+	bool isToken(string);
+	void emplaceToken(string, EquiObject*);
+	bool isType(string);
+	void emplaceType(string, EquiObject*);
+
 	EquiFrame();
 	EquiFrame(const EquiFrame&);
 	~EquiFrame();

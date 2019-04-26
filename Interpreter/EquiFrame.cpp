@@ -30,6 +30,48 @@ EquiFrame::EquiFrame(const EquiFrame& o)
 	setTypes(o.types);
 }
 
+bool EquiFrame::isToken(string n)
+{
+	for (int i = 0; i < tokens.size(); i++)
+	{
+		if (tokens[i]->count(n) != 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void EquiFrame::emplaceToken(string n, EquiObject* o)
+{
+	if (tokens[tokens.size() - 1]->count(n) != 0)
+		throwError("Token " + n + " already defined");
+
+	o->setTemp(false);
+	(*tokens[tokens.size() - 1])[n] = o;
+}
+
+bool EquiFrame::isType(string n)
+{
+	for (int i = 0; i < types.size(); i++)
+	{
+		if (types[i]->count(n) != 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void EquiFrame::emplaceType(string n, EquiObject* o)
+{
+	if (types[types.size() - 1]->count(n) != 0)
+		throwError("Token " + n + " already defined");
+
+	o->setTemp(false);
+	(*types[types.size() - 1])[n] = o;
+}
+
 EquiFrame& EquiFrame::operator=(const EquiFrame& o)
 {
 	setTokens(o.tokens);

@@ -91,8 +91,6 @@ public:
 
 	virtual EquiObject* operator() (EquiObject* in)
 	{
-		EquiFrame f(frame);
-
 		if (inType.size() > 1 && in->getType() != E_TUPLE_TYPE)
 		{
 			throwError("Missing inputs on function " + name);
@@ -128,10 +126,19 @@ public:
 				}
 
 				map<string,EquiObject*>* tok = new map<string,EquiObject*>;
-				(*tok)[inType[0].second] = in->spawnMyType();
-				*(*tok)[inType[0].second] = *in;
-				(*tok)[inType[0].second]->setTemp(false);
-				f.tokens.push_back(tok);
+				if (frame.isToken(inType[0].second))
+				{
+					*frame.getToken(inType[0].second) = *in;
+					frame.getToken(inType[0].second)->setTemp(false);
+				}
+				else
+				{
+					EquiObject* newO = in->spawnMyType();
+					*newO = *in;
+					frame.emplaceToken(inType[0].second, newO);
+					frame.getToken(inType[0].second)->setTemp(false);
+				}
+				
 			}
 			else
 			{
@@ -146,8 +153,6 @@ public:
 				{
 					throwError("Input size does not match desired");
 				}
-
-				map<string,EquiObject*>* toks = new map<string,EquiObject*>;
 
 				for (int i = 0; i < tp.size(); i++)
 				{
@@ -176,17 +181,24 @@ public:
 						}
 					}
 
-					(*toks)[inType[i].second] = tp[i]->spawnMyType();
-					*(*toks)[inType[i].second] = *tp[i];
-					(*toks)[inType[i].second]->setTemp(false);
+					if (frame.isToken(inType[i].second))
+					{
+						*frame.getToken(inType[i].second) = *tp[i];
+						frame.getToken(inType[i].second)->setTemp(false);
+					}
+					else
+					{
+						EquiObject* newO = tp[i]->spawnMyType();
+						*newO = *tp[i];
+						frame.emplaceToken(inType[i].second, newO);
+						frame.getToken(inType[i].second)->setTemp(false);
+					}
 				}
-
-				f.tokens.push_back(toks);
 			}
 		}
 
 		EquiWorker work;
-		work.setFrame(f);
+		work.setFrame(frame);
 
 		pair<EquiObject*, bool> o = work.run(code);
 		EquiObject* t = o.first->clone();
