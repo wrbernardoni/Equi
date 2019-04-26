@@ -4,6 +4,7 @@
 #include "global.h"
 #include "syntaxTree.h"
 #include "AllObj.h"
+#include "EquiFrame.h"
 
 #include <map>
 #include <string>
@@ -11,20 +12,17 @@
 
 using namespace std;
 
-struct EquiFrame
-{
-	deque<map<string, EquiObject*>*> tokens;
-};
-
 class EquiWorker
 {
 private:
 	deque<map<string, EquiObject*>*> tokens;
+	deque<map<string, EquiObject*>*> types;
 	bool runElse;
 	bool breakFlag;
 	bool continueFlag;
 	
 	EquiObject* getToken(string);
+	EquiObject* getType(string);
 	bool isToken(string);
 	void emplaceToken(string, EquiObject*);
 
@@ -32,6 +30,9 @@ private:
 	void scopeDown();
 
 public:
+	EquiFrame getFrame();
+	void setFrame(const EquiFrame&);
+	
 	void resetScope();
 
 	EquiWorker();

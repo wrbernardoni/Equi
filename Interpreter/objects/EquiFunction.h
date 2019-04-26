@@ -20,6 +20,13 @@ public:
 		return false; 
 	};
 
+	virtual EquiObject& operator= (EquiObject& o)
+	{
+		//TODO: Make this do something
+		//throwError("Ill defined equality declaration between " + getType() + " types.");
+		return *this;
+	};
+
 	virtual EquiObject* operator() (EquiObject*)
 	{
 		throwError("Function " + getDataType() + " undefined.");

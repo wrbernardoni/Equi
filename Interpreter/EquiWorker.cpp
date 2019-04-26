@@ -2,8 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "EquiConsole.h"
-#include "EquiInterface.h"
+#include "EquiCustomFunction.h"
 
 extern void throwError(string s)
 {
@@ -39,28 +38,87 @@ bool tokenFormat(string si){
 
 EquiWorker::EquiWorker()
 {
-	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
-
-	EquiVoid* vd = new EquiVoid;
-	(*tok)["void"] = vd;
 	runElse = false;
-
 	breakFlag = false;
 	continueFlag = false;
 
-	loadInterface(tok);
-	loadConsoleStd(tok);
-	tokens.push_back(tok);
+	EquiFrame def;
+	setFrame(def);
 }
 
 EquiWorker::~EquiWorker()
 {
-	for (auto const& x : tokens)
+	for (auto x : tokens)
 	{
-		for (auto const& y : *x)
+		for (auto y : *x)
 			delete y.second;
 
 		delete x;
+	}
+
+	for (auto x : types)
+	{
+		for (auto y : *x)
+			delete y.second;
+
+		delete x;
+	}
+}
+
+EquiFrame EquiWorker::getFrame()
+{
+	EquiFrame f;
+	f.setTokens(tokens);
+	f.setTypes(types);
+	return f;
+}
+
+void EquiWorker::setFrame(const EquiFrame& o)
+{
+	for (auto x : tokens)
+	{
+		for (auto y : *x)
+			delete y.second;
+
+		delete x;
+	}
+
+	tokens.clear();
+
+	for (auto x : types)
+	{
+		for (auto y : *x)
+			delete y.second;
+
+		delete x;
+	}
+
+	types.clear();
+
+	for (auto x : o.tokens)
+	{
+		map<string, EquiObject*>* tok = new map<string, EquiObject*>;
+		for (auto y : *x)
+		{
+			EquiObject* o = y.second->clone();
+			o->setTemp(false);
+			(*tok)[y.first] = o;
+		}
+
+		tokens.push_back(tok);
+	}
+
+	for (auto x : o.types)
+	{
+		map<string, EquiObject*>* tok = new map<string, EquiObject*>;
+		for (auto y : *x)
+		{
+			EquiObject* o = y.second->clone();
+			o->setTemp(false);
+			(*tok)[y.first] = o;
+		}
+
+		types.push_back(tok);
 	}
 }
 
@@ -74,6 +132,19 @@ EquiObject* EquiWorker::getToken(string n)
 		}
 	}
 	throwError("Token " + n + " not found");
+	return NULL;
+}
+
+EquiObject* EquiWorker::getType(string n)
+{
+	for (int i = types.size() - 1; i >= 0; i--)
+	{
+		if (types[i]->count(n) != 0)
+		{
+			return (*types[i])[n];
+		}
+	}
+	throwError("Type " + n + " not found");
 	return NULL;
 }
 
@@ -172,6 +243,16 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			killChildren = false;
 		}
 		
+	}
+	else if (code->getType() == EQ_TR_FUNCTION_DEC)
+	{
+		string fn = code->getTokens()[0];
+		EquiFrame f;
+		f.setTypes(types);
+		SyntaxTree* cd = new SyntaxTree("");
+		(*cd) = *(code->getChildren()[0]);
+		EQUI_custom_function* newF = new EQUI_custom_function(code->getTokens(), cd,f);
+		emplaceToken(fn, newF);
 	}
 	else if (code->getType() == EQ_TR_COMMA)
 	{
@@ -405,45 +486,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			}
 			else
 			{
-				if (type == "int")
-				{
-					newObj = new EquiPrimitive<int>;
-					((EquiPrimitive<int>*)newObj)->setData(0);
-				}
-				else if (type == "long")
-				{
-					newObj = new EquiPrimitive<long>;
-					((EquiPrimitive<long>*)newObj)->setData(0);
-				}
-				else if (type == "double")
-				{
-					newObj = new EquiPrimitive<double>;
-					((EquiPrimitive<double>*)newObj)->setData(0);
-				}
-				else if (type == "float")
-				{
-					newObj = new EquiPrimitive<float>;
-					((EquiPrimitive<float>*)newObj)->setData(0);
-				}
-				else if (type == "bool")
-				{
-					newObj = new EquiPrimitive<bool>;
-					((EquiPrimitive<bool>*)newObj)->setData(0);
-				}
-				else if (type == "string")
-				{
-					newObj = new EquiString;
-					((EquiString*)newObj)->setString("");
-				}
-				else if (type == "()")
-				{
-					newObj = new EquiTuple;
-				}
-				else
-				{
-					throwError("Unrecognized type name");
-				}
-
+				newObj = getType(type)->spawnMyType();
 				emplaceToken(tok, newObj);
 			}
 		}
