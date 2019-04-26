@@ -60,8 +60,10 @@ vector<string> getLine(istream* in, int& lineNum)
       if (ln[i] == ')')
         paren--;
 
+      /*
       if (scope == 0 && line.size() != 0 && (line[line.size()-1] == "function" || line[line.size()-1] == "task"))
         oneMore = true;
+      */
 
       if (scope < 0)
       {
