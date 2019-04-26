@@ -1,5 +1,5 @@
-#ifndef EQUI_INTERFACE_
-#define EQUI_INTERFACE_
+#ifndef EQUI_INTERFACE_H_
+#define EQUI_INTERFACE_H_
 
 #include "AllObj.h"
 
