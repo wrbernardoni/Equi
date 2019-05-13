@@ -39,10 +39,12 @@ public:
 	inline bool killAnyways() { return returnFlag && killReturn; };
 	EquiFrame getFrame();
 	void setFrame(const EquiFrame&);
+	void loanFrame(EquiFrame*);
 	
 	void resetScope();
 
 	EquiWorker();
+	EquiWorker(EquiFrame*);
 	~EquiWorker();
 	
 	pair<EquiObject*, bool> run(SyntaxTree*);

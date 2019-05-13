@@ -51,6 +51,21 @@ EquiWorker::EquiWorker()
 	data = new EquiFrame;
 }
 
+EquiWorker::EquiWorker(EquiFrame* f)
+{
+	runElse = false;
+	breakFlag = false;
+	continueFlag = false;
+	returnFlag = false;
+	killReturn = false;
+
+	//EquiFrame def;
+	//setFrame(def);
+
+	ownedFrame = false;
+	data = f;
+}
+
 EquiWorker::~EquiWorker()
 {
 	if (ownedFrame)
@@ -65,6 +80,14 @@ EquiFrame EquiWorker::getFrame()
 void EquiWorker::setFrame(const EquiFrame& o)
 {
 	(*data) = o;
+}
+
+void EquiWorker::loanFrame(EquiFrame* f)
+{
+	if (ownedFrame)
+		delete data;
+	ownedFrame = false;
+	data = f;
 }
 
 EquiObject* EquiWorker::getToken(string n)
