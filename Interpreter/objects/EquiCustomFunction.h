@@ -214,8 +214,7 @@ public:
 			}
 		}
 
-		EquiWorker work;
-		work.setFrame(frame);
+		EquiWorker work(&frame);
 
 		pair<EquiObject*, bool> o = work.run(code);
 		EquiObject* t = o.first->clone();
