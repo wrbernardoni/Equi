@@ -44,95 +44,36 @@ EquiWorker::EquiWorker()
 	returnFlag = false;
 	killReturn = false;
 
-	EquiFrame def;
-	setFrame(def);
+	//EquiFrame def;
+	//setFrame(def);
+
+	ownedFrame = true;
+	data = new EquiFrame;
 }
 
 EquiWorker::~EquiWorker()
 {
-	for (auto x : tokens)
-	{
-		for (auto y : *x)
-			delete y.second;
-
-		delete x;
-	}
-
-	for (auto x : types)
-	{
-		for (auto y : *x)
-			delete y.second;
-
-		delete x;
-	}
+	if (ownedFrame)
+		delete data;
 }
 
 EquiFrame EquiWorker::getFrame()
 {
-	EquiFrame f;
-	f.setTokens(tokens);
-	f.setTypes(types);
-	return f;
+	return *data;
 }
 
 void EquiWorker::setFrame(const EquiFrame& o)
 {
-	for (auto x : tokens)
-	{
-		for (auto y : *x)
-			delete y.second;
-
-		delete x;
-	}
-
-	tokens.clear();
-
-	for (auto x : types)
-	{
-		for (auto y : *x)
-			delete y.second;
-
-		delete x;
-	}
-
-	types.clear();
-
-	for (auto x : o.tokens)
-	{
-		map<string, EquiObject*>* tok = new map<string, EquiObject*>;
-		for (auto y : *x)
-		{
-			EquiObject* o = y.second->spawnMyType();
-			*o = *y.second;
-			o->setTemp(false);
-			(*tok)[y.first] = o;
-		}
-
-		tokens.push_back(tok);
-	}
-
-	for (auto x : o.types)
-	{
-		map<string, EquiObject*>* tok = new map<string, EquiObject*>;
-		for (auto y : *x)
-		{
-			EquiObject* o = y.second->spawnMyType();
-			*o = *y.second;
-			o->setTemp(false);
-			(*tok)[y.first] = o;
-		}
-
-		types.push_back(tok);
-	}
+	(*data) = o;
 }
 
 EquiObject* EquiWorker::getToken(string n)
 {
-	for (int i = tokens.size() - 1; i >= 0; i--)
+	for (int i = data->tokens.size() - 1; i >= 0; i--)
 	{
-		if (tokens[i]->count(n) != 0)
+		if (data->tokens[i]->count(n) != 0)
 		{
-			return (*tokens[i])[n];
+			return (*(data->tokens[i]))[n];
 		}
 	}
 	throwError("Token " + n + " not found");
@@ -141,11 +82,11 @@ EquiObject* EquiWorker::getToken(string n)
 
 EquiObject* EquiWorker::getType(string n)
 {
-	for (int i = types.size() - 1; i >= 0; i--)
+	for (int i = data->types.size() - 1; i >= 0; i--)
 	{
-		if (types[i]->count(n) != 0)
+		if (data->types[i]->count(n) != 0)
 		{
-			return (*types[i])[n];
+			return (*(data->types[i]))[n];
 		}
 	}
 	throwError("Type " + n + " not found");
@@ -154,9 +95,9 @@ EquiObject* EquiWorker::getType(string n)
 
 bool EquiWorker::isToken(string n)
 {
-	for (int i = 0; i < tokens.size(); i++)
+	for (int i = 0; i < data->tokens.size(); i++)
 	{
-		if (tokens[i]->count(n) != 0)
+		if (data->tokens[i]->count(n) != 0)
 		{
 			return true;
 		}
@@ -166,18 +107,18 @@ bool EquiWorker::isToken(string n)
 
 void EquiWorker::emplaceToken(string n, EquiObject* o)
 {
-	if (tokens[tokens.size() - 1]->count(n) != 0)
+	if (data->tokens[data->tokens.size() - 1]->count(n) != 0)
 		throwError("Token " + n + " already defined");
 
 	o->setTemp(false);
-	(*tokens[tokens.size() - 1])[n] = o;
+	(*(data->tokens[data->tokens.size() - 1]))[n] = o;
 }
 
 bool EquiWorker::isType(string n)
 {
-	for (int i = 0; i < types.size(); i++)
+	for (int i = 0; i < data->types.size(); i++)
 	{
-		if (types[i]->count(n) != 0)
+		if (data->types[i]->count(n) != 0)
 		{
 			return true;
 		}
@@ -187,41 +128,41 @@ bool EquiWorker::isType(string n)
 
 void EquiWorker::emplaceType(string n, EquiObject* o)
 {
-	if (types[types.size() - 1]->count(n) != 0)
+	if (data->types[data->types.size() - 1]->count(n) != 0)
 		throwError("Token " + n + " already defined");
 
 	o->setTemp(false);
-	(*types[types.size() - 1])[n] = o;
+	(*(data->types[data->types.size() - 1]))[n] = o;
 }
 
 void EquiWorker::scopeUp()
 {
 	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
-	tokens.push_back(tok);
+	data->tokens.push_back(tok);
 
 	map<string, EquiObject*>* typ = new map<string, EquiObject*>;
-	types.push_back(typ);
+	data->types.push_back(typ);
 }
 
 void EquiWorker::scopeDown()
 {
-	map<string, EquiObject*>* tok = tokens[tokens.size() - 1];
+	map<string, EquiObject*>* tok = data->tokens[data->tokens.size() - 1];
 	for (auto const& y : *tok)
 	{
 		delete y.second;
 	}
 
 	delete tok;
-	tokens.pop_back();
+	data->tokens.pop_back();
 
-	map<string, EquiObject*>* typ = types[types.size() - 1];
+	map<string, EquiObject*>* typ = data->types[data->types.size() - 1];
 	for (auto const& y : *typ)
 	{
 		delete y.second;
 	}
 
 	delete typ;
-	types.pop_back();
+	data->types.pop_back();
 }
 
 void EquiWorker::resetScope()
@@ -229,7 +170,7 @@ void EquiWorker::resetScope()
 	breakFlag = false;
 	continueFlag = false;
 	returnFlag = false;
-	while (tokens.size() > 1)
+	while (data->tokens.size() > 1)
 	{
 		scopeDown();
 	}
@@ -296,7 +237,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	{
 		string fn = code->getTokens()[0];
 		EquiFrame f;
-		f.setTypes(types);
+		f.setTypes(data->types);
 		SyntaxTree* cd = new SyntaxTree("");
 		(*cd) = *(code->getChildren()[0]);
 		EQUI_custom_function* newF = new EQUI_custom_function(code->getTokens(), cd,f);

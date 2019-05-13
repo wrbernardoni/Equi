@@ -15,8 +15,9 @@ using namespace std;
 class EquiWorker
 {
 private:
-	deque<map<string, EquiObject*>*> tokens;
-	deque<map<string, EquiObject*>*> types;
+	bool ownedFrame;
+	EquiFrame* data;
+
 	bool runElse;
 	bool breakFlag;
 	bool continueFlag;
