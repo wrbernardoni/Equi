@@ -6,6 +6,8 @@ EquiFrame::EquiFrame()
 {
 	delType = true;
 	delTok = true;
+	dTyL = 0;
+	dToL = 0;
 	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
 
 	EquiVoid* vd = new EquiVoid;
@@ -31,6 +33,8 @@ EquiFrame::EquiFrame(const EquiFrame& o)
 {
 	delType = true;
 	delTok = true;
+	dTyL = 0;
+	dToL = 0;
 
 	setTokens(o.tokens);
 	setTypes(o.types);
@@ -40,6 +44,8 @@ EquiFrame::EquiFrame(EquiFrame* o, bool dTo, bool dTy)
 {
 	delType = dTy;
 	delTok = dTo;
+	dTyL = 0;
+	dToL = 0;
 
 	if (!dTy)
 		copyTypes(o->types);
@@ -109,26 +115,30 @@ EquiFrame::~EquiFrame()
 
 void EquiFrame::clear()
 {
+	int i = 0;
 	for (auto x : tokens)
 	{
-		if (delTok)
+		if (delTok || i > dToL)
 		{
 			for (auto y : *x)
 				delete y.second;
 		}
+		i++;
 
 		delete x;
 	}
 
 	tokens.clear();
 
+	i = 0;
 	for (auto x : types)
 	{
-		if (delType)
+		if (delType || i > dTyL)
 		{
 			for (auto y : *x)
 				delete y.second;
 		}
+		i++;
 
 		delete x;
 	}
@@ -138,17 +148,22 @@ void EquiFrame::clear()
 
 void EquiFrame::setTokens(const deque<map<string, EquiObject*>*>& o)
 {
+	int i = 0;
 	for (auto x : tokens)
 	{
-		if (delTok)
+		if (delTok || i > dToL)
 		{
 			for (auto y : *x)
 				delete y.second;
 		}
+		i++;
 
 		delete x;
 	}
 	tokens.clear();
+
+	delTok = true;
+	dToL = 0;
 
 	for (auto x : o)
 	{
@@ -167,17 +182,23 @@ void EquiFrame::setTokens(const deque<map<string, EquiObject*>*>& o)
 
 void EquiFrame::copyTokens(const deque<map<string, EquiObject*>*>& o)
 {
+	int i = 0;
 	for (auto x : tokens)
 	{
-		if (delTok)
+		if (delTok || i > dToL)
 		{
 			for (auto y : *x)
 				delete y.second;
 		}
 
+		i++;
+
 		delete x;
 	}
 	tokens.clear();
+
+	delTok = false;
+	dToL = 0;
 
 	for (auto x : o)
 	{
@@ -189,22 +210,28 @@ void EquiFrame::copyTokens(const deque<map<string, EquiObject*>*>& o)
 		}
 
 		tokens.push_back(tok);
+		dToL++;
 	}
 }
 
 void EquiFrame::setTypes(const deque<map<string, EquiObject*>*>& o)
 {
+	int i = 0;
 	for (auto x : types)
 	{
-		if (delType)
+		if (delType || i > dTyL)
 		{
 			for (auto y : *x)
 				delete y.second;
 		}
+		i++;
 
 		delete x;
 	}
 	types.clear();
+
+	delType = true;
+	dTyL = 0;
 
 	for (auto  x : o)
 	{
@@ -223,17 +250,22 @@ void EquiFrame::setTypes(const deque<map<string, EquiObject*>*>& o)
 
 void EquiFrame::copyTypes(const deque<map<string, EquiObject*>*>& o)
 {
+	int i = 0;
 	for (auto x : types)
 	{
-		if (delType)
+		if (delType || i > dTyL)
 		{
 			for (auto y : *x)
 				delete y.second;
 		}
+		i++;
 
 		delete x;
 	}
 	types.clear();
+
+	delType = false;
+	dTyL = 0;
 
 	for (auto  x : o)
 	{
@@ -245,6 +277,7 @@ void EquiFrame::copyTypes(const deque<map<string, EquiObject*>*>& o)
 		}
 
 		types.push_back(tok);
+		dTyL++;
 	}
 }
 

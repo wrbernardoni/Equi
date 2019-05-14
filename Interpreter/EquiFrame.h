@@ -15,6 +15,8 @@ class EquiFrame
 private:
 	bool delType;
 	bool delTok;
+	int dTyL;
+	int dToL;
 
 	void copyTokens(const deque<map<string, EquiObject*>*>&);
 	void copyTypes(const deque<map<string, EquiObject*>*>&);
