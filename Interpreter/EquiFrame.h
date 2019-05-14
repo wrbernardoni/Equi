@@ -12,6 +12,12 @@ using namespace std;
 
 class EquiFrame
 {
+private:
+	bool delType;
+	bool delTok;
+
+	void copyTokens(const deque<map<string, EquiObject*>*>&);
+	void copyTypes(const deque<map<string, EquiObject*>*>&);
 public:
 	deque<map<string, EquiObject*>*> tokens;
 	deque<map<string, EquiObject*>*> types;
@@ -23,6 +29,7 @@ public:
 
 	EquiFrame();
 	EquiFrame(const EquiFrame&);
+	EquiFrame(EquiFrame*, bool, bool);
 	~EquiFrame();
 
 	EquiObject* getToken(string);

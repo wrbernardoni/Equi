@@ -79,7 +79,13 @@ EquiFrame EquiWorker::getFrame()
 
 void EquiWorker::setFrame(const EquiFrame& o)
 {
-	(*data) = o;
+	if (ownedFrame)
+		(*data) = o;
+	else
+	{
+		data = new EquiFrame;
+		(*data) = o;
+	}
 }
 
 void EquiWorker::loanFrame(EquiFrame* f)
@@ -88,6 +94,14 @@ void EquiWorker::loanFrame(EquiFrame* f)
 		delete data;
 	ownedFrame = false;
 	data = f;
+}
+
+void EquiWorker::loanType(EquiFrame* f)
+{
+	if (ownedFrame)
+		delete data;
+	ownedFrame = true;
+	data = new EquiFrame(f, true, false);
 }
 
 EquiObject* EquiWorker::getToken(string n)

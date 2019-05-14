@@ -20,7 +20,14 @@ public:
 	{
 		SyntaxTree* tempC = new SyntaxTree("");
 		*tempC = *code;
-		return new EQUI_custom_function(inType, name, tempC, frame);
+
+		map<string, EquiObject*>* t = frame.types.back();
+		frame.types.pop_back();
+
+		EquiObject* out = new EQUI_custom_function(inType, name, tempC, frame);
+
+		frame.types.push_back(t);
+		return out;
 	};
 	virtual EquiObject* spawnMyType() { return clone(); }; 
 
@@ -30,6 +37,10 @@ public:
 		name = n;
 		code = c;
 		frame = f;
+
+		map<string, EquiObject*>* t = new map<string, EquiObject*>;
+		(*t)[name] = this;
+		frame.types.push_back(t);
 	}
 
 	EQUI_custom_function(vector<string> tok, SyntaxTree* c, EquiFrame f)
@@ -77,10 +88,17 @@ public:
 				inType.push_back(p);
 			}
 		}
+
+		map<string, EquiObject*>* t = new map<string, EquiObject*>;
+		(*t)[name] = this;
+		frame.types.push_back(t);
 	}
 
 	~EQUI_custom_function()
 	{
+		map<string, EquiObject*>* t = frame.types.back();
+		frame.types.pop_back();
+		delete t;
 		delete code;
 	}
 
@@ -214,7 +232,8 @@ public:
 			}
 		}
 
-		EquiWorker work(&frame);
+		EquiWorker work;
+		work.loanType(&frame);
 
 		pair<EquiObject*, bool> o = work.run(code);
 		EquiObject* t = o.first->clone();

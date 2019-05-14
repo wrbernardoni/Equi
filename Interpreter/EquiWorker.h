@@ -40,6 +40,7 @@ public:
 	EquiFrame getFrame();
 	void setFrame(const EquiFrame&);
 	void loanFrame(EquiFrame*);
+	void loanType(EquiFrame*);
 	
 	void resetScope();
 
