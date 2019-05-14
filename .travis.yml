@@ -80,6 +80,7 @@ script:
 - cd EquiTests
 - "./runTests.sh ./../Interpreter/build/Equi -PL"
 - "./runTests.sh ./../Interpreter/build/Equi -PF"
+- cd ..
 after_success:
 - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
 - chmod +x send.sh
