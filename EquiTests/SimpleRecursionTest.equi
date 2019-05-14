@@ -1,0 +1,73 @@
+print("Beginning simple recursion test.");
+bool fail = false;
+
+function fibb : (int n) -> int
+{
+	if (n == 0)
+	{
+		int r = 0;
+		return r;
+	}
+	else if (n == 1)
+	{
+		int r = 1;
+		return r;
+	}
+
+	int r = fibb(n - 1);
+	int s = fibb(n - 2);
+	return s + r;
+}
+
+int n = 0;
+int fR = fibb(n);
+if (fR != 0)
+{
+	print("Fibbonaci of 0 outputted %i, expected 0", fR);
+	fail = true;
+}
+
+n = 1;
+fR = fibb(n);
+if (fR != 1)
+{
+	print("Fibbonaci of 1 outputted %i, expected 1", fR);
+	fail = true;
+}
+
+n = 2;
+fR = fibb(n);
+if (fR != 1)
+{
+	print("Fibbonaci of 2 outputted %i, expected 1", fR);
+	fail = true;
+}
+
+n = 3;
+fR = fibb(n);
+if (fR != 2)
+{
+	print("Fibbonaci of 3 outputted %i, expected 2", fR);
+	fail = true;
+}
+
+n = 5;
+fR = fibb(n);
+if (fR != 5)
+{
+	print("Fibbonaci of 5 outputted %i, expected 5", fR);
+	fail = true;
+}
+
+n = 14;
+fR = fibb(n);
+if (fR != 377)
+{
+	print("Fibbonaci of 14 outputted %i, expected 377", fR);
+	fail = true;
+}
+
+if (fail)
+  throw("Test failed");
+
+print("Test succeeded");
