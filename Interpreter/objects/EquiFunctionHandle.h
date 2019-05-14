@@ -27,13 +27,15 @@ public:
 			delete f;
 	}
 
+	virtual string to_string() { return "FUNCTION_HANDLE"; };
+
 	virtual inline string getType() { return E_FUNCTION_TYPE; };
 	virtual inline string getDataType() { return E_FUNCTION_HANDLE_TYPE; };
 
 	virtual EquiObject* spawnMyType() { return new EquiFunctionHandle; };
 	virtual EquiObject* clone()
 	{
-		return spawnMyType();
+		return cloneF();
 	}
 
 	virtual EquiObject* operator() (EquiObject* in)

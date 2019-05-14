@@ -34,6 +34,50 @@ if (added != 6)
 }
 // added equals 6 here, 4 + 2
 
+function id : (double d) -> double
+{
+	return d;
+}
+
+function pointWise : (() t) -> ()
+{
+	function operation =& id;
+	for (int i = 0; i < t.size(); i++)
+	{
+		t[i] = operation(t[i]);
+	}
+
+	return t;
+}
+
+
+() tup = (1, 2, 3);
+
+function twoTimes : (double d) -> double
+{
+	return 2 * d;
+}
+
+if (pointWise(tup) != tup)
+{
+	fail = true;
+	print("Identity map applied pointwise changed the tuple (1,2,3) to %i", pointwise(tup));
+}
+
+() doubledT = pointWise(tup, twoTimes as operation);
+
+if (doubledT == tup)
+{
+	fail = true;
+	print("Identity map executed when we expected doubling of tuple");
+}
+
+if (doubledT[0] != (2* tup[0]))
+{
+	fail = true;
+	print("Doubling map did not double first element of tuple");
+}
+
 if (fail)
   throw("Test failed");
 

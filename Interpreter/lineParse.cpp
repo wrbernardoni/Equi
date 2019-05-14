@@ -59,7 +59,7 @@
 	    s != "*" && s != "%" && s != "!" && s != "=" &&
 	    s != "(" && s != ")" && s != "false" && s != "true" &&
 	    s != "{" && s != "}" && s != "[" && s != "]" && s != "." &&
-	    s != "&" &&
+	    s != "&" && s != "as" &&
 	    s != "break" && s != "continue" && s != "return" &&
 	    s != "" && !isNum(s) && !isString(s));
 	}
@@ -1298,7 +1298,22 @@
 						}
 					} while(!through);
 				}
-			  	fn->addChild(exp);
+
+				if (exp->getChildren().size() == 1 && exp->getType() == EQ_TR_COMMA)
+				{
+					SyntaxTree* t = exp->getChildren()[0];
+					exp->drop(0);
+					delete exp;
+					exp = t;
+				}
+				else if (exp->getChildren().size() == 0 && exp->getType() == EQ_TR_COMMA)
+				{
+					delete exp;
+					exp = NULL;
+				}
+
+				if (exp != NULL)
+			  		fn->addChild(exp);
 			}
 			return fn;
 	      }
