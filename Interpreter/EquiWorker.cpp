@@ -799,9 +799,9 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			}
 			else
 			{
-				returnItem = childOut[0];
-				killReturn = killKid[0];
-				killKid[0] = false;
+				returnItem = childOut[0]->clone();
+				killReturn = true;
+				//killKid[0] = false;
 			}
 		}
 	}
