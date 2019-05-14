@@ -24,6 +24,11 @@ Equi 1--helloworld.equi
 
 
 ## Changelog
+**v.0.0.5 -> Current**
+  * Added `=&` operator, which will define and initialize a variable iff it has not been defined yet
+  * Added `as` operator, which allows for function calls like: `f(1,2, "multiply" as operation)`, which sets `operation` to the string `"multiply"` before executing the function `f`
+  * Added a `size()` and `at(int)` member function to the tuple class.
+
 **v.0.0.4_rev1 -> v.0.0.5**
   * Added custom function declarations that allow for using other custom functions and recursion.
   * May now reference an empty tuple, i.e. `() t = ()`
