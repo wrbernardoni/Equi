@@ -512,8 +512,20 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			}
 			else
 			{
-				newObj = getType(type)->spawnMyType();
-				emplaceToken(tok, newObj);
+				if (childOut.size() != 0)
+				{
+					if (!isToken(tok))
+					{
+						newObj = getType(type)->spawnMyType();
+						(*newObj) = (*childOut[0]);
+						emplaceToken(tok, newObj);
+					}
+				}
+				else
+				{
+					newObj = getType(type)->spawnMyType();
+					emplaceToken(tok, newObj);
+				}
 			}
 		}
 		else if (code->getTokens().size() == 2)
@@ -599,95 +611,143 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			}
 			else
 			{
-				//int[32] a;
-				EquiObject* newObj = NULL;
-				if (type == "int")
+				if (childOut.size() != 0)
 				{
-					newObj = new EquiArray<EquiPrimitive<int>>;
-					EquiPrimitive<int>* tO;
-					for (int i = 0; i < index; i++)
+					if (!isToken(tok))
 					{
-						tO = new EquiPrimitive<int>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<int>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "long")
-				{
-					newObj = new EquiArray<EquiPrimitive<long>>;
-					EquiPrimitive<long>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<long>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "double")
-				{
-					newObj = new EquiArray<EquiPrimitive<long>>;
-					EquiPrimitive<long>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<long>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
-					}
+						//int[32] a;
+						EquiObject* newObj = NULL;
+						if (type == "int")
+						{
+							newObj = new EquiArray<EquiPrimitive<int>>;
+						}
+						else if (type == "long")
+						{
+							newObj = new EquiArray<EquiPrimitive<long>>;
+						}
+						else if (type == "double")
+						{
+							newObj = new EquiArray<EquiPrimitive<long>>;
+						}
+						else if (type == "float")
+						{
+							newObj = new EquiArray<EquiPrimitive<float>>;
+						}
+						else if (type == "bool")
+						{
+							newObj = new EquiArray<EquiPrimitive<bool>>;
+						}
+						else if (type == "string")
+						{
+							newObj = new EquiArray<EquiString>;
+						}
+						else if (type == "()")
+						{
+							newObj = new EquiArray<EquiTuple>;
+						}
+						else
+						{
+							throwError("Unrecognized type name");
+						}
 
-					newObj = new EquiPrimitive<double>;
-					((EquiPrimitive<double>*)newObj)->setData(0);
-				}
-				else if (type == "float")
-				{
-					newObj = new EquiArray<EquiPrimitive<float>>;
-					EquiPrimitive<float>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<float>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<float>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "bool")
-				{
-					newObj = new EquiArray<EquiPrimitive<bool>>;
-					EquiPrimitive<bool>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<bool>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<bool>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "string")
-				{
-					newObj = new EquiArray<EquiString>;
-					EquiString* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiString;
-						tO->setString("");
-						((EquiArray<EquiString>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "()")
-				{
-					newObj = new EquiArray<EquiTuple>;
-					EquiTuple* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiTuple;
-						((EquiArray<EquiTuple>*)newObj)->append(tO);
+						(*newObj) = (*childOut[0]);
+						emplaceToken(tok, newObj);
+
+						obj = newObj;
 					}
 				}
 				else
 				{
-					throwError("Unrecognized type name");
+					//int[32] a;
+					EquiObject* newObj = NULL;
+					if (type == "int")
+					{
+						newObj = new EquiArray<EquiPrimitive<int>>;
+						EquiPrimitive<int>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<int>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<int>>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "long")
+					{
+						newObj = new EquiArray<EquiPrimitive<long>>;
+						EquiPrimitive<long>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<long>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "double")
+					{
+						newObj = new EquiArray<EquiPrimitive<long>>;
+						EquiPrimitive<long>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<long>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+						}
+
+						newObj = new EquiPrimitive<double>;
+						((EquiPrimitive<double>*)newObj)->setData(0);
+					}
+					else if (type == "float")
+					{
+						newObj = new EquiArray<EquiPrimitive<float>>;
+						EquiPrimitive<float>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<float>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<float>>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "bool")
+					{
+						newObj = new EquiArray<EquiPrimitive<bool>>;
+						EquiPrimitive<bool>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<bool>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<bool>>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "string")
+					{
+						newObj = new EquiArray<EquiString>;
+						EquiString* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiString;
+							tO->setString("");
+							((EquiArray<EquiString>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "()")
+					{
+						newObj = new EquiArray<EquiTuple>;
+						EquiTuple* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiTuple;
+							((EquiArray<EquiTuple>*)newObj)->append(tO);
+						}
+					}
+					else
+					{
+						throwError("Unrecognized type name");
+					}
+
+					emplaceToken(tok, newObj);
+
+					obj = newObj;
 				}
-
-				emplaceToken(tok, newObj);
-
-				obj = newObj;
 			}
 		}
 		

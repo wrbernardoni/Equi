@@ -57,6 +57,7 @@
 	    s != "*" && s != "%" && s != "!" && s != "=" &&
 	    s != "(" && s != ")" && s != "false" && s != "true" &&
 	    s != "{" && s != "}" && s != "[" && s != "]" && s != "." &&
+	    s != "&" &&
 	    s != "break" && s != "continue" && s != "return" &&
 	    s != "" && !isNum(s) && !isString(s));
 	}
@@ -1220,7 +1221,18 @@
 	      dec->addToken(SAFECHECK(ln, state));
 	      state++;
 
-	      return dec;
+	      if (SAFECHECK(ln, state) == "=" && SAFECHECK(ln, state+1) == "&")
+	      {
+	      	state += 2;
+	      	SyntaxTree* rhs = expression(ln, state);
+	      	if (rhs != NULL)
+	      	{
+	      		dec->addChild(rhs);
+	      		return dec;
+	      	}
+	      }
+	      else
+	      	return dec;
 	    }
 	  }
 	  delete dec;
