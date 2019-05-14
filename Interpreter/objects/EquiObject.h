@@ -150,6 +150,16 @@ public:
 		return n;
 	}
 
+	virtual EquiObject* operator() (EquiObject* i, vector<pair<string, EquiObject*>> n)
+	{
+		for (int i = 0; i < n.size(); i++)
+		{
+			delete n[i].second;
+		}
+		EquiObject* o = operator()(i);
+		return o;
+	}
+
 	virtual EquiObject& operator++()
 	{
 		throwError("Cannot increment " + getType() + ".");

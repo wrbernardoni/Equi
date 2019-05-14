@@ -293,6 +293,12 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		killChildren = false;
 		out = t;
 	}
+	else if (code->getType() == EQ_TR_AS)
+	{
+		out = childOut[0];
+		killOut = killKid[0];
+		killKid[0] = false;
+	}
 	else if (code->getType() == EQ_TR_EQUALITY)
 	{
 		if (childOut.size() != 2 || code->getTokens().size() != 1)
@@ -824,16 +830,38 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{
-		if (childOut.size() == 0 || childOut.size() > 2)
+		if (childOut.size() == 0)
 			throwError("Invalid number of arguments for functions");
 
 		if (childOut.size()  == 1)
 		{
 			EquiVoid* v = new EquiVoid;
 			childOut.push_back(v);
-		}	
+		}
 
-		out = (*childOut[0])(childOut[1]);
+		int input = 0;
+		vector<pair<string, EquiObject*>> setFrame;
+		for (int i = 1; i < children.size(); i++)
+		{
+			if (children[i]->getType() == EQ_TR_AS)
+			{
+				pair<string, EquiObject*> t (children[i]->getTokens()[0], childOut[i]->clone());
+				setFrame.push_back(t);
+			}
+			else
+			{
+				if (input == 0)
+					input = i;
+				else
+				{
+					throwError("Cannot have two inputs to a function");
+				}
+			}
+		}
+		if (input == 0)
+			input = 1;
+
+		out = (*childOut[0])(childOut[input], setFrame);
 	}
 	else if (code->getType() == EQ_TR_SPECIAL)
 	{

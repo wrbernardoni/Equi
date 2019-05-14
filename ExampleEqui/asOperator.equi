@@ -1,0 +1,21 @@
+function f: (double a,double b) -> double
+{
+	string operation =& "add";
+
+	if (operation == "add")
+		return a+b;
+	else if (operation == "multiply")
+		return a*b;
+	else if (operation == "subtract")
+		return a-b;
+	else if (operation == "divide")
+		return a/b;
+	else
+		return 0;
+}
+
+double multiplied = f(4,2, "multiply" as operation);
+// multiplied equals 8 here, 4 * 2
+
+double added = f(4,2);
+// added equals 6 here, 4 + 2

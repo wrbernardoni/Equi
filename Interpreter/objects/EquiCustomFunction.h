@@ -104,6 +104,12 @@ public:
 
 	virtual EquiObject* operator() (EquiObject* in)
 	{
+		vector<pair<string, EquiObject*>> n;
+		return operator()(in, n);
+	}
+
+	virtual EquiObject* operator() (EquiObject* in, vector<pair<string, EquiObject*>> setFrame)
+	{
 		if (inType.size() > 1 && in->getType() != E_TUPLE_TYPE)
 		{
 			throwError("Missing inputs on function " + name);
@@ -234,6 +240,12 @@ public:
 
 		EquiWorker work;
 		work.loanType(&frame);
+
+		EquiFrame* f = work.touchFrame();
+		for (int i = 0; i < setFrame.size(); i++)
+		{
+			f->emplaceToken(setFrame[i].first, setFrame[i].second);
+		}
 
 		pair<EquiObject*, bool> o = work.run(code);
 		EquiObject* t = o.first->clone();

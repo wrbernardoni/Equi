@@ -29,6 +29,8 @@ using namespace std;
 #define EQ_TR_FOR "for"
 #define EQ_TR_FUNCTION_DEC "function declaration"
 
+#define EQ_TR_AS "as"
+
 #define EQ_TR_SPECIAL "keyword"
 
 class SyntaxTree
@@ -44,8 +46,10 @@ public:
   void print(int);
   void addChild(SyntaxTree*);
   void addToken(string);
+
   int numChildren();
   inline vector<SyntaxTree*> getChildren() { return children; };
+  void drop(int);
   inline vector<string> getTokens() { return tokens; };
 
   SyntaxTree& operator=(SyntaxTree&);

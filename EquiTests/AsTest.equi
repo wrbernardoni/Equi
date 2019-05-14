@@ -1,0 +1,40 @@
+print("Beginning \"as operation\" test");
+
+function f: (double a,double b) -> double
+{
+	string operation =& "add";
+
+	if (operation == "add")
+		return a+b;
+	else if (operation == "multiply")
+		return a*b;
+	else if (operation == "subtract")
+		return a-b;
+	else if (operation == "divide")
+		return a/b;
+	else
+		return 0;
+}
+
+bool fail = false;
+
+double multiplied = f(4,2, "multiply" as operation);
+if (multiplied != 8)
+{
+	fail = true;
+	print("Passing \"multiplied\" as operation, should get 8, got: %i", multiplied);
+}
+// multiplied equals 8 here, 4 * 2
+
+double added = f(4,2);
+if (added != 6)
+{
+	fail = true;
+	print("Passing nothing as operation, should default to add and get 6, got %i", added);
+}
+// added equals 6 here, 4 + 2
+
+if (fail)
+  throw("Test failed");
+
+print("Test succeeded");

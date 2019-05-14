@@ -31,6 +31,8 @@
 	SyntaxTree* eq_array(vector<string>, int&);
 	SyntaxTree* special(vector<string>, int&);
 	SyntaxTree* memAccess(vector<string> ln, int& state);
+	SyntaxTree* asOperator(vector<string> ln, int& state);
+	
 
 	bool isNum(string s)
 	{
@@ -770,7 +772,7 @@
 	  DEBUG("commas")
 	  int ps = state;
 	  SyntaxTree* comm = NULL;
-	  SyntaxTree* t = equality(ln, ps);
+	  SyntaxTree* t = asOperator(ln, ps);
 	  if (t != NULL)
 	  {
 	    state = ps;
@@ -778,7 +780,7 @@
 	    {
 	      ps++;
 	      DPRINT("Eating comma")
-	      SyntaxTree* c = equality(ln, ps);
+	      SyntaxTree* c = asOperator(ln, ps);
 	      if (c != NULL)
 	      {
 		state = ps;
@@ -1271,16 +1273,58 @@
 	      SyntaxTree* exp = expression(ln, state);
 	      if (SAFECHECK(ln,state) == ")")
 	      {
-		state++;
-		DPRINT("Eating )");
-		if (exp != NULL)
-		  fn->addChild(exp);
-		return fn;
+			state++;
+			DPRINT("Eating )");
+			if (exp != NULL)
+			{
+				if (exp->getType() == EQ_TR_COMMA)
+				{
+					bool through = true;
+					int start = 0;
+					do
+					{
+						through = true;
+						vector<SyntaxTree*> c = exp->getChildren();
+						for(int i = start; i < c.size(); i++)
+						{
+							if (c[i]->getType() == EQ_TR_AS)
+							{
+								through = false;
+								start = i;
+								fn->addChild(c[i]);
+								exp->drop(i);
+								break;
+							}
+						}
+					} while(!through);
+				}
+			  	fn->addChild(exp);
+			}
+			return fn;
 	      }
 	    }
 	  }
 	  delete fn;
 	  return NULL;
+	}
+
+	SyntaxTree* asOperator(vector<string> ln, int& state)
+	{
+		DEBUG("as")
+		SyntaxTree* lh = equality(ln, state);
+		if (lh == NULL || SAFECHECK(ln, state) != "as" || !isToken(SAFECHECK(ln, state + 1)))
+		{
+			return lh;
+		}
+
+		SyntaxTree* fn = new SyntaxTree(EQ_TR_AS);
+
+		fn->addChild(lh);
+		fn->addToken(SAFECHECK(ln, state + 1));
+		state += 2;
+
+		return fn;
+
 	}
 
 	SyntaxTree* primary(vector<string> ln, int& state)

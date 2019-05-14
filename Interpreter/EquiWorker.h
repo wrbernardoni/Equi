@@ -41,6 +41,8 @@ public:
 	void setFrame(const EquiFrame&);
 	void loanFrame(EquiFrame*);
 	void loanType(EquiFrame*);
+
+	inline EquiFrame* touchFrame() {return data;};
 	
 	void resetScope();
 
