@@ -4,7 +4,7 @@
  
  Equicontinuous (aka Equi, aka EquiParallel -- whichever sticks) will one day be an interpreted parallel programming language.
 
- Equi is currently in **v.0.0.4_rev1 -- Chihuahua Magenta**
+ Equi is currently in **v.0.0.5 -- Chihuahua Crimson**
 
  To run Equi, either set a system path to Equi (preferred), or run the executable in a shell script.
 
@@ -24,6 +24,12 @@ Equi 1--helloworld.equi
 
 
 ## Changelog
+**v.0.0.4_rev1 -> v.0.0.5**
+  * Added custom function declarations that allow for using other custom functions and recursion.
+  * May now reference an empty tuple, i.e. `() t = ()`
+  * Equi now can evaluate expressions to access array elements, i.e. `a[3*2] == a[6]`
+  * Roadmap revised (pushing off type work until after multithreading)
+
 **v.0.0.4 -> v.0.0.4_rev1**
   * Fixes issue where temporary variables were deleted before you could access their member functions (i.e. `"hi".size()` now works)
   * Added tuple style compound assigment `(a,b,c) = (1,2,3)` will set `a = 1`, `b=2`, and `c=3`.

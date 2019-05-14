@@ -5,7 +5,7 @@
 ~~*Chihuahua Violet*: **v.0.0.2** -- Logic flow, ifs, elses, else ifs, logical operators~~  
 ~~*Chihuahua Purple*: **v.0.0.3** -- Loops~~  
 ~~*Chihuahua Magenta*: **v.0.0.4** -- Arrays, Tuples, member functions~~   
-*Chihuahua Crimson*: **v.0.0.5** -- Custom Functions  
+~~*Chihuahua Crimson*: **v.0.0.5** -- Custom Functions~~  
 *Chihuahua Red*: **v.0.0.6** -- Tasks, Services  
 *Chihuahua Orange*: **v.0.0.7** -- Type rework, Objects, Classes  
 *Chihuahua Yellow*: **v.0.0.8** -- Importing modules (+ preprocessing) 
