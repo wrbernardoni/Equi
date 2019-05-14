@@ -7,7 +7,6 @@ class E_STRING_at : public EquiFunction
 private:
 	EquiString* ths;
 public:
-	virtual string getDataType() { return "E_STRING_at"; };
 	virtual EquiObject* clone() { return new E_STRING_at(ths); };
 	virtual EquiObject* spawnMyType() { return new E_STRING_at; };
 
@@ -51,7 +50,6 @@ class E_STRING_size : public EquiFunction
 private:
 	EquiString* ths;
 public:
-	virtual string getDataType() { return "E_STRING_size"; };
 	virtual EquiObject* clone() { return new E_STRING_size(ths); };
 	virtual EquiObject* spawnMyType() { return new E_STRING_size; };
 

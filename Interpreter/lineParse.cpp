@@ -15,6 +15,7 @@
 	SyntaxTree* doWhileLoop(vector<string>, int&);
 	SyntaxTree* whileLoop(vector<string>, int&);
 	SyntaxTree* forLoop(vector<string>, int&);
+	SyntaxTree* functDec(vector<string>, int&);
 	SyntaxTree* line(vector<string>, int&);
 	SyntaxTree* expression(vector<string>, int&);
 	SyntaxTree* commas(vector<string>, int&);
@@ -56,6 +57,7 @@
 	    s != "*" && s != "%" && s != "!" && s != "=" &&
 	    s != "(" && s != ")" && s != "false" && s != "true" &&
 	    s != "{" && s != "}" && s != "[" && s != "]" && s != "." &&
+	    s != "break" && s != "continue" && s != "return" &&
 	    s != "" && !isNum(s) && !isString(s));
 	}
 
@@ -120,7 +122,23 @@
 	    return blc;
 	  }
 
-	  return loopBlock(ln, state);
+          ps = state;
+	  blc = loopBlock(ln, ps);
+          if (blc != NULL)
+          {
+            state = ps;
+            return blc;
+          }
+
+          ps = state;
+          blc = functDec(ln, ps);
+          if (blc != NULL)
+          {
+            state = ps;
+            return blc;
+          }
+
+          return NULL;
 	}
 
 	SyntaxTree* logicalBlock(vector<string> ln, int& state)
@@ -585,6 +603,141 @@
 	  }
 	  return NULL;
 	}
+
+        SyntaxTree* functDec(vector<string> ln, int& state)
+        {
+          DEBUG("functDec")
+          SyntaxTree* func = new SyntaxTree(EQ_TR_FUNCTION_DEC);
+
+          if (SAFECHECK(ln, state) == "function")
+          {
+            state++;
+            DPRINT("Eating function");
+            if (isToken(SAFECHECK(ln, state)))
+            {
+              func->addToken(SAFECHECK(ln, state));
+              DPRINT("Eating token " << SAFECHECK(ln, state))
+              state++;
+              if (SAFECHECK(ln, state) == ":" && SAFECHECK(ln, state + 1) == "(")
+              {
+                DPRINT("Eating : (")
+                state+=2;
+
+                while(SAFECHECK(ln, state) == "(" || isToken(SAFECHECK(ln, state)))
+                {
+                  string in = "";
+                  if (SAFECHECK(ln, state) == "(" && SAFECHECK(ln, state + 1) == ")")
+                  {
+                    in = "()";
+                    state+=2;
+                  }
+                  else if (isToken(SAFECHECK(ln, state)))
+                  {
+                    in = SAFECHECK(ln, state);
+                    state++;
+                    if (SAFECHECK(ln, state) == "[" && SAFECHECK(ln, state + 1) == "]")
+                    {
+                      state += 2;
+                      in = in + " []";
+                    }
+                  }
+                  else
+                  {
+                    delete func;
+                    throwError("Expecting type in function input");
+                    return NULL;
+                  }
+
+                  if (SAFECHECK(ln, state) == "[" && SAFECHECK(ln, state + 1) == "]")
+                  {
+                    state += 2;
+                    in = in + " []";
+                  }
+
+                  if (!isToken(SAFECHECK(ln, state)))
+                  {
+                    delete func;
+                    throwError("Expecting token name for input");
+                    return NULL;
+                  }
+
+                  in = in + " " + SAFECHECK(ln, state);
+                  state++;
+
+                  func->addToken(in);
+
+                  if (SAFECHECK(ln, state) == ",")
+                    state++;
+                }
+
+                if (SAFECHECK(ln, state) != ")" || SAFECHECK(ln, state + 1) != "->")
+                {
+                  delete func;
+                  throwError("Expecting ) or -> in function declaration " + SAFECHECK(ln, state) + " " + SAFECHECK(ln, state + 1) + " instead");
+                  return NULL;
+                }
+
+                func->addToken("->");
+                state += 2;
+                
+                string out = "";
+                if (SAFECHECK(ln, state) == "(" && SAFECHECK(ln, state + 1) == ")")
+                {
+                  out = "()";
+                  state+=2;
+                }
+                else if (isToken(SAFECHECK(ln, state)))
+                {
+                  out = SAFECHECK(ln, state);
+                  state++;
+                }
+                else
+                {
+                  delete func;
+                  throwError("Expecting return type on function");
+                  return NULL;
+                }
+
+                if (SAFECHECK(ln, state) == "[" && SAFECHECK(ln, state + 1) == "]")
+                {
+                  out = out + " []";
+                  state+=2;
+                }
+
+                func->addToken(out);
+                if (SAFECHECK(ln, state) != "{")
+                {
+                  delete func;
+                  throwError("Expecting code on function declaration");
+                  return NULL;
+                }
+                state++;
+                int ps = state;
+                SyntaxTree* cd = code(ln, ps);
+                if (cd != NULL)
+                {
+                  state = ps;
+                }
+                else
+                {
+                  cd = new SyntaxTree(EQ_TR_CODE);
+                }
+                func->addChild(cd);
+                if (SAFECHECK(ln, state) != "}")
+                {
+                  delete func;
+                  throwError("Expecting {");
+                  return NULL;
+                }
+                state++;
+                return func;
+              }
+            }
+          }
+
+          delete func;
+          return NULL;
+        }
 
 	SyntaxTree* line(vector<string> ln, int& state)
 	{
@@ -1131,7 +1284,7 @@
 
 	  ps = state;
 
-	  if (isNum(SAFECHECK(ln,state)) || isString(SAFECHECK(ln,state)) || SAFECHECK(ln,state) == "true" || SAFECHECK(ln,state) == "false" || SAFECHECK(ln,state) == "null")
+	  if (isNum(SAFECHECK(ln,state)) || isString(SAFECHECK(ln,state)) || SAFECHECK(ln,state) == "true" || SAFECHECK(ln,state) == "false" || SAFECHECK(ln,state) == "null" || (SAFECHECK(ln, state) == "(" && SAFECHECK(ln, state + 1) == ")"))
 	  {
 	    SyntaxTree* cons = new SyntaxTree(EQ_TR_CONST);
             if (isNum(SAFECHECK(ln, state)) && (SAFECHECK(ln, state + 1) == ".") && isNum(SAFECHECK(ln, state + 2)))
@@ -1145,9 +1298,18 @@
             }
             else
             {
-	      DPRINT("Eating constant " << SAFECHECK(ln,state))
-	      cons->addToken(SAFECHECK(ln,state));
-              state++;
+              if (SAFECHECK(ln, state) == "(")
+              {
+                DPRINT("Eating constant ()");
+                cons->addToken("()");
+                state += 2;
+              }
+              else
+              {
+	        DPRINT("Eating constant " << SAFECHECK(ln,state))
+	        cons->addToken(SAFECHECK(ln,state));
+                state++;
+              }
             }
             return cons;
 	  }
@@ -1198,7 +1360,7 @@
 	    {
 	      DPRINT("Eating [")
 	      state++;
-	      tok = primary(ln, state);
+	      tok = expression(ln, state);
 
 	      if (!(SAFECHECK(ln, state) == "]"))
 	      {
@@ -1325,6 +1487,23 @@ SyntaxTree* special(vector<string> ln, int& state)
     expr->addToken("continue");
     return expr;
   }
+  else if (SAFECHECK(ln, state) == "return")
+  {
+  	DPRINT("Eating return");
+  	state++;
+  	int ps = state;
+  	SyntaxTree* expr = new SyntaxTree(EQ_TR_SPECIAL);
+  	expr->addToken("return");
+  	SyntaxTree* o = expression(ln, ps);
+  	if (o != NULL)
+  	{
+  		state = ps;
+  		expr->addChild(o);
+  	}
+
+  	return expr;
+  }
+
   return NULL;
 }
 

@@ -2,8 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "EquiConsole.h"
-#include "EquiInterface.h"
+#include "EquiCustomFunction.h"
 
 extern void throwError(string s)
 {
@@ -39,49 +38,103 @@ bool tokenFormat(string si){
 
 EquiWorker::EquiWorker()
 {
-	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
-
-	EquiVoid* vd = new EquiVoid;
-	(*tok)["void"] = vd;
 	runElse = false;
-
 	breakFlag = false;
 	continueFlag = false;
+	returnFlag = false;
+	killReturn = false;
 
-	loadInterface(tok);
-	loadConsoleStd(tok);
-	tokens.push_back(tok);
+	//EquiFrame def;
+	//setFrame(def);
+
+	ownedFrame = true;
+	data = new EquiFrame;
+}
+
+EquiWorker::EquiWorker(EquiFrame* f)
+{
+	runElse = false;
+	breakFlag = false;
+	continueFlag = false;
+	returnFlag = false;
+	killReturn = false;
+
+	//EquiFrame def;
+	//setFrame(def);
+
+	ownedFrame = false;
+	data = f;
 }
 
 EquiWorker::~EquiWorker()
 {
-	for (auto const& x : tokens)
-	{
-		for (auto const& y : *x)
-			delete y.second;
+	if (ownedFrame)
+		delete data;
+}
 
-		delete x;
+EquiFrame EquiWorker::getFrame()
+{
+	return *data;
+}
+
+void EquiWorker::setFrame(const EquiFrame& o)
+{
+	if (ownedFrame)
+		(*data) = o;
+	else
+	{
+		data = new EquiFrame;
+		(*data) = o;
 	}
+}
+
+void EquiWorker::loanFrame(EquiFrame* f)
+{
+	if (ownedFrame)
+		delete data;
+	ownedFrame = false;
+	data = f;
+}
+
+void EquiWorker::loanType(EquiFrame* f)
+{
+	if (ownedFrame)
+		delete data;
+	ownedFrame = true;
+	data = new EquiFrame(f, true, false);
 }
 
 EquiObject* EquiWorker::getToken(string n)
 {
-	for (int i = tokens.size() - 1; i >= 0; i--)
+	for (int i = data->tokens.size() - 1; i >= 0; i--)
 	{
-		if (tokens[i]->count(n) != 0)
+		if (data->tokens[i]->count(n) != 0)
 		{
-			return (*tokens[i])[n];
+			return (*(data->tokens[i]))[n];
 		}
 	}
 	throwError("Token " + n + " not found");
 	return NULL;
 }
 
+EquiObject* EquiWorker::getType(string n)
+{
+	for (int i = data->types.size() - 1; i >= 0; i--)
+	{
+		if (data->types[i]->count(n) != 0)
+		{
+			return (*(data->types[i]))[n];
+		}
+	}
+	throwError("Type " + n + " not found");
+	return NULL;
+}
+
 bool EquiWorker::isToken(string n)
 {
-	for (int i = 0; i < tokens.size(); i++)
+	for (int i = 0; i < data->tokens.size(); i++)
 	{
-		if (tokens[i]->count(n) != 0)
+		if (data->tokens[i]->count(n) != 0)
 		{
 			return true;
 		}
@@ -91,36 +144,70 @@ bool EquiWorker::isToken(string n)
 
 void EquiWorker::emplaceToken(string n, EquiObject* o)
 {
-	if (tokens[tokens.size() - 1]->count(n) != 0)
+	if (data->tokens[data->tokens.size() - 1]->count(n) != 0)
 		throwError("Token " + n + " already defined");
 
 	o->setTemp(false);
-	(*tokens[tokens.size() - 1])[n] = o;
+	(*(data->tokens[data->tokens.size() - 1]))[n] = o;
+}
+
+bool EquiWorker::isType(string n)
+{
+	for (int i = 0; i < data->types.size(); i++)
+	{
+		if (data->types[i]->count(n) != 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void EquiWorker::emplaceType(string n, EquiObject* o)
+{
+	if (data->types[data->types.size() - 1]->count(n) != 0)
+		throwError("Token " + n + " already defined");
+
+	o->setTemp(false);
+	(*(data->types[data->types.size() - 1]))[n] = o;
 }
 
 void EquiWorker::scopeUp()
 {
 	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
-	tokens.push_back(tok);
+	data->tokens.push_back(tok);
+
+	map<string, EquiObject*>* typ = new map<string, EquiObject*>;
+	data->types.push_back(typ);
 }
 
 void EquiWorker::scopeDown()
 {
-	map<string, EquiObject*>* tok = tokens[tokens.size() - 1];
+	map<string, EquiObject*>* tok = data->tokens[data->tokens.size() - 1];
 	for (auto const& y : *tok)
 	{
 		delete y.second;
 	}
 
 	delete tok;
-	tokens.pop_back();
+	data->tokens.pop_back();
+
+	map<string, EquiObject*>* typ = data->types[data->types.size() - 1];
+	for (auto const& y : *typ)
+	{
+		delete y.second;
+	}
+
+	delete typ;
+	data->types.pop_back();
 }
 
 void EquiWorker::resetScope()
 {
 	breakFlag = false;
 	continueFlag = false;
-	while (tokens.size() > 1)
+	returnFlag = false;
+	while (data->tokens.size() > 1)
 	{
 		scopeDown();
 	}
@@ -134,11 +221,18 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		return retPair;
 	}
 
+	if (returnFlag)
+	{
+		pair<EquiObject*, bool> retPair(returnItem, false);
+		return retPair;
+	}
+
 	vector<SyntaxTree*> children = code->getChildren();;
 	vector<EquiObject*> childOut;
 	vector<bool> killKid;
 	if (code->getType() != EQ_TR_LOGICAL_BLOCK && code->getType() != EQ_TR_DO_WHILE
-		&& code->getType() != EQ_TR_WHILE && code->getType() != EQ_TR_FOR)
+		&& code->getType() != EQ_TR_WHILE && code->getType() != EQ_TR_FOR
+		&& code->getType() != EQ_TR_FUNCTION_DEC)
 	{
 		for (int i = 0; i < children.size(); i++)
 		{
@@ -153,7 +247,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	EquiObject* out = NULL;
 	bool killOut = true;
 
-	if (code->getType() == EQ_TR_ROOT)
+	if (returnFlag)
+	{
+
+	}
+	else if (code->getType() == EQ_TR_ROOT)
 	{
 		
 	}
@@ -171,6 +269,16 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			killChildren = false;
 		}
 		
+	}
+	else if (code->getType() == EQ_TR_FUNCTION_DEC)
+	{
+		string fn = code->getTokens()[0];
+		EquiFrame f;
+		f.setTypes(data->types);
+		SyntaxTree* cd = new SyntaxTree("");
+		(*cd) = *(code->getChildren()[0]);
+		EQUI_custom_function* newF = new EQUI_custom_function(code->getTokens(), cd,f);
+		emplaceType(fn, newF);
 	}
 	else if (code->getType() == EQ_TR_COMMA)
 	{
@@ -404,45 +512,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			}
 			else
 			{
-				if (type == "int")
-				{
-					newObj = new EquiPrimitive<int>;
-					((EquiPrimitive<int>*)newObj)->setData(0);
-				}
-				else if (type == "long")
-				{
-					newObj = new EquiPrimitive<long>;
-					((EquiPrimitive<long>*)newObj)->setData(0);
-				}
-				else if (type == "double")
-				{
-					newObj = new EquiPrimitive<double>;
-					((EquiPrimitive<double>*)newObj)->setData(0);
-				}
-				else if (type == "float")
-				{
-					newObj = new EquiPrimitive<float>;
-					((EquiPrimitive<float>*)newObj)->setData(0);
-				}
-				else if (type == "bool")
-				{
-					newObj = new EquiPrimitive<bool>;
-					((EquiPrimitive<bool>*)newObj)->setData(0);
-				}
-				else if (type == "string")
-				{
-					newObj = new EquiString;
-					((EquiString*)newObj)->setString("");
-				}
-				else if (type == "()")
-				{
-					newObj = new EquiTuple;
-				}
-				else
-				{
-					throwError("Unrecognized type name");
-				}
-
+				newObj = getType(type)->spawnMyType();
 				emplaceToken(tok, newObj);
 			}
 		}
@@ -651,6 +721,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			tru->setData(true);
 			out = tru;
 		}
+		else if (code->getTokens()[0] == "()")
+		{
+			EquiTuple* tup = new EquiTuple;
+			out = tup;
+		}
 		else if (isString(code->getTokens()[0]))
 		{
 			string s = code->getTokens()[0].substr(1, code->getTokens()[0].size() - 2);
@@ -676,13 +751,16 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			throwError("Invalid number of arguments on token???");
 
 		string tok = code->getTokens()[0];
-		if (!isToken(tok))
+		if (!isToken(tok) && !isType(tok))
 		{
 			throwError("Undefined reference to token " + tok);
 		}
 
 		killOut = false;
-		out = getToken(tok);
+		if (isToken(tok))
+			out = getToken(tok);
+		else
+			out = getType(tok);
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{
@@ -699,7 +777,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_SPECIAL)
 	{
-		if (childOut.size() > 0 || code->getTokens().size() != 1 )
+		if (code->getTokens().size() != 1 )
 			throwError("Invalid number of arguments for keyword");
 		string tok = code->getTokens()[0];
 
@@ -710,6 +788,21 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		else if (tok == "continue")
 		{
 			continueFlag = true;
+		}
+		else if (tok == "return")
+		{
+			returnFlag = true;
+			if (childOut.size() == 0)
+			{
+				returnItem = new EquiVoid;
+				killReturn = true;
+			}
+			else
+			{
+				returnItem = childOut[0]->clone();
+				killReturn = true;
+				//killKid[0] = false;
+			}
 		}
 	}
 	else if (code->getType() == EQ_TR_DO_WHILE)
@@ -722,6 +815,12 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		bool keepRun = true;
 		do
 		{
+			if (returnFlag)
+			{
+				keepRun = false;
+				break;
+			}
+
 			scopeUp();
 			pair<EquiObject*, bool> rn = run(children[0]);
 			if (rn.second)
@@ -730,6 +829,10 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			if(breakFlag)
 			{
 				breakFlag = false;
+				keepRun = false;
+			}
+			else if (returnFlag)
+			{
 				keepRun = false;
 			}
 			else
@@ -768,6 +871,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			breakFlag = false;
 			keepRun = false;
 		}
+		else if (returnFlag)
+		{
+			keepRun = false;
+		}
+
 		if (continueFlag)
 			continueFlag = false;
 
@@ -781,6 +889,10 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			if(breakFlag)
 			{
 				breakFlag = false;
+				keepRun = false;
+			}
+			else if (returnFlag)
+			{
 				keepRun = false;
 			}
 			else
@@ -825,6 +937,11 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		if (continueFlag)
 			continueFlag = false;
 
+		if (returnFlag)
+		{
+			keepRun = false;
+		}
+
 		while(keepRun)
 		{
 			scopeUp();
@@ -835,6 +952,10 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			if(breakFlag)
 			{
 				breakFlag = false;
+				keepRun = false;
+			}
+			else if (returnFlag)
+			{
 				keepRun = false;
 			}
 			else
@@ -996,6 +1117,15 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 
 	if (out == NULL)
 		out = new EquiVoid;
+
+	if (returnFlag)
+	{
+		if (killOut)
+			delete out;
+
+		pair<EquiObject*, bool> retPair(returnItem, false);
+		return retPair;
+	}
 
 	pair<EquiObject*, bool> retPair(out, killOut);
 	return retPair;

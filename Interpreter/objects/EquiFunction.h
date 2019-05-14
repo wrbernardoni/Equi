@@ -3,7 +3,7 @@
 
 #include "EquiObject.h"
 
-#define EQUI_FN(a) virtual string getDataType() { return #a; }; \
+#define EQUI_FN(a) virtual string getDataType() { return E_FUNCTION_TYPE; }; \
 	virtual EquiObject* clone() { return new a; }; \
 	virtual EquiObject* spawnMyType() { return new a; }; 
 
@@ -18,6 +18,13 @@ public:
 	{ 
 		throwError("Cannot do a logical comparison on a function reference.");
 		return false; 
+	};
+
+	virtual EquiObject& operator= (EquiObject& o)
+	{
+		//TODO: Make this do something
+		//throwError("Ill defined equality declaration between " + getType() + " types.");
+		return *this;
 	};
 
 	virtual EquiObject* operator() (EquiObject*)

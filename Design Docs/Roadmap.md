@@ -5,11 +5,11 @@
 ~~*Chihuahua Violet*: **v.0.0.2** -- Logic flow, ifs, elses, else ifs, logical operators~~  
 ~~*Chihuahua Purple*: **v.0.0.3** -- Loops~~  
 ~~*Chihuahua Magenta*: **v.0.0.4** -- Arrays, Tuples, member functions~~   
-*Chihuahua Crimson*: **v.0.0.5** -- Objects, Classes, Custom Functions, Collections  
-*Chihuahua Red*: **v.0.0.6** -- Importing modules (+ preprocessing)   
-*Chihuahua Orange*: **v.0.0.7** -- Tasks, Services  
-*Chihuahua Yellow*: **v.0.0.8** -- File I/O  
-*Chihuahua Green*: **v.0.0.9** -- Better numeric, and arbitrary precision numeric implementations   
+~~*Chihuahua Crimson*: **v.0.0.5** -- Custom Functions~~  
+*Chihuahua Red*: **v.0.0.6** -- Tasks, Services  
+*Chihuahua Orange*: **v.0.0.7** -- Type rework, Objects, Classes  
+*Chihuahua Yellow*: **v.0.0.8** -- Importing modules (+ preprocessing) 
+*Chihuahua Green*: **v.0.0.9** -- File IO, Better numeric, and arbitrary precision numeric implementations   
 *Ultraviolet Chihuahua*: **v.0.1.0** -- Standard module (i.e. array sort)  
 
 ## To v.0.2.0 -- Yorkie

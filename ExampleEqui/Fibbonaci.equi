@@ -1,0 +1,24 @@
+function fibb : (int n) -> int
+{
+	print("Fibb on %i", n);
+	if (n == 0)
+	{
+		print("Returning 0");
+		int r = 0;
+		return r;
+	}
+	else if (n == 1)
+	{
+		print("Returning 1");
+		int r = 1;
+		return r;
+	}
+
+	int r = fibb(n - 1);
+	int s = fibb(n - 2);
+	print("(%i):%i + %i = %i",n,s, r, s + r);
+	return s + r;
+}
+
+int c = getint();
+print("Fibbonaci of %i is: %i", c, fibb(c));

@@ -15,6 +15,21 @@ SyntaxTree::SyntaxTree(string typ)
   type = typ;
 }
 
+SyntaxTree& SyntaxTree::operator=(SyntaxTree& o)
+{
+  type = o.getType();
+  vector<SyntaxTree*> c = o.getChildren();
+  tokens = o.getTokens();
+  for (int i = 0; i < c.size(); i++)
+  {
+    SyntaxTree* newC = new SyntaxTree("");
+    (*newC) = (*c[i]);
+
+    children.push_back(newC);
+  }
+  return *this;
+}
+
 
 void SyntaxTree::print(int i)
 {
@@ -23,7 +38,7 @@ void SyntaxTree::print(int i)
   cout << type << ":";
   for (int j = 0; j < tokens.size(); j++)
   {
-    cout << tokens[j] << " ";
+    cout << " \"" << tokens[j] << "\"";
   }
   cout << endl;
 

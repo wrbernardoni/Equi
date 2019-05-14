@@ -1,0 +1,72 @@
+print("Beginning function test");
+
+int[100] b;
+
+for (int i = 0; i < b.size(); i++)
+{
+	b[i] = 1;
+}
+
+function sum : (int[] a) -> int
+{
+	int s = 0;
+	for (int  i = 0; i < a.size(); i++)
+	{
+		s = s + a[i];
+	}
+
+	return s;
+}
+
+bool fail = false;
+
+int s = sum(b);
+if (s != 100)
+{
+	fail = true;
+	print("Summing function got " + s + " should be 100");
+}
+
+function inc : (int i) -> int
+{
+	return i + 1;
+}
+
+int j = 0;
+int incJ = inc(j);
+if (incJ != j + 1)
+{
+	fail = true;
+	print("j should be 0, is: " + j);
+	print("inc(j) should be 1, is: " + incJ);
+}
+
+function badAdd : (int a, int b) -> int
+{
+	for (int i = 0; i < b; i++)
+	{
+		a = inc(a);
+	}
+
+	return a;
+}
+
+j = 4;
+int bInt = 7;
+int bA = badAdd(j,bInt);
+if (bA != 11)
+{
+	fail = true;
+	print("badAdd got %i as an output, we were expecting 11", bA);
+}
+
+if (j != 4)
+{
+	fail = true;
+	print("badAdd modified j, j should be 4, is %i", j);
+}
+
+if (fail)
+  throw("Test failed");
+
+print("Test succeeded");

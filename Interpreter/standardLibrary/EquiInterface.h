@@ -1,5 +1,5 @@
-#ifndef EQUI_INTERFACE_
-#define EQUI_INTERFACE_
+#ifndef EQUI_INTERFACE_H_
+#define EQUI_INTERFACE_H_
 
 #include "AllObj.h"
 
@@ -20,10 +20,25 @@ public:
 	}
 };
 
+class EQUI_get_data_type : public EquiFunction
+{
+public:
+	EQUI_FN(EQUI_get_data_type)
+
+	virtual EquiObject* operator() (EquiObject* in)
+	{
+		EquiString* s = new EquiString;
+		s->setString(in->getDataType());
+
+		return s;
+	}
+};
+
 void loadInterface(map<string, EquiObject*>* tok)
 {
 	EQUI_get_type* getType = new EQUI_get_type;
 	(*tok)["TYPE"] = getType;
+	(*tok)["DTYPE"] = new EQUI_get_data_type;
 };
 
 #endif

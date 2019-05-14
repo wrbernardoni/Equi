@@ -75,7 +75,7 @@ int interpret(string fn)
       {
         pair<EquiObject*, bool> rn = core.run(lineTree);
         P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
-        if (rn.second)
+        if (rn.second || core.killAnyways())
           delete rn.first;
       }
       catch (string m)
@@ -146,7 +146,7 @@ int interpret(string fn)
       {
         pair<EquiObject*, bool> rn = core.run(code[i]);
         P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
-        if (rn.second)
+        if (rn.second || core.killAnyways())
           delete rn.first;
       }
       catch (string m)
