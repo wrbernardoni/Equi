@@ -247,8 +247,10 @@ public:
 			f->emplaceToken(setFrame[i].first, setFrame[i].second);
 		}
 
+		work.scopeUp();
 		pair<EquiObject*, bool> o = work.run(code);
 		EquiObject* t = o.first->clone();
+		work.scopeDown();
 
 		if (o.second || work.killAnyways())
 			delete o.first;

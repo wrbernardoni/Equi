@@ -32,10 +32,10 @@ private:
 	bool isType(string);
 	void emplaceType(string, EquiObject*);
 
+public:
 	void scopeUp();
 	void scopeDown();
 
-public:
 	inline bool killAnyways() { return returnFlag && killReturn; };
 	EquiFrame getFrame();
 	void setFrame(const EquiFrame&);
