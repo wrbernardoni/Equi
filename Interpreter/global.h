@@ -8,6 +8,7 @@
 extern int verbose;
 extern bool failsafe;
 extern bool fullParse;
+extern bool verbCompiled;
 
 #define TOKEN_PRINT_VERB 1
 #define ALL_STEP_VERB 2

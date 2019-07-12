@@ -10,8 +10,18 @@
 using namespace std;
 
 int interpret(string);
+
 vector<string> getLine(istream*, int&);
 SyntaxTree* lineParse(vector<string>);
+
+struct CodeLine
+{
+	int cmd;
+	vector<string> args;
+};
+void printCodeLine(CodeLine);
+
+vector<CodeLine> compile(vector<SyntaxTree*>);
 
 #endif
 

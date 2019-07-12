@@ -10,6 +10,8 @@ using namespace std;
 int verbose;
 bool failsafe;
 bool fullParse;
+bool showComp;
+bool verbCompiled;
 
 struct cmdline
 {
@@ -21,6 +23,7 @@ cmdline argHandler(int argc, char* argv[])
 	cmdline opts;
 	failsafe = false;
 	fullParse = true;
+	verbCompiled = false;
 
 	if (argc >= 2)
 	{
@@ -63,6 +66,10 @@ cmdline argHandler(int argc, char* argv[])
 		else if (arg == "-PF" || arg == "--parsefull")
 		{
 			fullParse = true;
+		}
+		else if (arg == "-Vcomp")
+		{
+			verbCompiled = true;
 		}
 		else
 		{

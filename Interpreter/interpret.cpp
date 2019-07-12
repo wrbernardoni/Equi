@@ -64,11 +64,24 @@ int interpret(string fn)
       if (lineTree == NULL)
         continue;
 
+      vector<SyntaxTree*> ast;
+      ast.push_back(lineTree);
+
       if (verbose >= SYNTAX_TREE_LIST)
         lineTree->print(0);
 
       if (verbose >= SYNTAX_TREE_LIST)
         cout << endl;
+
+      vector<CodeLine> cde = compile(ast);
+
+      if (verbCompiled)
+      {
+        for (int i = 0; i < cde.size(); i++)
+        {
+          printCodeLine(cde[i]);
+        }
+      }
 
       EquiObject* o = NULL;
       try
@@ -137,6 +150,16 @@ int interpret(string fn)
         cout << endl;
 
       code.push_back(lineTree);
+    }
+
+    vector<CodeLine> cde = compile(code);
+
+    if (verbCompiled)
+    {
+      for (int i = 0; i < cde.size(); i++)
+      {
+        printCodeLine(cde[i]);
+      }
     }
 
     for(int i = 0; i < code.size(); i++)
