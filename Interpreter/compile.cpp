@@ -46,6 +46,50 @@ void printCodeLine(CodeLine l)
 			cout << "Modulus";
 		break;
 
+		case EC_LOGICAL_NEGATE:
+			cout << "(!)Logical_Negate";
+		break;
+
+		case EC_ALGEBRAIC_NEGATE:
+			cout << "(-)Algebraic_Negate";
+		break;
+
+		case EC_ASSIGN:
+			cout << "Assign";
+		break;
+
+		case EC_NOT_EQUAL:
+			cout << "Not_Equal";
+		break;
+
+		case EC_EQUAL:
+			cout << "Equal";
+		break;
+
+		case EC_GREATER:
+			cout << "Greater_Than";
+		break;
+
+		case EC_GREATER_EQ:
+			cout << "Greater_Than_Or_Equal";
+		break;
+
+		case EC_LESS:
+			cout << "Less_Than";
+		break;
+
+		case EC_LESS_EQ:
+			cout << "Less_Than_Or_Equal";
+		break;
+
+		case EC_ARRAY_ACCESS:
+			cout << "Array";
+		break;
+
+		case EC_MEMORY_ACCESS:
+			cout << "Memory";
+		break;
+
 		default:
 			cout << "???";
 	}
@@ -89,10 +133,47 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	}
 	else if (ast->getType() == EQ_TR_EQUALITY)
 	{
+		CodeLine ln;
+		string tok = ast->getTokens()[0];
+		ln.reg = reg;
+		ln.args.push_back("@0");
+		ln.args.push_back("@1");
+		if (tok == "!=")
+		{
+			ln.cmd = EC_NOT_EQUAL;
+		}
+		else
+		{
+			ln.cmd = EC_EQUAL;
+		}
 
+		code->push_back(ln);
 	}
 	else if (ast->getType() == EQ_TR_COMPARISON)
 	{
+		CodeLine ln;
+		string tok = ast->getTokens()[0];
+		ln.reg = reg;
+		ln.args.push_back("@0");
+		ln.args.push_back("@1");
+		if (tok == ">")
+		{
+			ln.cmd = EC_GREATER;
+		}
+		else if (tok == ">=")
+		{
+			ln.cmd = EC_GREATER_EQ;
+		}
+		else if (tok == "<")
+		{
+			ln.cmd = EC_LESS;
+		}
+		else
+		{
+			ln.cmd = EC_LESS_EQ;
+		}
+
+		code->push_back(ln);
 
 	}
 	else if (ast->getType() == EQ_TR_ADDITIVE)
@@ -140,19 +221,49 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	}
 	else if (ast->getType() == EQ_TR_UNARY)
 	{
+		CodeLine ln;
+		string tok = ast->getTokens()[0];
+		ln.reg = reg;
+		ln.args.push_back("@0");
+		if (tok == "!")
+		{
+			ln.cmd = EC_LOGICAL_NEGATE;
+		}
+		else
+		{
+			ln.cmd = EC_ALGEBRAIC_NEGATE;
+		}
 
+		code->push_back(ln);
 	}
 	else if (ast->getType() == EQ_TR_ARRAY)
 	{
-
+		CodeLine ln;
+		ln.cmd = EC_ARRAY_ACCESS;
+		ln.reg = reg;
+		ln.args.push_back("@0");
+		ln.args.push_back("@1");
+		code->push_back(ln);
 	}
 	else if (ast->getType() == EQ_TR_MEMACCESS)
 	{
-
+		CodeLine ln;
+		string tok = ast->getTokens()[0];
+		ln.cmd = EC_MEMORY_ACCESS;
+		ln.reg = reg;
+		ln.args.push_back("@0");
+		ln.args.push_back(tok);
+		code->push_back(ln);
 	}
 	else if (ast->getType() == EQ_TR_ASSIGNMENT)
 	{
+		CodeLine ln;
+		ln.reg = reg;
+		ln.cmd = EC_ASSIGN;
+		ln.args.push_back("@0");
+		ln.args.push_back("@1");
 
+		code->push_back(ln);
 	}
 	else if (ast->getType() == EQ_TR_DECLARATION)
 	{
