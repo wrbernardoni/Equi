@@ -17,6 +17,7 @@ SyntaxTree* lineParse(vector<string>);
 struct CodeLine
 {
 	int cmd;
+	int reg;
 	vector<string> args;
 };
 void printCodeLine(CodeLine);
