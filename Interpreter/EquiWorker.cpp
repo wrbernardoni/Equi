@@ -227,7 +227,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		return retPair;
 	}
 
-	vector<SyntaxTree*> children = code->getChildren();;
+	vector<SyntaxTree*> children = code->getChildren();
 	vector<EquiObject*> childOut;
 	vector<bool> killKid;
 	if (code->getType() != EQ_TR_LOGICAL_BLOCK && code->getType() != EQ_TR_DO_WHILE
