@@ -37,5 +37,8 @@ struct CodeLine
 #define EC_ADD_TO_FRAME 22
 #define EC_FUNCTION_CALL 23 //@0, frame_address, input_address (0 if none)
 #define EC_MOVE_REG0_TO 24
+#define EC_BREAK_FLAG 25
+#define EC_CONTINUE_FLAG 26
+#define EC_RETURN_FLAG 27 // Has argument of 0 if there is an item to return in reg0
 
 #endif

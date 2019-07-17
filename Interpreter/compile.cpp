@@ -110,6 +110,18 @@ void printCodeLine(CodeLine l)
 			cout << "Move_Register_0_To";
 		break;
 
+		case EC_BREAK_FLAG:
+			cout << "Break";
+		break;
+
+		case EC_CONTINUE_FLAG:
+			cout << "Continue";
+		break;
+
+		case EC_RETURN_FLAG:
+			cout << "Return";
+		break;
+
 		default:
 			cout << "???";
 	}
@@ -353,7 +365,35 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	}
 	else if (ast->getType() == EQ_TR_SPECIAL)
 	{
-
+		string tok = ast->getTokens()[0];
+		if (tok == "break")
+		{
+			CodeLine ln;
+			ln.cmd = EC_BREAK_FLAG;
+			ln.reg = reg;
+			code->push_back(ln);
+		}
+		else if (tok == "continue")
+		{
+			CodeLine ln;
+			ln.cmd = EC_CONTINUE_FLAG;
+			ln.reg = reg;
+			code->push_back(ln);
+		}
+		else if (tok == "return")
+		{
+			CodeLine ln;
+			ln.cmd = EC_RETURN_FLAG;
+			ln.reg = reg;
+			if (children.size() == 0)
+			{
+			}
+			else
+			{
+				ln.args.push_back("0");
+			}
+			code->push_back(ln);
+		}
 	}
 	else if (ast->getType() == EQ_TR_DO_WHILE)
 	{
