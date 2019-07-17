@@ -37,8 +37,15 @@ struct CodeLine
 #define EC_ADD_TO_FRAME 22
 #define EC_FUNCTION_CALL 23 //@0, frame_address, input_address (0 if none)
 #define EC_MOVE_REG0_TO 24
-#define EC_BREAK_FLAG 25
-#define EC_CONTINUE_FLAG 26
+#define EC_BREAK_FLAG 25	//Ignore reset commands if have scoped up since
+#define EC_CONTINUE_FLAG 26	// Only reset on same scope
 #define EC_RETURN_FLAG 27 // Has argument of 0 if there is an item to return in reg0
+#define EC_STORE_ADDR 28 // Puts the current line number in the given register
+#define EC_RESET_CONTINUE 29
+#define EC_RESET_BREAK 30
+#define EC_RESET_REGISTERS 31 //Removes item from register
+#define EC_JUMP 32 // X, Y if item in register X is true, jump to address in register Y
+#define EC_JUMP_REL 33 // X, Y if item in register X is true, jump Y lines +- current location (0 is infinite loop, 1 is next line)
+#define EC_JUMP_ALWAYS 34 // X -- Jump to address in register X
 
 #endif

@@ -122,6 +122,34 @@ void printCodeLine(CodeLine l)
 			cout << "Return";
 		break;
 
+		case EC_STORE_ADDR:
+			cout << "Store_Addr";
+		break;
+
+		case EC_RESET_CONTINUE:
+			cout << "Reset_Continue";
+		break;
+
+		case EC_RESET_BREAK:
+			cout << "Reset_Break";
+		break;
+
+		case EC_RESET_REGISTERS:
+			cout << "Reset_Registers";
+		break;
+
+		case EC_JUMP:
+			cout << "Jump";
+		break;
+
+		case EC_JUMP_REL:
+			cout << "Jump_Rel";
+		break;
+
+		case EC_JUMP_ALWAYS:
+			cout << "Jump_Always";
+		break;
+
 		default:
 			cout << "???";
 	}
@@ -139,7 +167,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	vector<SyntaxTree*> children = ast->getChildren();
 	if (ast->getType() != EQ_TR_LOGICAL_BLOCK && ast->getType() != EQ_TR_DO_WHILE
 		&& ast->getType() != EQ_TR_WHILE && ast->getType() != EQ_TR_FOR
-		&& ast->getType() != EQ_TR_FUNCTION_DEC)
+		&& ast->getType() != EQ_TR_FUNCTION_DEC && ast->getType() != EQ_TR_ROOT && ast->getType() != EQ_TR_CODE)
 	{
 		for (int i = 0; i < children.size(); i++)
 		{
@@ -149,7 +177,10 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 	if (ast->getType() == EQ_TR_ROOT || ast->getType() == EQ_TR_CODE)
 	{
-		//None
+		for (int i = 0; i < children.size(); i++)
+		{
+			interpretAST(code, children[i], reg);
+		}
 	}
 	else if (ast->getType() == EQ_TR_FUNCTION_DEC)
 	{
@@ -338,12 +369,13 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 		for (int i = 1; i < children.size(); i++)
 		{
-			if (children[i]->getType() == EQ_TR_AS)
+			if ( children[i]->getType() == EQ_TR_AS)
 			{
 				CodeLine addFrame;
 				addFrame.cmd = EC_ADD_TO_FRAME;
 				addFrame.reg = children.size();
 				addFrame.args.push_back(to_string(i));
+				addFrame.args.push_back(children[i]->getTokens()[0]);
 				code->push_back(addFrame);
 			}
 			else
@@ -397,15 +429,142 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	}
 	else if (ast->getType() == EQ_TR_DO_WHILE)
 	{
+		CodeLine scopeUp;
+		scopeUp.cmd = EC_SCOPE_UP;
+		scopeUp.reg = 0;
+		code->push_back(scopeUp);
 
+		CodeLine firstLine;
+		firstLine.cmd = EC_STORE_ADDR;
+		firstLine.reg = reg;
+		code->push_back(firstLine);
+
+		interpretAST(code, children[0], reg + 1);
+
+		CodeLine catchCont;
+		catchCont.cmd = EC_RESET_CONTINUE;
+		catchCont.reg = 0;
+		code->push_back(catchCont);
+
+		interpretAST(code, children[1], reg + 1);
+		CodeLine jumpIf;
+		jumpIf.cmd = EC_JUMP;
+		jumpIf.reg = 0;
+		jumpIf.args.push_back(to_string(reg + 1));
+		jumpIf.args.push_back(to_string(reg));
+		code->push_back(jumpIf);
+
+		CodeLine catchBreak;
+		catchBreak.cmd = EC_RESET_BREAK;
+		catchBreak.reg = 0;
+		code->push_back(catchBreak);
+
+		CodeLine scopeDown;
+		scopeDown.cmd = EC_SCOPE_DOWN;
+		scopeDown.reg = 0;
+		code->push_back(scopeDown);
 	}
 	else if (ast->getType() == EQ_TR_WHILE)
 	{
+		CodeLine scopeUp;
+		scopeUp.cmd = EC_SCOPE_UP;
+		scopeUp.reg = 0;
+		code->push_back(scopeUp);
 
+		CodeLine firstLine;
+		firstLine.cmd = EC_STORE_ADDR;
+		firstLine.reg = reg;
+		code->push_back(firstLine);
+
+		interpretAST(code, children[0], reg + 1);
+
+		CodeLine skipBreak;
+		skipBreak.cmd = EC_JUMP_REL;
+		skipBreak.reg = 0;
+		skipBreak.args.push_back(to_string(reg + 1));
+		skipBreak.args.push_back("2");
+		code->push_back(skipBreak);
+
+		CodeLine ln;
+		ln.cmd = EC_BREAK_FLAG;
+		ln.reg = reg;
+		code->push_back(ln);
+
+		interpretAST(code, children[1], reg + 1);
+
+		CodeLine catchCont;
+		catchCont.cmd = EC_RESET_CONTINUE;
+		catchCont.reg = 0;
+		code->push_back(catchCont);
+
+		CodeLine jumpIf;
+		jumpIf.cmd = EC_JUMP_ALWAYS;
+		jumpIf.reg = 0;
+		jumpIf.args.push_back(to_string(reg));
+		code->push_back(jumpIf);
+
+		CodeLine catchBreak;
+		catchBreak.cmd = EC_RESET_BREAK;
+		catchBreak.reg = 0;
+		code->push_back(catchBreak);
+
+		CodeLine scopeDown;
+		scopeDown.cmd = EC_SCOPE_DOWN;
+		scopeDown.reg = 0;
+		code->push_back(scopeDown);
 	}
 	else if (ast->getType() == EQ_TR_FOR)
 	{
+		CodeLine scopeUp;
+		scopeUp.cmd = EC_SCOPE_UP;
+		scopeUp.reg = 0;
+		code->push_back(scopeUp);
 
+		interpretAST(code, children[0], reg + 1);
+
+		CodeLine firstLine;
+		firstLine.cmd = EC_STORE_ADDR;
+		firstLine.reg = reg;
+		code->push_back(firstLine);
+
+		interpretAST(code, children[1], reg + 1);
+
+		CodeLine skipBreak;
+		skipBreak.cmd = EC_JUMP_REL;
+		skipBreak.reg = 0;
+		skipBreak.args.push_back(to_string(reg + 1));
+		skipBreak.args.push_back("2");
+		code->push_back(skipBreak);
+
+		CodeLine ln;
+		ln.cmd = EC_BREAK_FLAG;
+		ln.reg = reg;
+		code->push_back(ln);
+
+		interpretAST(code, children[3], reg + 1);
+		
+		CodeLine catchCont;
+		catchCont.cmd = EC_RESET_CONTINUE;
+		catchCont.reg = 0;
+		code->push_back(catchCont);
+
+		interpretAST(code, children[2], reg + 1);
+
+		CodeLine jumpIf;
+		jumpIf.cmd = EC_JUMP_ALWAYS;
+		jumpIf.reg = 0;
+		jumpIf.args.push_back(to_string(reg));
+		code->push_back(jumpIf);
+
+		CodeLine catchBreak;
+		catchBreak.cmd = EC_RESET_BREAK;
+		catchBreak.reg = 0;
+		code->push_back(catchBreak);
+
+		CodeLine scopeDown;
+		scopeDown.cmd = EC_SCOPE_DOWN;
+		scopeDown.reg = 0;
+		code->push_back(scopeDown);
 	}
 	else if (ast->getType() == EQ_TR_LOGICAL_BLOCK)
 	{
@@ -424,6 +583,10 @@ vector<CodeLine> compile(vector<SyntaxTree*> ast)
 	for (int i = 0; i < ast.size(); i++)
 	{
 		interpretAST(&code, ast[i], 0);
+		CodeLine pop;
+		pop.cmd = EC_RESET_REGISTERS;
+		pop.reg = 0;
+		code.push_back(pop);
 	}
 
 	return code;
