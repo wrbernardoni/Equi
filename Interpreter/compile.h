@@ -47,5 +47,11 @@ struct CodeLine
 #define EC_JUMP 32 // X, Y if item in register X is true, jump to address in register Y
 #define EC_JUMP_REL 33 // X, Y if item in register X is true, jump Y lines +- current location (0 is infinite loop, 1 is next line)
 #define EC_JUMP_ALWAYS 34 // X -- Jump to address in register X
+#define EC_JUMP_ALWAYS_REL 35 // X -- jump X lines
+#define EC_SET_ELSE_FLAG 36
+#define EC_LOAD_ELSE_FLAG 37 // Load else flag into register
+#define EC_LOAD_NOT_ELSE_FLAG 38
+#define EC_CLEAR_ELSE_FLAG 39
+
 
 #endif

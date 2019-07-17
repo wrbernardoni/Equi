@@ -150,6 +150,26 @@ void printCodeLine(CodeLine l)
 			cout << "Jump_Always";
 		break;
 
+		case EC_JUMP_ALWAYS_REL:
+			cout << "Jump_Always_Rel";
+		break;
+
+		case EC_SET_ELSE_FLAG:
+			cout << "Set_Else_Flag";
+		break;
+
+		case EC_LOAD_ELSE_FLAG:
+			cout << "Load_Else_Flag";
+		break;
+
+		case EC_LOAD_NOT_ELSE_FLAG:
+			cout << "Load_Not_Else_Flag";
+		break;
+
+		case EC_CLEAR_ELSE_FLAG:
+			cout << "Clear_Else_Flag";
+		break;
+
 		default:
 			cout << "???";
 	}
@@ -352,6 +372,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	else if (ast->getType() == EQ_TR_TOKEN)
 	{
 		CodeLine ln;
+				int jumpToEndNum
 		string tok = ast->getTokens()[0];
 		ln.cmd = EC_LOAD_TOKEN;
 		ln.reg = reg;
@@ -568,7 +589,117 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	}
 	else if (ast->getType() == EQ_TR_LOGICAL_BLOCK)
 	{
+		CodeLine scopeUp;
+		scopeUp.cmd = EC_SCOPE_UP;
+		scopeUp.reg = 0;
+		code->push_back(scopeUp);
 
+		if (ast->getTokens().size() == 1)
+		{
+			if (ast->getTokens()[0] == "if")
+			{	// If
+				CodeLine clearElse;
+				clearElse.cmd = EC_CLEAR_ELSE_FLAG;
+				clearElse.reg = 0;
+				code->push_back(clearElse);
+
+				interpretAST(code, children[0], reg + 1);
+
+				CodeLine skipBreak;
+				skipBreak.cmd = EC_JUMP_REL;
+				skipBreak.reg = 0;
+				skipBreak.args.push_back(to_string(reg + 1));
+				skipBreak.args.push_back("3");
+				code->push_back(skipBreak);
+
+				CodeLine setElse;
+				setElse.cmd = EC_SET_ELSE_FLAG;
+				setElse.reg = 0;
+				code->push_back(setElse);
+
+				int jumpToEndNum = code->size();
+				CodeLine jumpEnd;
+				jumpEnd.cmd = EC_JUMP_ALWAYS_REL;
+				jumpEnd.reg = 0;
+				code->push_back(jumpEnd);
+
+				interpretAST(code, children[1], reg + 1);
+				(*code)[jumpToEndNum].args.push_back(to_string(code->size() - jumpToEndNum));
+			}
+			else
+			{	// Else
+				CodeLine ifElse;
+				ifElse.cmd = EC_LOAD_ELSE_FLAG;
+				ifElse.reg = 0;
+				code->push_back(ifElse);
+
+				CodeLine skipBreak;
+				skipBreak.cmd = EC_JUMP_REL;
+				skipBreak.reg = 0;
+				skipBreak.args.push_back("0");
+				skipBreak.args.push_back("3");
+				code->push_back(skipBreak);
+
+				CodeLine clearElse;
+				clearElse.cmd = EC_CLEAR_ELSE_FLAG;
+				clearElse.reg = 0;
+				code->push_back(clearElse);
+
+				int jumpToEndNum = code->size();
+				CodeLine jumpEnd;
+				jumpEnd.cmd = EC_JUMP_ALWAYS_REL;
+				jumpEnd.reg = 0;
+				code->push_back(jumpEnd);
+
+				interpretAST(code, children[0], reg + 1);
+				(*code)[jumpToEndNum].args.push_back(to_string(code->size() - jumpToEndNum));
+			}
+		}
+		else
+		{	// Else if
+			CodeLine ifElse;
+			ifElse.cmd = EC_LOAD_NOT_ELSE_FLAG;
+			ifElse.reg = 0;
+			code->push_back(ifElse);
+
+			CodeLine skipElse;
+			skipElse.cmd = EC_JUMP_REL;
+			skipElse.reg = 0;
+			skipElse.args.push_back("0");
+			code->push_back(skipElse);
+
+			int preCond = code->size() - 1;
+
+			interpretAST(code, children[0], reg + 1);
+
+			CodeLine skipBreak;
+			skipBreak.cmd = EC_JUMP_REL;
+			skipBreak.reg = 0;
+			skipBreak.args.push_back(to_string(reg + 1));
+			skipBreak.args.push_back("2");
+			code->push_back(skipBreak);
+
+			int jumpToEndNum = code->size();
+			CodeLine jumpEnd;
+			jumpEnd.cmd = EC_JUMP_ALWAYS_REL;
+			jumpEnd.reg = 0;
+			code->push_back(jumpEnd);
+
+			CodeLine clearElse;
+			clearElse.cmd = EC_CLEAR_ELSE_FLAG;
+			clearElse.reg = 0;
+			code->push_back(clearElse);
+
+			interpretAST(code, children[1], reg + 1);
+
+			(*code)[preCond].args.push_back(to_string(code->size() - preCond));
+			(*code)[jumpToEndNum].args.push_back(to_string(code->size() - jumpToEndNum));
+		}
+
+		CodeLine scopeDown;
+		scopeDown.cmd = EC_SCOPE_DOWN;
+		scopeDown.reg = 0;
+		code->push_back(scopeDown);
 	}
 	else
 	{
