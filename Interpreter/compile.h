@@ -32,5 +32,10 @@ struct CodeLine
 #define EC_LESS_EQ 17
 #define EC_ARRAY_ACCESS 18
 #define EC_MEMORY_ACCESS 19
+#define EC_CREATE_TUPLE 20
+#define EC_CREATE_FRAME 21
+#define EC_ADD_TO_FRAME 22
+#define EC_FUNCTION_CALL 23 //@0, frame_address, input_address (0 if none)
+#define EC_MOVE_REG0_TO 24
 
 #endif
