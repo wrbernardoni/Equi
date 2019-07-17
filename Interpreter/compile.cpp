@@ -372,7 +372,6 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	else if (ast->getType() == EQ_TR_TOKEN)
 	{
 		CodeLine ln;
-				int jumpToEndNum
 		string tok = ast->getTokens()[0];
 		ln.cmd = EC_LOAD_TOKEN;
 		ln.reg = reg;
@@ -455,10 +454,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		scopeUp.reg = 0;
 		code->push_back(scopeUp);
 
-		CodeLine firstLine;
-		firstLine.cmd = EC_STORE_ADDR;
-		firstLine.reg = reg;
-		code->push_back(firstLine);
+		int start = code->size();
 
 		interpretAST(code, children[0], reg + 1);
 
@@ -469,10 +465,10 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 		interpretAST(code, children[1], reg + 1);
 		CodeLine jumpIf;
-		jumpIf.cmd = EC_JUMP;
+		jumpIf.cmd = EC_JUMP_REL;
 		jumpIf.reg = 0;
 		jumpIf.args.push_back(to_string(reg + 1));
-		jumpIf.args.push_back(to_string(reg));
+		jumpIf.args.push_back("-" + to_string(code->size() - start));
 		code->push_back(jumpIf);
 
 		CodeLine catchBreak;
@@ -492,10 +488,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		scopeUp.reg = 0;
 		code->push_back(scopeUp);
 
-		CodeLine firstLine;
-		firstLine.cmd = EC_STORE_ADDR;
-		firstLine.reg = reg;
-		code->push_back(firstLine);
+		int start = code->size();
 
 		interpretAST(code, children[0], reg + 1);
 
@@ -506,8 +499,9 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		skipBreak.args.push_back("2");
 		code->push_back(skipBreak);
 
+		int endJump = code->size();
 		CodeLine ln;
-		ln.cmd = EC_BREAK_FLAG;
+		ln.cmd = EC_JUMP_ALWAYS_REL;
 		ln.reg = reg;
 		code->push_back(ln);
 
@@ -519,15 +513,17 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		code->push_back(catchCont);
 
 		CodeLine jumpIf;
-		jumpIf.cmd = EC_JUMP_ALWAYS;
+		jumpIf.cmd = EC_JUMP_ALWAYS_REL;
 		jumpIf.reg = 0;
-		jumpIf.args.push_back(to_string(reg));
+		jumpIf.args.push_back("-" + to_string((code->size() - start)));
 		code->push_back(jumpIf);
 
 		CodeLine catchBreak;
 		catchBreak.cmd = EC_RESET_BREAK;
 		catchBreak.reg = 0;
 		code->push_back(catchBreak);
+
+		(*code)[endJump].args.push_back(to_string(code->size() - endJump));
 
 		CodeLine scopeDown;
 		scopeDown.cmd = EC_SCOPE_DOWN;
@@ -543,10 +539,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 		interpretAST(code, children[0], reg + 1);
 
-		CodeLine firstLine;
-		firstLine.cmd = EC_STORE_ADDR;
-		firstLine.reg = reg;
-		code->push_back(firstLine);
+		int start = code->size();
 
 		interpretAST(code, children[1], reg + 1);
 
@@ -557,8 +550,9 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		skipBreak.args.push_back("2");
 		code->push_back(skipBreak);
 
+		int endJump = code->size();
 		CodeLine ln;
-		ln.cmd = EC_BREAK_FLAG;
+		ln.cmd = EC_JUMP_ALWAYS_REL;
 		ln.reg = reg;
 		code->push_back(ln);
 
@@ -572,15 +566,17 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		interpretAST(code, children[2], reg + 1);
 
 		CodeLine jumpIf;
-		jumpIf.cmd = EC_JUMP_ALWAYS;
+		jumpIf.cmd = EC_JUMP_ALWAYS_REL;
 		jumpIf.reg = 0;
-		jumpIf.args.push_back(to_string(reg));
+		jumpIf.args.push_back("-" + to_string(code->size() - start));
 		code->push_back(jumpIf);
 
 		CodeLine catchBreak;
 		catchBreak.cmd = EC_RESET_BREAK;
 		catchBreak.reg = 0;
 		code->push_back(catchBreak);
+
+		(*code)[endJump].args.push_back(to_string(code->size() - endJump));
 
 		CodeLine scopeDown;
 		scopeDown.cmd = EC_SCOPE_DOWN;
