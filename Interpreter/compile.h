@@ -52,6 +52,10 @@ struct CodeLine
 #define EC_LOAD_ELSE_FLAG 37 // Load else flag into register
 #define EC_LOAD_NOT_ELSE_FLAG 38
 #define EC_CLEAR_ELSE_FLAG 39
-
+#define EC_INCREMENT 40	// X, decrement object in register X
+#define EC_DECREMENT 41
+#define EC_SPAWN 42 // X Y, spawn object of type X and store as token Y
+#define EC_SPAWN_ARRAY 43 // X Y Z spawn array of type X with size Y and store as token Z
+#define EC_IS_TOKEN 44 // X, returns true if there is a token of name X
 
 #endif

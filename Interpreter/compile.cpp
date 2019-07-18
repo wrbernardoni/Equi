@@ -170,6 +170,26 @@ void printCodeLine(CodeLine l)
 			cout << "Clear_Else_Flag";
 		break;
 
+		case EC_INCREMENT:
+			cout << "Increment";
+		break;
+
+		case EC_DECREMENT:
+			cout << "Decrement";
+		break;
+
+		case EC_SPAWN:
+			cout << "Spawn";
+		break;
+
+		case EC_SPAWN_ARRAY:
+			cout << "Spawn_Array";
+		break;
+
+		case EC_IS_TOKEN:
+			cout << "Is_Token";
+		break;
+
 		default:
 			cout << "???";
 	}
@@ -187,7 +207,8 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	vector<SyntaxTree*> children = ast->getChildren();
 	if (ast->getType() != EQ_TR_LOGICAL_BLOCK && ast->getType() != EQ_TR_DO_WHILE
 		&& ast->getType() != EQ_TR_WHILE && ast->getType() != EQ_TR_FOR
-		&& ast->getType() != EQ_TR_FUNCTION_DEC && ast->getType() != EQ_TR_ROOT && ast->getType() != EQ_TR_CODE)
+		&& ast->getType() != EQ_TR_FUNCTION_DEC && ast->getType() != EQ_TR_ROOT && ast->getType() != EQ_TR_CODE
+		&& ast->getType() != EQ_TR_DECLARATION)
 	{
 		for (int i = 0; i < children.size(); i++)
 		{
@@ -358,7 +379,206 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	}
 	else if (ast->getType() == EQ_TR_DECLARATION)
 	{
+		if (ast->getTokens().size() == 2)
+		{
+			string tok = ast->getTokens()[1];
+			string typ = ast->getTokens()[0];
 
+			if (tok == "++" || tok == "--" || typ == "++" || typ == "--")
+			{
+				string op = "";
+				if (tok == "++" || tok == "--")
+				{
+					op = tok;
+					tok = typ;
+				}
+				else
+				{
+					op = typ;
+				}
+
+				CodeLine ln;
+				ln.cmd = EC_LOAD_TOKEN;
+				ln.reg = reg;
+				ln.args.push_back(tok);
+				code->push_back(ln);
+
+				CodeLine ln2;
+				ln2.reg = reg;
+				ln2.args.push_back(to_string(reg));
+				if (op == "++")
+				{
+					ln2.cmd = EC_INCREMENT;
+				}
+				else
+				{
+					ln2.cmd = EC_DECREMENT;
+				}
+				code->push_back(ln2);
+			}
+			else
+			{
+				if (children.size() != 0)
+				{
+					CodeLine checkExists;
+					checkExists.cmd = EC_IS_TOKEN;
+					checkExists.reg = 0;
+					checkExists.args.push_back(tok);
+					code->push_back(checkExists);
+
+					CodeLine jumpIf;
+					jumpIf.cmd = EC_JUMP_REL;
+					jumpIf.reg = 0;
+					jumpIf.args.push_back("0");
+					int jumpNum = code->size();
+					code->push_back(jumpIf);
+
+					CodeLine ln;
+					ln.cmd = EC_SPAWN;
+					ln.reg = 0;
+					ln.args.push_back(typ);
+					ln.args.push_back(tok);
+					code->push_back(ln);
+
+					interpretAST(code, children[0], 1);
+					CodeLine assn;
+					assn.reg = reg;
+					assn.cmd = EC_ASSIGN;
+					assn.args.push_back("@0");
+					assn.args.push_back("@1");
+					code->push_back(assn);
+
+					CodeLine skipLoad;
+					skipLoad.cmd = EC_JUMP_ALWAYS_REL;
+					skipLoad.reg = 0;
+					skipLoad.args.push_back("2");
+					code->push_back(skipLoad);
+
+					(*code)[jumpNum].args.push_back(to_string(code->size() - jumpNum));
+
+					CodeLine loadTok;
+					loadTok.cmd = EC_LOAD_TOKEN;
+					loadTok.reg = reg;
+					loadTok.args.push_back(tok);
+					code->push_back(loadTok);
+				}
+				else
+				{
+					CodeLine ln;
+					ln.cmd = EC_SPAWN;
+					ln.reg = reg;
+					ln.args.push_back(typ);
+					ln.args.push_back(tok);
+					code->push_back(ln);
+				}
+			}
+		}
+		else // 3 args
+		{
+			string a0 = ast->getTokens()[0];
+			string a1 = ast->getTokens()[1];
+			string a2 = ast->getTokens()[2];
+			
+			int index = 0;
+			if (isNum(a1))
+			{
+				index = stoi(a1);
+			}
+
+			if (a2 == "++" || a2 == "--")
+			{
+				//a[32]++
+				CodeLine loadTok;
+				loadTok.cmd = EC_LOAD_TOKEN;
+				loadTok.reg = 0;
+				loadTok.args.push_back(a0);
+				code->push_back(loadTok);
+
+				CodeLine cons;
+				cons.cmd = EC_LOAD_CONST;
+				cons.reg = 1;
+				cons.args.push_back(to_string(index));
+				code->push_back(cons);				
+
+				CodeLine ln;
+				ln.cmd = EC_ARRAY_ACCESS;
+				ln.reg = 0;
+				ln.args.push_back("@0");
+				ln.args.push_back("@1");
+				code->push_back(ln);
+
+				CodeLine ln2;
+				ln2.reg = reg;
+				ln2.args.push_back("0");
+				if (a2 == "++")
+				{
+					ln2.cmd = EC_INCREMENT;
+				}
+				else
+				{
+					ln2.cmd = EC_DECREMENT;
+				}
+				code->push_back(ln2);
+			}
+			else
+			{
+				if (children.size() != 0)
+				{
+					CodeLine checkExists;
+					checkExists.cmd = EC_IS_TOKEN;
+					checkExists.reg = 0;
+					checkExists.args.push_back(a2);
+					code->push_back(checkExists);
+
+					CodeLine jumpIf;
+					jumpIf.cmd = EC_JUMP_REL;
+					jumpIf.reg = 0;
+					jumpIf.args.push_back("0");
+					int jumpNum = code->size();
+					code->push_back(jumpIf);
+
+					CodeLine ln;
+					ln.cmd = EC_SPAWN_ARRAY;
+					ln.reg = 0;
+					ln.args.push_back(a0);
+					ln.args.push_back(a1);
+					ln.args.push_back(a2);
+					code->push_back(ln);
+
+					interpretAST(code, children[0], 1);
+					CodeLine assn;
+					assn.reg = reg;
+					assn.cmd = EC_ASSIGN;
+					assn.args.push_back("@0");
+					assn.args.push_back("@1");
+					code->push_back(assn);
+
+					CodeLine skipLoad;
+					skipLoad.cmd = EC_JUMP_ALWAYS_REL;
+					skipLoad.reg = 0;
+					skipLoad.args.push_back("2");
+					code->push_back(skipLoad);
+
+					(*code)[jumpNum].args.push_back(to_string(code->size() - jumpNum));
+
+					CodeLine loadTok;
+					loadTok.cmd = EC_LOAD_TOKEN;
+					loadTok.reg = reg;
+					loadTok.args.push_back(a2);
+					code->push_back(loadTok);
+				}
+				else
+				{
+					CodeLine ln;
+					ln.cmd = EC_SPAWN_ARRAY;
+					ln.reg = reg;
+					ln.args.push_back(a0);
+					ln.args.push_back(a1);
+					ln.args.push_back(a2);
+					code->push_back(ln);
+				}
+			}
+		}
 	}
 	else if (ast->getType() == EQ_TR_CONST)
 	{
