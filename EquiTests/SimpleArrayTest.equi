@@ -1,6 +1,6 @@
 print("Beginning array FizzBuzz test");
 
-int max = 10000;
+int max = 1000;
 string[max] fb;
 
 for (int i = 0; i < max; i++)

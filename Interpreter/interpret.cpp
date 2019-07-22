@@ -87,7 +87,7 @@ int interpret(string fn)
       EquiObject* o = NULL;
       try
       {
-        pair<EquiObject*, bool> rn = core.run(lineTree);
+        pair<EquiObject*, bool> rn = core.run(&cde);
         P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
         if (rn.second || core.killAnyways())
           delete rn.first;
@@ -164,28 +164,27 @@ int interpret(string fn)
       }
     }
 
+
+    EquiObject* o = NULL;
+    try
+    {
+      pair<EquiObject*, bool> rn = core.run(&cde);
+      P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
+      if (rn.second || core.killAnyways())
+        delete rn.first;
+    }
+    catch (string m)
+    {
+      cerr << "Error on line: " << lineNum << ": " << m << endl;
+
+      if (!failsafe)
+      {
+        return 1;
+      }
+    }
+
     for(int i = 0; i < code.size(); i++)
     {
-      EquiObject* o = NULL;
-      try
-      {
-        pair<EquiObject*, bool> rn = core.run(code[i]);
-        P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
-        if (rn.second || core.killAnyways())
-          delete rn.first;
-      }
-      catch (string m)
-      {
-        cerr << "Error on line: " << lineNum << ": " << m << endl;
-
-        if (!failsafe)
-        {
-          return 1;
-        }
-      }
-
-      core.resetScope();
-
       delete code[i];
     }
   }

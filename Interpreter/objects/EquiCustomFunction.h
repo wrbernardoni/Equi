@@ -4,13 +4,14 @@
 #include "AllObj.h"
 #include <string>
 #include "EquiWorker.h"
+#include "parse.h"
 
 using namespace std;
 
 class EQUI_custom_function : public EquiFunction
 {
 private:
-	SyntaxTree* code;
+	vector<CodeLine> code;
 	EquiFrame frame;
 	string name;
 	vector<pair<string,string>> inType;
@@ -18,20 +19,17 @@ public:
 	string getDataType() { return E_FUNCTION_TYPE; };
 	virtual EquiObject* clone()
 	{
-		SyntaxTree* tempC = new SyntaxTree("");
-		*tempC = *code;
-
 		map<string, EquiObject*>* t = frame.types.back();
 		frame.types.pop_back();
 
-		EquiObject* out = new EQUI_custom_function(inType, name, tempC, frame);
+		EquiObject* out = new EQUI_custom_function(inType, name, code, frame);
 
 		frame.types.push_back(t);
 		return out;
 	};
 	virtual EquiObject* spawnMyType() { return clone(); }; 
 
-	EQUI_custom_function(vector<pair<string,string>> tt, string n, SyntaxTree* c, EquiFrame f)
+	EQUI_custom_function(vector<pair<string,string>> tt, string n, vector<CodeLine> c, EquiFrame f)
 	{
 		inType = tt;
 		name = n;
@@ -43,7 +41,7 @@ public:
 		frame.types.push_back(t);
 	}
 
-	EQUI_custom_function(vector<string> tok, SyntaxTree* c, EquiFrame f)
+	EQUI_custom_function(vector<string> tok, vector<CodeLine> c, EquiFrame f)
 	{
 		code = c;
 		frame = f;
@@ -99,7 +97,6 @@ public:
 		map<string, EquiObject*>* t = frame.types.back();
 		frame.types.pop_back();
 		delete t;
-		delete code;
 	}
 
 	virtual EquiObject* operator() (EquiObject* in)
@@ -155,7 +152,7 @@ public:
 					}
 				}
 
-				map<string,EquiObject*>* tok = new map<string,EquiObject*>;
+				//map<string,EquiObject*>* tok = new map<string,EquiObject*>;
 				if (frame.isToken(inType[0].second))
 				{
 					*frame.getToken(inType[0].second) = *in;
@@ -239,7 +236,7 @@ public:
 		}
 
 		EquiWorker work;
-		work.loanType(&frame);
+		work.loanFrame(&frame);
 
 		EquiFrame* f = work.touchFrame();
 		for (int i = 0; i < setFrame.size(); i++)
@@ -248,7 +245,7 @@ public:
 		}
 
 		work.scopeUp();
-		pair<EquiObject*, bool> o = work.run(code);
+		pair<EquiObject*, bool> o = work.run(&code);
 		EquiObject* t = o.first->clone();
 		work.scopeDown();
 

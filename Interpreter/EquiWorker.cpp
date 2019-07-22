@@ -215,6 +215,7 @@ void EquiWorker::resetScope()
 	}
 }
 
+/*
 pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 {
 	if (breakFlag || continueFlag)
@@ -1220,4 +1221,4 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	pair<EquiObject*, bool> retPair(out, killOut);
 	return retPair;
 }
-
+*/

@@ -52,7 +52,7 @@ public:
 	EquiWorker(EquiFrame*);
 	~EquiWorker();
 	
-	pair<EquiObject*, bool> run(SyntaxTree*);
+	//pair<EquiObject*, bool> run(SyntaxTree*);
 	pair<EquiObject*, bool> run(vector<CodeLine>*);
 };
 

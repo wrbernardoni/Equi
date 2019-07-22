@@ -35,9 +35,15 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 		if (ln.cmd == EC_SCOPE_UP  && !breakFlag && !continueFlag)
 			scopeUp();
 		else if (ln.cmd == EC_SCOPE_UP)
+		{
+			elseFlag = false;
 			scopeSince += 1;
+		}
 		else if (ln.cmd == EC_SCOPE_DOWN && !breakFlag && !continueFlag)
+		{
+			elseFlag = false;
 			scopeDown();
+		}
 		else if (ln.cmd == EC_SCOPE_DOWN)
 			scopeSince -= 1;
 		else if (ln.cmd == EC_ADD && !breakFlag && !continueFlag)
@@ -885,7 +891,26 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 		{
 			string type = ln.args[0];
 			string tok = ln.args[2];
-			int index = stoi(ln.args[1]);
+			int index = 0;
+			if (isNum(ln.args[1]))
+				index = stoi(ln.args[1]);
+			else
+			{
+				string ind = ln.args[1].substr(1, ln.args[1].size() - 2);
+				if (!isToken(ind))
+				{
+					throwError("Undefined token " + ind);
+				}
+
+				EquiObject* o = getToken(ind);
+				string oS = o->to_string();
+				if (!isNum(oS))
+				{
+					throwError("Must index by a numeric");
+				}
+
+				index = stoi(oS);
+			}
 
 			EquiObject* newObj = NULL;
 			if (type == "int")
@@ -985,7 +1010,27 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 		}
 		else if (ln.cmd == EC_DEFINE_FUNCTION && !breakFlag && !continueFlag)
 		{
+			int lines = stoi(ln.args[0]);
+			vector<string> params;
+			for (int i = 1; i < ln.args.size(); i++)
+			{
+				params.push_back(ln.args[i]);
+			}
+			step = lines;
+			vector<CodeLine> cd;
+			for (int i = lineCount + 1; i < lineCount + lines; i++)
+			{
+				cd.push_back((*code)[i]);
+			}
 
+			string fn = ln.args[1];
+			EquiFrame f;
+			f.setTypes(data->types);
+			EQUI_custom_function* newF = new EQUI_custom_function(params, cd,f);
+			emplaceType(fn, newF);
+
+			pair<EquiObject*, bool> t(newF, false);
+			registers[ln.reg].push(t);
 		}
 		else if (!breakFlag && !continueFlag)
 		{

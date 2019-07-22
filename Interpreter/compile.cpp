@@ -232,6 +232,11 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		
 		code->push_back(ln);
 
+		CodeLine pop;
+		pop.cmd = EC_RESET_REGISTERS;
+		pop.reg = 0;
+		code->push_back(pop);
+
 		interpretAST(code, ast->getChildren()[0], 0);
 
 		(*code)[defF].args.push_back(to_string(code->size() - defF));
