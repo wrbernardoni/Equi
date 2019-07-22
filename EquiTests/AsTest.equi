@@ -17,8 +17,6 @@ function f: (double a,double b) -> double
 		return a/b;
 	else
 		return 0;
-
-	return 0;
 }
 
 bool fail = false;
