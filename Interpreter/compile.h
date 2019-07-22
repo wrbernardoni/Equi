@@ -40,7 +40,6 @@ struct CodeLine
 #define EC_BREAK_FLAG 25	//Ignore reset commands if have scoped up since
 #define EC_CONTINUE_FLAG 26	// Only reset on same scope
 #define EC_RETURN_FLAG 27 // Has argument of 0 if there is an item to return in reg0
-#define EC_STORE_ADDR 28 // Puts the current line number in the given register
 #define EC_RESET_CONTINUE 29
 #define EC_RESET_BREAK 30
 #define EC_RESET_REGISTERS 31 //Removes item from register

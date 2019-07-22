@@ -22,6 +22,7 @@ private:
 	bool runElse;
 	bool breakFlag;
 	bool continueFlag;
+	bool elseFlag;
 	bool returnFlag;
 	bool killReturn;
 	EquiObject* returnItem;

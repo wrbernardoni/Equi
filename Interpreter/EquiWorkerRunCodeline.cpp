@@ -13,6 +13,9 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 {
 	int pLine = -1;
 	int lineCount = 0;
+	int scopeSince = 0;
+	breakFlag = false;
+	continueFlag = false;
 
 	vector<stack<pair<EquiObject*, bool>>> registers;
 
@@ -29,11 +32,15 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 			registers.push_back(newR);
 		}
 
-		if (ln.cmd == EC_SCOPE_UP)
+		if (ln.cmd == EC_SCOPE_UP  && !breakFlag && !continueFlag)
 			scopeUp();
-		else if (ln.cmd == EC_SCOPE_DOWN)
+		else if (ln.cmd == EC_SCOPE_UP)
+			scopeSince += 1;
+		else if (ln.cmd == EC_SCOPE_DOWN && !breakFlag && !continueFlag)
 			scopeDown();
-		else if (ln.cmd == EC_ADD)
+		else if (ln.cmd == EC_SCOPE_DOWN)
+			scopeSince -= 1;
+		else if (ln.cmd == EC_ADD && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers to add");
@@ -62,7 +69,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_SUBTRACT)
+		else if (ln.cmd == EC_SUBTRACT && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers to subtract");
@@ -91,7 +98,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_LOAD_CONST)
+		else if (ln.cmd == EC_LOAD_CONST && !breakFlag && !continueFlag)
 		{
 			string cnst = ln.args[0];
 			EquiObject* out = NULL;
@@ -134,7 +141,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 			pair<EquiObject*, bool> ret(out, true);
 			registers[ln.reg].push(ret);
 		}
-		else if (ln.cmd == EC_LOAD_TOKEN)
+		else if (ln.cmd == EC_LOAD_TOKEN && !breakFlag && !continueFlag)
 		{
 			string tok = ln.args[0];
 			if (!isToken(tok) && !isType(tok))
@@ -153,7 +160,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				registers[ln.reg].push(ret);
 			}
 		}
-		else if (ln.cmd == EC_MULTIPLY)
+		else if (ln.cmd == EC_MULTIPLY && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers to multiply");
@@ -182,7 +189,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_DIVIDE)
+		else if (ln.cmd == EC_DIVIDE && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers to divide");
@@ -211,7 +218,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_MODULUS)
+		else if (ln.cmd == EC_MODULUS && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers to modulus");
@@ -240,7 +247,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_LOGICAL_NEGATE)
+		else if (ln.cmd == EC_LOGICAL_NEGATE && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 1)
 				throwError("Need at least one elements in register to negate");
@@ -261,7 +268,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o1.first;
 			}
 		}
-		else if (ln.cmd == EC_ALGEBRAIC_NEGATE)
+		else if (ln.cmd == EC_ALGEBRAIC_NEGATE && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 1)
 				throwError("Need at least one elements in register to negate");
@@ -282,7 +289,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o1.first;
 			}
 		}
-		else if (ln.cmd == EC_ASSIGN)
+		else if (ln.cmd == EC_ASSIGN && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers to assign");
@@ -351,7 +358,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_NOT_EQUAL)
+		else if (ln.cmd == EC_NOT_EQUAL && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers for comparison");
@@ -382,7 +389,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_EQUAL)
+		else if (ln.cmd == EC_EQUAL && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers for comparison");
@@ -413,7 +420,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_GREATER)
+		else if (ln.cmd == EC_GREATER && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers for comparison");
@@ -444,7 +451,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_GREATER_EQ)
+		else if (ln.cmd == EC_GREATER_EQ && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers for comparison");
@@ -475,7 +482,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_LESS)
+		else if (ln.cmd == EC_LESS && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers for comparison");
@@ -506,7 +513,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_LESS_EQ)
+		else if (ln.cmd == EC_LESS_EQ && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers for comparison");
@@ -537,7 +544,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_ARRAY_ACCESS)
+		else if (ln.cmd == EC_ARRAY_ACCESS && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
 				throwError("Need at least two elements in registers for array access");
@@ -578,7 +585,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete o2.first;
 			}
 		}
-		else if (ln.cmd == EC_MEMORY_ACCESS)
+		else if (ln.cmd == EC_MEMORY_ACCESS && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 1)
 				throwError("Need at least one element in registers for memory access");
@@ -604,7 +611,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				res->addDependant(o1.first);
 			}
 		}
-		else if (ln.cmd == EC_CREATE_TUPLE)
+		else if (ln.cmd == EC_CREATE_TUPLE && !breakFlag && !continueFlag)
 		{
 			int numto = stoi(ln.args[0]);
 			vector<EquiObject*> toTup;
@@ -625,13 +632,13 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 			pair<EquiObject*, bool> ret(tup, true);
 			registers[ln.reg].push(ret);
 		}
-		else if (ln.cmd == EC_CREATE_FRAME)
+		else if (ln.cmd == EC_CREATE_FRAME && !breakFlag && !continueFlag)
 		{
 			EquiFrame* f = new EquiFrame;
 			pair<EquiObject*, bool> ret(f, true);
 			registers[ln.reg].push(ret);
 		}
-		else if (ln.cmd == EC_ADD_TO_FRAME)
+		else if (ln.cmd == EC_ADD_TO_FRAME && !breakFlag && !continueFlag)
 		{
 			int r = stoi(ln.args[0]);
 			string name = ln.args[1];
@@ -654,7 +661,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 
 			f->emplaceToken(name, o.first);
 		}
-		else if (ln.cmd == EC_FUNCTION_CALL)
+		else if (ln.cmd == EC_FUNCTION_CALL && !breakFlag && !continueFlag)
 		{
 			int frameN = stoi(ln.args[1]);
 			int inp = stoi(ln.args[2]);
@@ -692,7 +699,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete input.first;
 			delete f;
 		}
-		else if (ln.cmd == EC_MOVE_REG0_TO)
+		else if (ln.cmd == EC_MOVE_REG0_TO && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 1)
 				throwError("Need at least one element in registers for transfer");
@@ -703,93 +710,160 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 			registers[0].pop();
 			registers[ln.reg].push(o);
 		}
-		else if (ln.cmd == EC_BREAK_FLAG)
+		else if (ln.cmd == EC_BREAK_FLAG && !breakFlag && !continueFlag)
 		{
-
+			breakFlag = true;
 		}
-		else if (ln.cmd == EC_CONTINUE_FLAG)
+		else if (ln.cmd == EC_CONTINUE_FLAG && !breakFlag && !continueFlag)
 		{
-
+			continueFlag = true;
 		}
-		else if (ln.cmd == EC_RETURN_FLAG)
+		else if (ln.cmd == EC_RETURN_FLAG && !breakFlag && !continueFlag)
 		{
+			if (ln.args.size() == 0)
+			{
+				pair<EquiObject*, bool> o(new EquiVoid, true);
+				return o;
+			}
+			else
+			{
+				if (registers.size() < 1)
+				throwError("Need at least one element in registers for return");
 
-		}
-		else if (ln.cmd == EC_STORE_ADDR)
-		{
+				if (registers[0].size() == 0)
+					throwError("Missing item in register 0 for return");
 
+				pair<EquiObject*, bool> o = registers[0].top();
+				registers[0].pop();
+
+				return o;
+			}
 		}
 		else if (ln.cmd == EC_RESET_CONTINUE)
 		{
-
+			continueFlag = false;
 		}
 		else if (ln.cmd == EC_RESET_BREAK)
 		{
-
+			breakFlag = false;
 		}
 		else if (ln.cmd == EC_RESET_REGISTERS)
 		{
+			breakFlag = false;
+			continueFlag = false;
 
+			for (int i = 0; i < registers.size(); i++)
+			{
+				while (registers[i].size() != 0)
+				{
+					pair<EquiObject*, bool> t = registers[i].top();
+					registers[i].pop();
+					if (t.second)
+						delete t.first;
+				}
+			}
+
+			registers.clear();
 		}
-		else if (ln.cmd == EC_JUMP)
+		else if (ln.cmd == EC_JUMP && !breakFlag && !continueFlag)
+		{
+			int condN = stoi(ln.args[0]);
+
+			if (registers.size() < condN)
+				throwError("Registers improperly loaded");
+			if (registers[condN].size() == 0)
+				throwError("Missing boolean to load");
+
+			pair<EquiObject*, bool> t = registers[condN].top();
+			registers[condN].pop();
+
+			EquiPrimitive<bool> fals;
+			fals.setData(false);
+
+			if (fals != *t.first)
+			{
+				step = 0;
+				lineCount = stoi(ln.args[1]);
+			}
+		}
+		else if (ln.cmd == EC_JUMP_REL && !breakFlag && !continueFlag)
+		{
+			int condN = stoi(ln.args[0]);
+
+			if (registers.size() < condN)
+				throwError("Registers improperly loaded");
+			if (registers[condN].size() == 0)
+				throwError("Missing boolean to load");
+
+			pair<EquiObject*, bool> t = registers[condN].top();
+			registers[condN].pop();
+
+			EquiPrimitive<bool> fals;
+			fals.setData(false);
+
+			if (fals != *t.first)
+			{
+				step = stoi(ln.args[1]);
+			}
+		}
+		else if (ln.cmd == EC_JUMP_ALWAYS && !breakFlag && !continueFlag)
+		{
+			step = 0;
+			lineCount = stoi(ln.args[0]);
+		}
+		else if (ln.cmd == EC_JUMP_ALWAYS_REL && !breakFlag && !continueFlag)
+		{
+			step = stoi(ln.args[0]);
+		}
+		else if (ln.cmd == EC_SET_ELSE_FLAG && !breakFlag && !continueFlag)
+		{
+			elseFlag = true;
+		}
+		else if (ln.cmd == EC_LOAD_ELSE_FLAG && !breakFlag && !continueFlag)
+		{
+			EquiPrimitive<bool>* load = new EquiPrimitive<bool>;
+			load->setData(elseFlag);
+			pair<EquiObject*, bool> t(load, true);
+			registers[ln.reg].push(t);
+		}
+		else if (ln.cmd == EC_LOAD_NOT_ELSE_FLAG && !breakFlag && !continueFlag)
+		{
+			EquiPrimitive<bool>* load = new EquiPrimitive<bool>;
+			load->setData(!elseFlag);
+			pair<EquiObject*, bool> t(load, true);
+			registers[ln.reg].push(t);
+		}
+		else if (ln.cmd == EC_CLEAR_ELSE_FLAG && !breakFlag && !continueFlag)
+		{
+			elseFlag = false;
+		}
+		else if (ln.cmd == EC_INCREMENT && !breakFlag && !continueFlag)
 		{
 
 		}
-		else if (ln.cmd == EC_JUMP_REL)
+		else if (ln.cmd == EC_DECREMENT && !breakFlag && !continueFlag)
 		{
 
 		}
-		else if (ln.cmd == EC_JUMP_ALWAYS)
+		else if (ln.cmd == EC_SPAWN && !breakFlag && !continueFlag)
 		{
 
 		}
-		else if (ln.cmd == EC_JUMP_ALWAYS_REL)
+		else if (ln.cmd == EC_SPAWN_ARRAY && !breakFlag && !continueFlag)
 		{
 
 		}
-		else if (ln.cmd == EC_SET_ELSE_FLAG)
+		else if (ln.cmd == EC_IS_TOKEN && !breakFlag && !continueFlag)
 		{
 
 		}
-		else if (ln.cmd == EC_LOAD_ELSE_FLAG)
+		else if (ln.cmd == EC_DEFINE_FUNCTION && !breakFlag && !continueFlag)
 		{
 
 		}
-		else if (ln.cmd == EC_LOAD_NOT_ELSE_FLAG)
+		else if (!breakFlag && !continueFlag)
 		{
-
-		}
-		else if (ln.cmd == EC_CLEAR_ELSE_FLAG)
-		{
-
-		}
-		else if (ln.cmd == EC_INCREMENT)
-		{
-
-		}
-		else if (ln.cmd == EC_DECREMENT)
-		{
-
-		}
-		else if (ln.cmd == EC_SPAWN)
-		{
-
-		}
-		else if (ln.cmd == EC_SPAWN_ARRAY)
-		{
-
-		}
-		else if (ln.cmd == EC_IS_TOKEN)
-		{
-
-		}
-		else if (ln.cmd == EC_DEFINE_FUNCTION)
-		{
-
-		}
-		else
-		{
-			throwError("Unrecognized command " + ln.cmd);
+			throwError("Unrecognized bytecode " + to_string(ln.cmd));
 		}
 
 		lineCount += step;

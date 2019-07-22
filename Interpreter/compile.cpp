@@ -122,10 +122,6 @@ void printCodeLine(CodeLine l)
 			cout << "Return";
 		break;
 
-		case EC_STORE_ADDR:
-			cout << "Store_Addr";
-		break;
-
 		case EC_RESET_CONTINUE:
 			cout << "Reset_Continue";
 		break;

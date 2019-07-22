@@ -42,6 +42,7 @@ EquiWorker::EquiWorker()
 	breakFlag = false;
 	continueFlag = false;
 	returnFlag = false;
+	elseFlag = false;
 	killReturn = false;
 
 	//EquiFrame def;
@@ -57,6 +58,7 @@ EquiWorker::EquiWorker(EquiFrame* f)
 	breakFlag = false;
 	continueFlag = false;
 	returnFlag = false;
+	elseFlag = false;
 	killReturn = false;
 
 	//EquiFrame def;
