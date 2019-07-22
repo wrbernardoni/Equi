@@ -306,3 +306,24 @@ EquiObject* EquiFrame::getType(string n)
 	throwError("Type " + n + " not found");
 	return NULL;
 }
+
+vector<pair<string, EquiObject*>> EquiFrame::apparentTokens()
+{
+	map<string, EquiObject*> out;
+	for (auto x : tokens)
+	{
+		for (auto y : *x)
+		{
+			out[y.first] = y.second->clone();
+		}
+	}
+
+	vector<pair<string, EquiObject*>> toAdd;
+
+	for (auto y : out)
+	{
+		toAdd.push_back(y);
+	}
+
+	return toAdd;
+}

@@ -10,7 +10,7 @@
 
 using namespace std;
 
-class EquiFrame
+class EquiFrame : public EquiObject
 {
 private:
 	bool delType;
@@ -21,6 +21,8 @@ private:
 	void copyTokens(const deque<map<string, EquiObject*>*>&);
 	void copyTypes(const deque<map<string, EquiObject*>*>&);
 public:
+	virtual inline string getType() { return "FRAME"; };
+
 	deque<map<string, EquiObject*>*> tokens;
 	deque<map<string, EquiObject*>*> types;
 
@@ -39,6 +41,8 @@ public:
 
 	void setTokens(const deque<map<string, EquiObject*>*>&);
 	void setTypes(const deque<map<string, EquiObject*>*>&);
+
+	vector<pair<string, EquiObject*>> apparentTokens();
 
 	EquiFrame& operator=(const EquiFrame&);
 	void clear();
