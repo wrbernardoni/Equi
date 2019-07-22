@@ -107,6 +107,8 @@ public:
 
 	virtual EquiObject* operator() (EquiObject* in, vector<pair<string, EquiObject*>> setFrame)
 	{
+		EquiFrame workingFrame(&frame, false, false);
+
 		if (inType.size() > 1 && in->getType() != E_TUPLE_TYPE)
 		{
 			throwError("Missing inputs on function " + name);
@@ -128,10 +130,10 @@ public:
 						t = t + inType[0].first[i];
 					}
 
-					if (!frame.isType(t))
+					if (!workingFrame.isType(t))
 						throwError("Unrecognized desired type for input " + t);
 
-					string dataT = frame.getType(t)->getDataType();
+					string dataT = workingFrame.getType(t)->getDataType();
 
 					if (in->getDataType()  != dataT)
 					{
@@ -140,10 +142,10 @@ public:
 				}
 				else
 				{
-					if (!frame.isType(inType[0].first))
+					if (!workingFrame.isType(inType[0].first))
 						throwError("Unrecognized desired type for input " + inType[0].first);
 
-					string dataT = frame.getType(inType[0].first)->getDataType();
+					string dataT = workingFrame.getType(inType[0].first)->getDataType();
 
 
 					if (in->getDataType() != dataT)
@@ -153,17 +155,17 @@ public:
 				}
 
 				//map<string,EquiObject*>* tok = new map<string,EquiObject*>;
-				if (frame.isToken(inType[0].second))
+				if (workingFrame.isToken(inType[0].second))
 				{
-					*frame.getToken(inType[0].second) = *in;
-					frame.getToken(inType[0].second)->setTemp(false);
+					*workingFrame.getToken(inType[0].second) = *in;
+					workingFrame.getToken(inType[0].second)->setTemp(false);
 				}
 				else
 				{
 					EquiObject* newO = in->spawnMyType();
 					*newO = *in;
-					frame.emplaceToken(inType[0].second, newO);
-					frame.getToken(inType[0].second)->setTemp(false);
+					workingFrame.emplaceToken(inType[0].second, newO);
+					workingFrame.getToken(inType[0].second)->setTemp(false);
 				}
 				
 			}
@@ -195,10 +197,10 @@ public:
 							t = t + inType[i].first[j];
 						}
 
-						if (!frame.isType(t))
+						if (!workingFrame.isType(t))
 							throwError("Unrecognized desired type for input " + t);
 
-						string dataT = frame.getType(t)->getDataType();
+						string dataT = workingFrame.getType(t)->getDataType();
 
 						if (tp[i]->getDataType()  != dataT)
 						{
@@ -208,10 +210,10 @@ public:
 					else
 					{
 
-						if (!frame.isType(inType[i].first))
+						if (!workingFrame.isType(inType[i].first))
 							throwError("Unrecognized desired type for input " + inType[i].first);
 
-						string dataT = frame.getType(inType[i].first)->getDataType();
+						string dataT = workingFrame.getType(inType[i].first)->getDataType();
 
 						if (tp[i]->getDataType() != dataT)
 						{
@@ -219,24 +221,24 @@ public:
 						}
 					}
 
-					if (frame.isToken(inType[i].second))
+					if (workingFrame.isToken(inType[i].second))
 					{
-						*frame.getToken(inType[i].second) = *tp[i];
-						frame.getToken(inType[i].second)->setTemp(false);
+						*workingFrame.getToken(inType[i].second) = *tp[i];
+						workingFrame.getToken(inType[i].second)->setTemp(false);
 					}
 					else
 					{
 						EquiObject* newO = tp[i]->spawnMyType();
 						*newO = *tp[i];
-						frame.emplaceToken(inType[i].second, newO);
-						frame.getToken(inType[i].second)->setTemp(false);
+						workingFrame.emplaceToken(inType[i].second, newO);
+						workingFrame.getToken(inType[i].second)->setTemp(false);
 					}
 				}
 			}
 		}
 
 		EquiWorker work;
-		work.loanFrame(&frame);
+		work.loanFrame(&workingFrame);
 
 		EquiFrame* f = work.touchFrame();
 		for (int i = 0; i < setFrame.size(); i++)

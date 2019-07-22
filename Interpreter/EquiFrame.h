@@ -34,6 +34,7 @@ public:
 	EquiFrame();
 	EquiFrame(const EquiFrame&);
 	EquiFrame(EquiFrame*, bool, bool);
+	EquiFrame(int);
 	~EquiFrame();
 
 	EquiObject* getToken(string);

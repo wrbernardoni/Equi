@@ -2,7 +2,10 @@ print("Beginning \"as operation\" test");
 
 function f: (double a,double b) -> double
 {
+	print("F");
 	string operation =& "add";
+
+	print("Operation is %i on %i, %i", operation, a, b);
 
 	if (operation == "add")
 		return a+b;
@@ -14,9 +17,12 @@ function f: (double a,double b) -> double
 		return a/b;
 	else
 		return 0;
+
+	return 0;
 }
 
 bool fail = false;
+print ("Calling mult");
 
 double multiplied = f(4,2, "multiply" as operation);
 if (multiplied != 8)
@@ -58,12 +64,14 @@ function twoTimes : (double d) -> double
 	return 2 * d;
 }
 
+print ("Pointwise identity");
 if (pointWise(tup) != tup)
 {
 	fail = true;
 	print("Identity map applied pointwise changed the tuple (1,2,3) to %i", pointwise(tup));
 }
 
+print("Pointwise double");
 () doubledT = pointWise(tup, twoTimes as operation);
 
 if (doubledT == tup)

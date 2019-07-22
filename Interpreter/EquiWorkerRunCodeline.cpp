@@ -34,7 +34,6 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 
 		if (ln.cmd == EC_SCOPE_UP  && !breakFlag && !continueFlag)
 		{
-			elseFlag = false;
 			scopeUp();
 		}
 		else if (ln.cmd == EC_SCOPE_UP)
@@ -48,7 +47,6 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 		}
 		else if (ln.cmd == EC_SCOPE_DOWN)
 		{
-			elseFlag = false;
 			scopeSince -= 1;
 			scopeDown();
 		}
@@ -646,7 +644,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 		}
 		else if (ln.cmd == EC_CREATE_FRAME && !breakFlag && !continueFlag)
 		{
-			EquiFrame* f = new EquiFrame;
+			EquiFrame* f = new EquiFrame(0);
 			pair<EquiObject*, bool> ret(f, true);
 			registers[ln.reg].push(ret);
 		}
@@ -661,17 +659,16 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				throwError("Missing frame to add to");
 			if (registers[ln.reg].top().first->getType() != "FRAME")
 				throwError("Item pointed to is not a frame");
-
 			pair<EquiObject*, bool> o = registers[r].top();
 			registers[r].pop();
 			EquiFrame* f = (EquiFrame*)registers[ln.reg].top().first;
 
-			if (!o.second)
+			EquiObject* cln = o.first->clone();
+			f->emplaceToken(name, cln);
+			if (o.second)
 			{
-				o.first = o.first->clone();
+				delete o.first;
 			}
-
-			f->emplaceToken(name, o.first);
 		}
 		else if (ln.cmd == EC_FUNCTION_CALL && !breakFlag && !continueFlag)
 		{
@@ -1036,6 +1033,7 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 			f.setTypes(data->types);
 			EQUI_custom_function* newF = new EQUI_custom_function(params, cd,f);
 			emplaceType(fn, newF);
+
 
 			pair<EquiObject*, bool> t(newF, false);
 			registers[ln.reg].push(t);

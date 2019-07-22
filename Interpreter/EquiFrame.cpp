@@ -29,6 +29,19 @@ EquiFrame::EquiFrame()
 	types.push_back(typ);
 }
 
+EquiFrame::EquiFrame(int i)
+{
+	delType = true;
+	delTok = true;
+	dTyL = 0;
+	dToL = 0;
+
+	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
+	map<string, EquiObject*>* typ = new map<string, EquiObject*>;
+	tokens.push_back(tok);
+	types.push_back(typ);
+}
+
 EquiFrame::EquiFrame(const EquiFrame& o)
 {
 	delType = true;
@@ -216,6 +229,7 @@ void EquiFrame::copyTokens(const deque<map<string, EquiObject*>*>& o)
 
 void EquiFrame::setTypes(const deque<map<string, EquiObject*>*>& o)
 {
+	//cout << "Del" << endl;
 	int i = 0;
 	for (auto x : types)
 	{
@@ -232,7 +246,7 @@ void EquiFrame::setTypes(const deque<map<string, EquiObject*>*>& o)
 
 	delType = true;
 	dTyL = 0;
-
+	//cout << "load" << endl;
 	for (auto  x : o)
 	{
 		map<string, EquiObject*>* tok = new map<string, EquiObject*>;

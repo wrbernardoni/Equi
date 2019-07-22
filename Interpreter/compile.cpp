@@ -723,6 +723,11 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		code->push_back(catchBreak);
 		
 		code->push_back(scopeDown);
+
+		CodeLine clearElse;
+		clearElse.cmd = EC_CLEAR_ELSE_FLAG;
+		clearElse.reg = 0;
+		code->push_back(clearElse);
 	}
 	else if (ast->getType() == EQ_TR_WHILE)
 	{
@@ -776,6 +781,11 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		(*code)[endJump].args.push_back(to_string(code->size() - endJump));
 
 		code->push_back(scopeDown);
+
+		CodeLine clearElse;
+		clearElse.cmd = EC_CLEAR_ELSE_FLAG;
+		clearElse.reg = 0;
+		code->push_back(clearElse);
 	}
 	else if (ast->getType() == EQ_TR_FOR)
 	{
@@ -835,6 +845,11 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		(*code)[endJump].args.push_back(to_string(code->size() - endJump));
 
 		code->push_back(scopeDown);
+
+		CodeLine clearElse;
+		clearElse.cmd = EC_CLEAR_ELSE_FLAG;
+		clearElse.reg = 0;
+		code->push_back(clearElse);
 	}
 	else if (ast->getType() == EQ_TR_LOGICAL_BLOCK)
 	{
@@ -873,6 +888,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 				code->push_back(jumpEnd);
 
 				interpretAST(code, children[1], reg + 1);
+				code->push_back(clearElse);
 				(*code)[jumpToEndNum].args.push_back(to_string(code->size() - jumpToEndNum));
 			}
 			else
@@ -901,6 +917,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 				code->push_back(jumpEnd);
 
 				interpretAST(code, children[0], reg + 1);
+				code->push_back(clearElse);
 				(*code)[jumpToEndNum].args.push_back(to_string(code->size() - jumpToEndNum));
 			}
 		}
@@ -940,7 +957,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 			code->push_back(clearElse);
 
 			interpretAST(code, children[1], reg + 1);
-
+			code->push_back(clearElse);
 			(*code)[preCond].args.push_back(to_string(code->size() - preCond));
 			(*code)[jumpToEndNum].args.push_back(to_string(code->size() - jumpToEndNum));
 		}

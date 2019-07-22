@@ -1,11 +1,13 @@
 print("Beginning function test");
 
 int[100] b;
+bool fail = false;
 
 for (int i = 0; i < b.size(); i++)
 {
 	b[i] = 1;
 }
+
 
 function sum : (int[] a) -> int
 {
@@ -18,9 +20,10 @@ function sum : (int[] a) -> int
 	return s;
 }
 
-bool fail = false;
 
+print("Sum test");
 int s = sum(b);
+
 if (s != 100)
 {
 	fail = true;
@@ -33,6 +36,7 @@ function inc : (int i) -> int
 }
 
 int j = 0;
+print("Inc test");
 int incJ = inc(j);
 if (incJ != j + 1)
 {
@@ -53,6 +57,7 @@ function badAdd : (int a, int b) -> int
 
 j = 4;
 int bInt = 7;
+print("Bad add test");
 int bA = badAdd(j,bInt);
 if (bA != 11)
 {
