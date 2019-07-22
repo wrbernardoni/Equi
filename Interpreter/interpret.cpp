@@ -79,6 +79,7 @@ int interpret(string fn)
       {
         for (int i = 0; i < cde.size(); i++)
         {
+          cout << "[" << i << "]\t";
           printCodeLine(cde[i]);
         }
       }
@@ -158,6 +159,7 @@ int interpret(string fn)
     {
       for (int i = 0; i < cde.size(); i++)
       {
+        cout << "[" << i << "]\t";
         printCodeLine(cde[i]);
       }
     }
