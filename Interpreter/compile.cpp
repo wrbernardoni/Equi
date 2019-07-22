@@ -695,7 +695,14 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 		int start = code->size();
 
+		code->push_back(scopeUp);
+
 		interpretAST(code, children[0], reg + 1);
+
+		CodeLine scopeDown;
+		scopeDown.cmd = EC_SCOPE_DOWN;
+		scopeDown.reg = 0;
+		code->push_back(scopeDown);
 
 		CodeLine catchCont;
 		catchCont.cmd = EC_RESET_CONTINUE;
@@ -714,10 +721,7 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		catchBreak.cmd = EC_RESET_BREAK;
 		catchBreak.reg = 0;
 		code->push_back(catchBreak);
-
-		CodeLine scopeDown;
-		scopeDown.cmd = EC_SCOPE_DOWN;
-		scopeDown.reg = 0;
+		
 		code->push_back(scopeDown);
 	}
 	else if (ast->getType() == EQ_TR_WHILE)
@@ -744,7 +748,14 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		ln.reg = reg;
 		code->push_back(ln);
 
+		code->push_back(scopeUp);
+
 		interpretAST(code, children[1], reg + 1);
+
+		CodeLine scopeDown;
+		scopeDown.cmd = EC_SCOPE_DOWN;
+		scopeDown.reg = 0;
+		code->push_back(scopeDown);
 
 		CodeLine catchCont;
 		catchCont.cmd = EC_RESET_CONTINUE;
@@ -764,9 +775,6 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 		(*code)[endJump].args.push_back(to_string(code->size() - endJump));
 
-		CodeLine scopeDown;
-		scopeDown.cmd = EC_SCOPE_DOWN;
-		scopeDown.reg = 0;
 		code->push_back(scopeDown);
 	}
 	else if (ast->getType() == EQ_TR_FOR)
@@ -782,6 +790,8 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 		interpretAST(code, children[1], reg + 1);
 
+		code->push_back(scopeUp);
+
 		CodeLine skipBreak;
 		skipBreak.cmd = EC_JUMP_REL;
 		skipBreak.reg = 0;
@@ -795,7 +805,14 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 		ln.reg = reg;
 		code->push_back(ln);
 
+		code->push_back(scopeUp);
+
 		interpretAST(code, children[3], reg + 1);
+
+		CodeLine scopeDown;
+		scopeDown.cmd = EC_SCOPE_DOWN;
+		scopeDown.reg = 0;
+		code->push_back(scopeDown);
 		
 		CodeLine catchCont;
 		catchCont.cmd = EC_RESET_CONTINUE;
@@ -817,9 +834,6 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 		(*code)[endJump].args.push_back(to_string(code->size() - endJump));
 
-		CodeLine scopeDown;
-		scopeDown.cmd = EC_SCOPE_DOWN;
-		scopeDown.reg = 0;
 		code->push_back(scopeDown);
 	}
 	else if (ast->getType() == EQ_TR_LOGICAL_BLOCK)

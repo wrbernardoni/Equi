@@ -1,12 +1,12 @@
 bool fail = false;
 
 print("Beginning basic integer arithmatic test");
-for (int tN = -249; tN < 250; tN++)
+for (int tN = -50; tN < 50; tN++)
 {
   if (tN == 0)
     continue;
 
-  for (int i = -249; i < 250; i++)
+  for (int i = -50; i < 50; i++)
   {
     int remainder = i % tN;
     int lO = i / tN;

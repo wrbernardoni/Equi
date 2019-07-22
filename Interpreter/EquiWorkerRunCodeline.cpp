@@ -33,19 +33,25 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 		}
 
 		if (ln.cmd == EC_SCOPE_UP  && !breakFlag && !continueFlag)
-			scopeUp();
-		else if (ln.cmd == EC_SCOPE_UP)
 		{
 			elseFlag = false;
+			scopeUp();
+		}
+		else if (ln.cmd == EC_SCOPE_UP)
+		{
 			scopeSince += 1;
+			scopeUp();
 		}
 		else if (ln.cmd == EC_SCOPE_DOWN && !breakFlag && !continueFlag)
 		{
-			elseFlag = false;
 			scopeDown();
 		}
 		else if (ln.cmd == EC_SCOPE_DOWN)
+		{
+			elseFlag = false;
 			scopeSince -= 1;
+			scopeDown();
+		}
 		else if (ln.cmd == EC_ADD && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 2)
@@ -747,11 +753,13 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 		}
 		else if (ln.cmd == EC_RESET_CONTINUE)
 		{
-			continueFlag = false;
+			if (scopeSince <= 0)
+				continueFlag = false;
 		}
 		else if (ln.cmd == EC_RESET_BREAK)
 		{
-			breakFlag = false;
+			if (scopeSince <= 0)
+				breakFlag = false;
 		}
 		else if (ln.cmd == EC_RESET_REGISTERS)
 		{
