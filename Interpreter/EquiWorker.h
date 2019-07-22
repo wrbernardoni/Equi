@@ -2,6 +2,7 @@
 #define EQUI_WORKER_H_
 
 #include "global.h"
+#include "parse.h"
 #include "syntaxTree.h"
 #include "AllObj.h"
 #include "EquiFrame.h"
@@ -51,6 +52,7 @@ public:
 	~EquiWorker();
 	
 	pair<EquiObject*, bool> run(SyntaxTree*);
+	pair<EquiObject*, bool> run(vector<CodeLine>*);
 };
 
 #endif
