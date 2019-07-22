@@ -943,11 +943,12 @@ vector<CodeLine> compile(vector<SyntaxTree*> ast)
 	
 	for (int i = 0; i < ast.size(); i++)
 	{
-		interpretAST(&code, ast[i], 0);
 		CodeLine pop;
 		pop.cmd = EC_RESET_REGISTERS;
 		pop.reg = 0;
 		code.push_back(pop);
+
+		interpretAST(&code, ast[i], 0);
 	}
 
 	return code;

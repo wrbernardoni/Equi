@@ -839,23 +839,149 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 		}
 		else if (ln.cmd == EC_INCREMENT && !breakFlag && !continueFlag)
 		{
+			int n = stoi(ln.args[0]);
+			if (registers.size() < n)
+				throwError("Need at least one elements in register to negate");
 
+			if (registers[n].size() == 0)
+				throwError("Missing item in register 0 for negate");
+
+
+			pair<EquiObject*, bool> o1 = registers[n].top();
+			registers[n].pop();
+
+			++(*o1.first);
+			pair<EquiObject*, bool> ret(o1.first, o1.second);
+			registers[ln.reg].push(ret);
 		}
 		else if (ln.cmd == EC_DECREMENT && !breakFlag && !continueFlag)
 		{
+			int n = stoi(ln.args[0]);
+			if (registers.size() < n)
+				throwError("Need at least one elements in register to negate");
 
+			if (registers[n].size() == 0)
+				throwError("Missing item in register 0 for negate");
+
+
+			pair<EquiObject*, bool> o1 = registers[n].top();
+			registers[n].pop();
+
+			--(*o1.first);
+			pair<EquiObject*, bool> ret(o1.first, o1.second);
+			registers[ln.reg].push(ret);
 		}
 		else if (ln.cmd == EC_SPAWN && !breakFlag && !continueFlag)
 		{
+			string type = ln.args[0];
+			string tok = ln.args[1];
 
+			EquiObject* newObj = getType(type)->spawnMyType();
+			emplaceToken(tok, newObj);
+			pair<EquiObject*, bool> o1(newObj, false);
+			registers[ln.reg].push(o1);
 		}
 		else if (ln.cmd == EC_SPAWN_ARRAY && !breakFlag && !continueFlag)
 		{
+			string type = ln.args[0];
+			string tok = ln.args[2];
+			int index = stoi(ln.args[1]);
 
+			EquiObject* newObj = NULL;
+			if (type == "int")
+			{
+				newObj = new EquiArray<EquiPrimitive<int>>;
+				EquiPrimitive<int>* tO;
+				for (int i = 0; i < index; i++)
+				{
+					tO = new EquiPrimitive<int>;
+					tO->setData(0);
+					((EquiArray<EquiPrimitive<int>>*)newObj)->append(tO);
+				}
+			}
+			else if (type == "long")
+			{
+				newObj = new EquiArray<EquiPrimitive<long>>;
+				EquiPrimitive<long>* tO;
+				for (int i = 0; i < index; i++)
+				{
+					tO = new EquiPrimitive<long>;
+					tO->setData(0);
+					((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+				}
+			}
+			else if (type == "double")
+			{
+				newObj = new EquiArray<EquiPrimitive<long>>;
+				EquiPrimitive<long>* tO;
+				for (int i = 0; i < index; i++)
+				{
+					tO = new EquiPrimitive<long>;
+					tO->setData(0);
+					((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+				}
+
+				newObj = new EquiPrimitive<double>;
+				((EquiPrimitive<double>*)newObj)->setData(0);
+			}
+			else if (type == "float")
+			{
+				newObj = new EquiArray<EquiPrimitive<float>>;
+				EquiPrimitive<float>* tO;
+				for (int i = 0; i < index; i++)
+				{
+					tO = new EquiPrimitive<float>;
+					tO->setData(0);
+					((EquiArray<EquiPrimitive<float>>*)newObj)->append(tO);
+				}
+			}
+			else if (type == "bool")
+			{
+				newObj = new EquiArray<EquiPrimitive<bool>>;
+				EquiPrimitive<bool>* tO;
+				for (int i = 0; i < index; i++)
+				{
+					tO = new EquiPrimitive<bool>;
+					tO->setData(0);
+					((EquiArray<EquiPrimitive<bool>>*)newObj)->append(tO);
+				}
+			}
+			else if (type == "string")
+			{
+				newObj = new EquiArray<EquiString>;
+				EquiString* tO;
+				for (int i = 0; i < index; i++)
+				{
+					tO = new EquiString;
+					tO->setString("");
+					((EquiArray<EquiString>*)newObj)->append(tO);
+				}
+			}
+			else if (type == "()")
+			{
+				newObj = new EquiArray<EquiTuple>;
+				EquiTuple* tO;
+				for (int i = 0; i < index; i++)
+				{
+					tO = new EquiTuple;
+					((EquiArray<EquiTuple>*)newObj)->append(tO);
+				}
+			}
+			else
+			{
+				throwError("Unrecognized type name");
+			}
+
+			emplaceToken(tok, newObj);
+			pair<EquiObject*, bool> o1(newObj, false);
+			registers[ln.reg].push(o1);
 		}
 		else if (ln.cmd == EC_IS_TOKEN && !breakFlag && !continueFlag)
 		{
-
+			EquiPrimitive<bool>* load = new EquiPrimitive<bool>;
+			load->setData(isToken(ln.args[0]));
+			pair<EquiObject*, bool> t(load, true);
+			registers[ln.reg].push(t);
 		}
 		else if (ln.cmd == EC_DEFINE_FUNCTION && !breakFlag && !continueFlag)
 		{
