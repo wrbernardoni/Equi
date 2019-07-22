@@ -190,6 +190,10 @@ void printCodeLine(CodeLine l)
 			cout << "Is_Token";
 		break;
 
+		case EC_DEFINE_FUNCTION:
+			cout << "Define_Function";
+		break;
+
 		default:
 			cout << "???";
 	}
@@ -225,7 +229,21 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 	}
 	else if (ast->getType() == EQ_TR_FUNCTION_DEC)
 	{
+		int defF = code->size();
+		CodeLine ln;
+		ln.cmd = EC_DEFINE_FUNCTION;
+		ln.reg = reg;
+		
+		code->push_back(ln);
 
+		interpretAST(code, ast->getChildren()[0], 0);
+
+		(*code)[defF].args.push_back(to_string(code->size() - defF));
+
+		for (int i = 0; i < ast->getTokens().size(); i++)
+		{
+			(*code)[defF].args.push_back(ast->getTokens()[i]);
+		}
 	}
 	else if (ast->getType() == EQ_TR_COMMA)
 	{

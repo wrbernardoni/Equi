@@ -57,5 +57,6 @@ struct CodeLine
 #define EC_SPAWN 42 // X Y, spawn object of type X and store as token Y
 #define EC_SPAWN_ARRAY 43 // X Y Z spawn array of type X with size Y and store as token Z
 #define EC_IS_TOKEN 44 // X, returns true if there is a token of name X
+#define EC_DEFINE_FUNCTION 45
 
 #endif
