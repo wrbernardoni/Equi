@@ -27,14 +27,14 @@
 
 ## To v.0.3.0 -- Toy Fox Terrier
 **Yorkie** -- Metaprogramming  
-*Yorkie Blue*: **v.0.2.1** --    
-*Yorkie Violet*: **v.0.2.2** --   
-*Yorkie Purple*: **v.0.2.3** --   
-*Yorkie Magenta*: **v.0.2.4** --   
-*Yorkie Crimson*: **v.0.2.5** --   
-*Yorkie Red*: **v.0.2.6** --   
-*Yorkie Orange*: **v.0.2.7** --   
-*Yorkie Yellow*: **v.0.2.8** --   
-*Yorkie Green*: **v.0.2.9** --   
-*Ultraviolet Yorkie*: **v.0.3.0** --  
+*Toy Fox Blue*: **v.0.2.1** --    
+*Toy Fox Violet*: **v.0.2.2** --   
+*Toy Fox Purple*: **v.0.2.3** --   
+*Toy Fox Magenta*: **v.0.2.4** --   
+*Toy Fox Crimson*: **v.0.2.5** --   
+*Toy Fox Red*: **v.0.2.6** --   
+*Toy Fox Orange*: **v.0.2.7** --   
+*Toy Fox Yellow*: **v.0.2.8** --   
+*Toy Fox Green*: **v.0.2.9** --   
+*Ultraviolet Toy Fox*: **v.0.3.0** --  
 
