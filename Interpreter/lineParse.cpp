@@ -779,10 +779,48 @@
 			if (rhs != NULL)
 			{
 				SyntaxTree* invok = new SyntaxTree(EQ_TR_TASK);
-				if (lhs != NULL)
-					invok->addChild(lhs);
-
 				invok->addChild(rhs);
+				if (lhs != NULL)
+				{
+					if (lhs->getType() == EQ_TR_COMMA)
+					{
+						bool through = true;
+						int start = 0;
+						do
+						{
+							through = true;
+							vector<SyntaxTree*> c = lhs->getChildren();
+							for(int i = start; i < c.size(); i++)
+							{
+								if (c[i]->getType() == EQ_TR_AS)
+								{
+									through = false;
+									start = i;
+									invok->addChild(c[i]);
+									lhs->drop(i);
+									break;
+								}
+							}
+						} while(!through);						
+					}
+
+					if (lhs->getChildren().size() == 1 && lhs->getType() == EQ_TR_COMMA)
+					{
+						SyntaxTree* t = lhs->getChildren()[0];
+						lhs->drop(0);
+						delete lhs;
+						lhs = t;
+					}
+					else if (lhs->getChildren().size() == 0 && lhs->getType() == EQ_TR_COMMA)
+					{
+						delete lhs;
+						lhs = NULL;
+					}
+					
+
+					if (lhs != NULL)
+				  		invok->addChild(lhs);
+				}
 				return invok;
 			}
 		}
