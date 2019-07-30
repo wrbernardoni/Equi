@@ -708,6 +708,45 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				delete input.first;
 			delete f;
 		}
+		else if (ln.cmd == EC_INVOKE_TASK && !breakFlag && !continueFlag)
+		{
+			// TODO :: Actually create a task here
+			int frameN = stoi(ln.args[1]);
+			int inp = stoi(ln.args[2]);
+
+			if (registers.size() < frameN || registers.size() < inp)
+				throwError("Registers improperly loaded");
+			if (registers[frameN].size() == 0)
+				throwError("Missing frame to load");
+			if (registers[frameN].top().first->getType() != "FRAME")
+				throwError("Item pointed to is not a frame");
+
+			EquiFrame* f = (EquiFrame*)registers[frameN].top().first;
+			registers[frameN].pop();
+			pair<EquiObject*, bool> input;
+			pair<EquiObject*, bool> func = registers[0].top();
+			registers[0].pop();
+
+			if (inp != 0)
+			{
+				input = registers[inp].top();
+				registers[inp].pop();
+			}
+			else
+			{
+				input.first = new EquiVoid;
+				input.second = true;
+			}
+
+			pair<EquiObject*, bool> o((*func.first)(input.first, f->apparentTokens()), true);
+			registers[ln.reg].push(o);
+
+			if (func.second)
+				delete func.first;
+			if (input.second)
+				delete input.first;
+			delete f;
+		}
 		else if (ln.cmd == EC_MOVE_REG0_TO && !breakFlag && !continueFlag)
 		{
 			if (registers.size() < 1)
