@@ -22,6 +22,7 @@ using namespace std;
 #define EQ_TR_ARRAY "array"
 #define EQ_TR_MEMACCESS "memaccess"
 #define EQ_TR_FUNCTION "function"
+#define EQ_TR_TASK "task"
 
 #define EQ_TR_LOGICAL_BLOCK "logicalBlock"
 #define EQ_TR_DO_WHILE "dowhile"

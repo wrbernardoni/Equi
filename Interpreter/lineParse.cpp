@@ -17,6 +17,7 @@
 	SyntaxTree* forLoop(vector<string>, int&);
 	SyntaxTree* functDec(vector<string>, int&);
 	SyntaxTree* line(vector<string>, int&);
+	SyntaxTree* taskInvoke(vector<string>, int&);
 	SyntaxTree* expression(vector<string>, int&);
 	SyntaxTree* commas(vector<string>, int&);
 	SyntaxTree* equality(vector<string>, int&);
@@ -59,7 +60,7 @@
 	    s != "*" && s != "%" && s != "!" && s != "=" &&
 	    s != "(" && s != ")" && s != "false" && s != "true" &&
 	    s != "{" && s != "}" && s != "[" && s != "]" && s != "." &&
-	    s != "&" && s != "as" &&
+	    s != "&" && s != "as" && s != "->" &&
 	    s != "break" && s != "continue" && s != "return" &&
 	    s != "" && !isNum(s) && !isString(s));
 	}
@@ -186,7 +187,7 @@
 	    {
 	      DPRINT("Eating (");
 	      state++;
-	      SyntaxTree* expr = expression(ln, state);
+	      SyntaxTree* expr = taskInvoke(ln, state);
 	      if (expr != NULL && SAFECHECK(ln, state) == ")")
 	      {
 		DPRINT("Eating )");
@@ -370,7 +371,7 @@
 	      {
 		DPRINT("eating (");
 		state++;
-		SyntaxTree* condition = expression(ln, state);
+		SyntaxTree* condition = taskInvoke(ln, state);
 		if (condition == NULL)
 		{
 		  condition = new SyntaxTree(EQ_TR_CODE);
@@ -418,7 +419,7 @@
 	    state += 2;
 	    SyntaxTree* whl = new SyntaxTree(EQ_TR_WHILE);
 
-	    SyntaxTree* expr = expression(ln, state);
+	    SyntaxTree* expr = taskInvoke(ln, state);
 	    if (expr == NULL)
 	    {
 	      expr = new SyntaxTree(EQ_TR_CODE);
@@ -500,7 +501,7 @@
 	    state += 2;
 	    SyntaxTree* whl = new SyntaxTree(EQ_TR_FOR);
 
-	    SyntaxTree* expr = expression(ln, state);
+	    SyntaxTree* expr = taskInvoke(ln, state);
 	    if (expr == NULL)
 	    {
 	      expr = new SyntaxTree(EQ_TR_CODE);
@@ -517,7 +518,7 @@
 	    }
 	    state++;
 
-	    expr = expression(ln, state);
+	    expr = taskInvoke(ln, state);
 	    if (expr == NULL)
 	    {
 	      expr = new SyntaxTree(EQ_TR_CODE);
@@ -534,7 +535,7 @@
 	    }
 	    state++;
 
-	    expr = expression(ln, state);
+	    expr = taskInvoke(ln, state);
 	    if (expr == NULL)
 	    {
 	      expr = new SyntaxTree(EQ_TR_CODE);
@@ -746,7 +747,7 @@
 	{
 	  DEBUG("line")
 	  int ps = state;
-	  SyntaxTree* line = expression(ln, ps);
+	  SyntaxTree* line = taskInvoke(ln, ps);
 	  if (SAFECHECK(ln,ps) == ";")
 	  {
 	    ps++;
@@ -759,6 +760,34 @@
 	    //ERROR no ; found
 	    return NULL;
 	  }
+	}
+
+	SyntaxTree* taskInvoke(vector<string> ln, int& state)
+	{
+		DEBUG("taskInvoke")
+		int ps = state;
+		SyntaxTree* lhs = expression(ln, ps);
+		if (lhs != NULL)
+		{
+			state = ps;
+		}
+		if (SAFECHECK(ln, state) == "->")
+		{
+			DPRINT("Eating ->")
+			state++;
+			SyntaxTree* rhs = expression(ln, state);
+			if (rhs != NULL)
+			{
+				SyntaxTree* invok = new SyntaxTree(EQ_TR_TASK);
+				if (lhs != NULL)
+					invok->addChild(lhs);
+
+				invok->addChild(rhs);
+				return invok;
+			}
+		}
+
+		return lhs;
 	}
 
 	SyntaxTree* expression(vector<string> ln, int& state)
@@ -1143,7 +1172,7 @@
 
 	  state++;
 
-	  SyntaxTree* rhs = expression(ln, state);
+	  SyntaxTree* rhs = taskInvoke(ln, state);
 
 	  if (rhs == NULL)
 	  {
@@ -1226,7 +1255,7 @@
 	      if (SAFECHECK(ln, state) == "=" && SAFECHECK(ln, state+1) == "&")
 	      {
 	      	state += 2;
-	      	SyntaxTree* rhs = expression(ln, state);
+	      	SyntaxTree* rhs = taskInvoke(ln, state);
 	      	if (rhs != NULL)
 	      	{
 	      		dec->addChild(rhs);
@@ -1270,7 +1299,7 @@
 	    {
 	      state++;
 	      DPRINT("Eating (")
-	      SyntaxTree* exp = expression(ln, state);
+	      SyntaxTree* exp = taskInvoke(ln, state);
 	      if (SAFECHECK(ln,state) == ")")
 	      {
 			state++;
@@ -1396,7 +1425,7 @@
 	  {
 	    DPRINT("Eating (")
 	    state++;
-	    SyntaxTree* expr = expression(ln, state);
+	    SyntaxTree* expr = taskInvoke(ln, state);
 	    if (expr != NULL)
 	    {
 	      if (SAFECHECK(ln,state) == ")")
@@ -1431,7 +1460,7 @@
 	    {
 	      DPRINT("Eating [")
 	      state++;
-	      tok = expression(ln, state);
+	      tok = taskInvoke(ln, state);
 
 	      if (!(SAFECHECK(ln, state) == "]"))
 	      {
@@ -1565,7 +1594,7 @@ SyntaxTree* special(vector<string> ln, int& state)
   	int ps = state;
   	SyntaxTree* expr = new SyntaxTree(EQ_TR_SPECIAL);
   	expr->addToken("return");
-  	SyntaxTree* o = expression(ln, ps);
+  	SyntaxTree* o = taskInvoke(ln, ps);
   	if (o != NULL)
   	{
   		state = ps;
