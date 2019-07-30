@@ -2,7 +2,6 @@ print("Beginning \"as operation\" test");
 
 function f: (double a,double b) -> double
 {
-	print("F");
 	string operation =& "add";
 
 	print("Operation is %i on %i, %i", operation, a, b);
