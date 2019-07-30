@@ -106,6 +106,10 @@ void printCodeLine(CodeLine l)
 			cout << "Function_Call";
 		break;
 
+		case EC_INVOKE_TASK:
+			cout << "Invoke_Task";
+		break;
+
 		case EC_MOVE_REG0_TO:
 			cout << "Move_Register_0_To";
 		break;
@@ -648,6 +652,43 @@ void interpretAST(vector<CodeLine>* code, SyntaxTree* ast, int reg)
 
 		CodeLine fn;
 		fn.cmd = EC_FUNCTION_CALL;
+		fn.reg = reg;
+		fn.args.push_back("@0");
+		fn.args.push_back(to_string(children.size()));
+		fn.args.push_back(to_string(input));
+		code->push_back(fn);
+	}
+	else if (ast->getType() == EQ_TR_TASK)
+	{
+		CodeLine ln;
+		ln.cmd = EC_CREATE_FRAME;
+		ln.reg = children.size();
+		code->push_back(ln);
+
+		int input = 0;
+
+		for (int i = 1; i < children.size(); i++)
+		{
+			if ( children[i]->getType() == EQ_TR_AS)
+			{
+				CodeLine addFrame;
+				addFrame.cmd = EC_ADD_TO_FRAME;
+				addFrame.reg = children.size();
+				addFrame.args.push_back(to_string(i));
+				addFrame.args.push_back(children[i]->getTokens()[0]);
+				code->push_back(addFrame);
+			}
+			else
+			{
+				if (input == 0)
+				{
+					input = i;
+				}
+			}
+		}
+
+		CodeLine fn;
+		fn.cmd = EC_INVOKE_TASK;
 		fn.reg = reg;
 		fn.args.push_back("@0");
 		fn.args.push_back(to_string(children.size()));
