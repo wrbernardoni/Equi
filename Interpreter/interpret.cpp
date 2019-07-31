@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "EquiWorker.h"
+#include "EquiCore.h"
 
 int interpret(string fn)
 {
@@ -25,6 +26,7 @@ int interpret(string fn)
 
   int lineNum = 0;
   // Spawn single worker
+  EquiCore scheduler(numThreads);
   EquiWorker core;
 
 

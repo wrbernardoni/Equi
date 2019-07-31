@@ -6,6 +6,7 @@
 #define P_VERB(a,b) if(verbose >= b) cout << a;
 
 extern int verbose;
+extern int numThreads;
 extern bool failsafe;
 extern bool fullParse;
 extern bool verbCompiled;

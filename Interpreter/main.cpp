@@ -8,6 +8,7 @@
 using namespace std;
 
 int verbose;
+int numThreads;
 bool failsafe;
 bool fullParse;
 bool showComp;
@@ -24,6 +25,7 @@ cmdline argHandler(int argc, char* argv[])
 	failsafe = false;
 	fullParse = true;
 	verbCompiled = false;
+	numThreads = 0;
 
 	if (argc >= 2)
 	{
@@ -49,6 +51,18 @@ cmdline argHandler(int argc, char* argv[])
 			else
 			{
 				cerr << "Missing verbosity level.\n";
+			}
+		}
+		else if (arg == "-t" || arg == "--threads")
+		{
+			if (argc > i+1)
+			{
+				numThreads = atoi(argv[i+1]);
+				i++;
+			}
+			else
+			{
+				cerr << "Missing number of threads to spawn.\n";
 			}
 		}
 		else if (arg == "-FS" || arg == "--failsafe")
