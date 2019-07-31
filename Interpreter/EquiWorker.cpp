@@ -3,6 +3,10 @@
 #include <cmath>
 
 #include "EquiCustomFunction.h"
+#include "AllObj.h"
+#include <map>
+#include <string>
+#include <deque>
 
 extern void throwError(string s)
 {

@@ -6,6 +6,11 @@
 #include "EquiCustomFunction.h"
 #include "compile.h"
 
+#include "AllObj.h"
+#include <map>
+#include <string>
+#include <deque>
+
 extern bool isNum(string s);
 extern bool isString(string s);
 

@@ -3,13 +3,11 @@
 
 #include "global.h"
 #include "parse.h"
-#include "syntaxTree.h"
-#include "AllObj.h"
+//#include "syntaxTree.h"
+#include "EquiObject.h"
 #include "EquiFrame.h"
 
-#include <map>
-#include <string>
-#include <deque>
+
 
 using namespace std;
 
