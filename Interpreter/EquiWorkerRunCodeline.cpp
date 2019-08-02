@@ -11,19 +11,13 @@
 #include <string>
 #include <deque>
 
+#include "EquiCore.h"
+
 extern bool isNum(string s);
 extern bool isString(string s);
 
-pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
+pair<EquiObject*, bool> EquiWorker::runCodeLine(vector<CodeLine>* code)
 {
-	int pLine = -1;
-	int lineCount = 0;
-	int scopeSince = 0;
-	breakFlag = false;
-	continueFlag = false;
-
-	vector<stack<pair<EquiObject*, bool>>> registers;
-
 	while (lineCount < code->size() && pLine != lineCount)
 	{
 		pLine = lineCount;
@@ -743,7 +737,21 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 				input.second = true;
 			}
 
-			pair<EquiObject*, bool> o((*func.first)(input.first, f->apparentTokens()), true);
+			EquiTask* newTask = new EquiTask;
+			newTask->fn = func.first->clone();
+			newTask->inp = input.first->clone();
+			vector<pair<string, EquiObject*>> at = f->apparentTokens();
+
+			for (int i = 0; i < at.size(); i++)
+			{
+				pair<string, EquiObject*> p(at[i].first, at[i].second->clone());
+				newTask->apparentTok.push_back(p);
+			}
+
+			EquiFuture* fut = new EquiFuture;
+			fut->setID(globalCore->addTask(newTask));
+
+			pair<EquiObject*, bool> o(fut, true);
 			registers[ln.reg].push(o);
 
 			if (func.second)
@@ -1123,5 +1131,28 @@ pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
 
 	pair<EquiObject*, bool> p(new EquiVoid, false);
 	return p;
+}
+
+pair<EquiObject*, bool> EquiWorker::run(vector<CodeLine>* code)
+{
+	pLine = -1;
+	lineCount = 0;
+	scopeSince = 0;
+	breakFlag = false;
+	continueFlag = false;
+
+	for (int i = 0; i < registers.size(); i++)
+	{
+		while (registers[i].size() != 0)
+		{
+			pair<EquiObject*, bool> t = registers[i].top();
+			registers[i].pop();
+			if (t.second)
+				delete t.first;
+		}
+	}
+	registers.clear();
+
+	return runCodeLine(code);
 }
 

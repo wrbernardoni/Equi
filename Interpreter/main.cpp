@@ -5,6 +5,8 @@
 #include "parse.h"
 #include "global.h"
 
+#include <thread>
+
 using namespace std;
 
 int verbose;
@@ -25,7 +27,7 @@ cmdline argHandler(int argc, char* argv[])
 	failsafe = false;
 	fullParse = true;
 	verbCompiled = false;
-	numThreads = 0;
+	numThreads = MAX(std::thread::hardware_concurrency()-1, 1);
 
 	if (argc >= 2)
 	{

@@ -15,11 +15,11 @@
 #define E_FUNCTION_TYPE "function"
 #define E_ARRAY_TYPE "array"
 #define E_FUNCTION_HANDLE_TYPE "function handle"
+#define E_FUTURE_TYPE "future"
 
 using namespace std;
 
 extern void throwError(string s);
-
 
 class EquiObject
 {

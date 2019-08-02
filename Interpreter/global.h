@@ -22,4 +22,8 @@ extern bool verbCompiled;
 
 extern bool isNum(std::string s);
 
+#include "EquiCore.h"
+
+extern EquiCore* globalCore;
+
 #endif

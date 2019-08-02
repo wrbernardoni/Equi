@@ -6,6 +6,44 @@
 #include "EquiWorker.h"
 #include "EquiCore.h"
 
+#include <thread>
+#include <mutex>
+
+EquiCore* globalCore;
+
+void workerThread(bool* death)
+{
+  while(!(*death))
+  {
+    EquiWorker worker;
+
+    try
+    {
+      while(!(*death))
+      {
+        EquiTask* t = globalCore->getTask();
+        if (t != NULL)
+        {
+          pair<EquiObject*, bool> ret = worker.evalTask(t);
+          t->out = ret.first->clone();
+          if (ret.second)
+            delete ret.first;
+          t->complete = true;
+          t->clean();
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+    catch (string m)
+    {
+      cerr << "Error on external task: " << m << endl;
+    }
+  }
+}
+
 int interpret(string fn)
 {
   istream* in;
@@ -26,9 +64,18 @@ int interpret(string fn)
 
   int lineNum = 0;
   // Spawn single worker
-  EquiCore scheduler(numThreads);
-  EquiWorker core;
+  EquiCore scheduler;
+  globalCore = &scheduler;
+  bool death = false;
 
+  vector<thread*> agents;
+  for (int i = 0; i < numThreads; i++)
+  {
+    thread* t = new thread(workerThread, &death);
+    agents.push_back(t);
+  }
+
+  EquiWorker core;
 
   if (!fullParse)
   {
@@ -189,6 +236,13 @@ int interpret(string fn)
     {
       delete code[i];
     }
+  }
+
+  death = true;
+  globalCore->setKillingMode();
+  for(int i = 0; i < agents.size(); i++)
+  {
+    agents[i]->join();
   }
 
   return 0;

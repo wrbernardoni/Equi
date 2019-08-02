@@ -26,6 +26,7 @@ EquiFrame::EquiFrame()
 	(*typ)["string"] = new EquiString;
 	(*typ)["()"] = new EquiTuple;
 	(*typ)["function"] = new EquiFunctionHandle;
+	(*typ)["future"] = new EquiFuture;
 	types.push_back(typ);
 }
 

@@ -1,0 +1,19 @@
+function sum : (int in) -> int
+{
+	int sum = 0;
+	for (int i = 0; i < in; i++)
+	{
+		sum = sum + i;
+	}
+	print ("The sum of all naturals under %i is %i", in, sum);
+}
+
+
+print("Calculating the sum of all naturals less than i for the first 500 numbers!");
+for (int i = 0; i < 100; i++)
+{
+	i * 1000 -> sum;
+}
+print("Threads launched off!");
+
+while(true);
