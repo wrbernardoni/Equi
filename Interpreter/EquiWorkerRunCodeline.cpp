@@ -737,22 +737,30 @@ pair<EquiObject*, bool> EquiWorker::runCodeLine(vector<CodeLine>* code)
 				input.second = true;
 			}
 
-			EquiTask* newTask = new EquiTask;
-			newTask->fn = func.first->clone();
-			newTask->inp = input.first->clone();
-			vector<pair<string, EquiObject*>> at = f->apparentTokens();
-
-			for (int i = 0; i < at.size(); i++)
+			if (numThreads > 0)
 			{
-				pair<string, EquiObject*> p(at[i].first, at[i].second->clone());
-				newTask->apparentTok.push_back(p);
+				EquiTask* newTask = new EquiTask;
+				newTask->fn = func.first->clone();
+				newTask->inp = input.first->clone();
+				vector<pair<string, EquiObject*>> at = f->apparentTokens();
+
+				for (int i = 0; i < at.size(); i++)
+				{
+					pair<string, EquiObject*> p(at[i].first, at[i].second->clone());
+					newTask->apparentTok.push_back(p);
+				}
+
+				EquiFuture* fut = new EquiFuture;
+				fut->setID(globalCore->addTask(newTask));
+
+				pair<EquiObject*, bool> o(fut, true);
+				registers[ln.reg].push(o);
 			}
-
-			EquiFuture* fut = new EquiFuture;
-			fut->setID(globalCore->addTask(newTask));
-
-			pair<EquiObject*, bool> o(fut, true);
-			registers[ln.reg].push(o);
+			else
+			{
+				pair<EquiObject*, bool> o((*func.first)(input.first, f->apparentTokens()), true);
+				registers[ln.reg].push(o);
+			}
 
 			if (func.second)
 				delete func.first;
