@@ -9,11 +9,11 @@ function sum : (int in) -> int
 }
 
 
-print("Calculating the sum of all naturals less than i for the first 500 numbers!");
-for (int i = 0; i < 100; i++)
+print("Calculating the sum of all naturals less than i * 100 for the first 1000 numbers!");
+for (int i = 0; i < 1000; i++)
 {
-	i * 1000 -> sum;
+	i * 100 -> sum;
 }
 print("Threads launched off!");
 
-while(true);
+while(TASKS_LEFT() != 0);

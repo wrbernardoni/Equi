@@ -67,6 +67,7 @@ public:
 	int addTask(EquiTask*);
 	EquiTask* getTask();
 	void setKillingMode();
+	int tasksLeft();
 };
 
 extern EquiCore* globalCore;

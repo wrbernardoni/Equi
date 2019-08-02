@@ -24,6 +24,16 @@ int EquiCore::addTask(EquiTask* t)
 	return 0;
 }
 
+int EquiCore::tasksLeft()
+{
+	int n = 0;
+	unique_lock<mutex> guard(queueMutex, defer_lock);
+	guard.lock();
+	n = tasks.size();
+	guard.unlock();
+	return n;
+}
+
 EquiTask* EquiCore::getTask()
 {
 	unique_lock<mutex> guard(queueMutex, defer_lock);
