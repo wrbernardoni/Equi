@@ -26,7 +26,8 @@ pair<EquiObject*, bool> EquiWorker::runCodeLine(vector<CodeLine>* code)
 		int step = 1;
 
 		CodeLine ln = (*code)[lineCount];
-		//printCodeLine(ln);
+		
+		if (verbose >= STEP_LIST) printCodeLine(ln);
 
 		try
 		{

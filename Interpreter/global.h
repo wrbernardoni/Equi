@@ -15,6 +15,7 @@ extern bool verbCompiled;
 #define ALL_STEP_VERB 2
 #define TOKEN_LIST_VERB 100
 #define SYNTAX_TREE_LIST 99
+#define STEP_LIST 1000
 
 #define MIN(a,b) ((a < b) ? a : b)
 #define MAX(a,b) ((a > b) ? a : b)
