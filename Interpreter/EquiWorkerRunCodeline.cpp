@@ -618,13 +618,14 @@ pair<EquiObject*, bool> EquiWorker::runCodeLine(vector<CodeLine>* code)
 
 				res->setTemp(false);
 
-				pair<EquiObject*, bool> ret(res, o1.second);
-				registers[ln.reg].push(ret);
-
 				if (o1.second)
 				{
-					res->addDependant(o1.first);
+					EquiBoundPair* pr = new EquiBoundPair(o1.first, res);
+					res = (EquiObject*)pr;
 				}
+
+				pair<EquiObject*, bool> ret(res, o1.second);
+				registers[ln.reg].push(ret);
 			}
 			else if (ln.cmd == EC_CREATE_TUPLE && !breakFlag && !continueFlag)
 			{

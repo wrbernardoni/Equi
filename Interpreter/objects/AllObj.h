@@ -7,3 +7,4 @@
 #include "EquiVoid.h"
 #include "EquiFunctionHandle.h"
 #include "EquiFuture.h"
+#include "EquiBoundPair.h"
