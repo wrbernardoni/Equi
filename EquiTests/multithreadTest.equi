@@ -45,6 +45,7 @@ for (int i = 0; i < 10; i++)
 	if (st != mt)
 	{
 		print("ERROR on i=%i: single thread fibb says %i, multithreaded says %i", i, st, mt);
+		good = false;
 	}
 }
 
