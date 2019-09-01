@@ -2,6 +2,7 @@
 #define EQUI_FUTURE_H_
 
 #include "EquiObject.h"
+#include <iostream>
 
 class EquiFuture : public EquiObject
 {
@@ -10,6 +11,11 @@ private:
 public:
 	void setID(int i) { uid = i; };
 	int getID() { return uid; };
+
+	~EquiFuture()
+	{
+		globalCore->deadReference(uid);
+	}
 
 	virtual EquiObject* spawnMyType() { return new EquiFuture; };
 	virtual EquiObject* clone() 
@@ -33,12 +39,58 @@ public:
 		else
 		{
 			EquiFuture* f = (EquiFuture*)&o;
+			globalCore->deadReference(uid);
 			uid = f->getID();
+			globalCore->addReference(uid);
 		}
 		return *this;
 	}
 
 	virtual string to_string() { return "UNEVALUATED_FUTURE"; };
+
+private:
+	class E_FUTURE_get : public EquiFunction
+	{
+	private:
+		
+	public:
+		EquiFuture* ths;
+		bool own;
+		virtual EquiObject* clone() { return new E_FUTURE_get(ths); };
+		virtual EquiObject* spawnMyType() { return new E_FUTURE_get; };
+
+		E_FUTURE_get()
+		{
+			ths = NULL;
+			own = true;
+		}
+
+		E_FUTURE_get(EquiFuture* p)
+		{
+			ths = p;
+			own = false;
+		}
+
+		virtual EquiObject* operator() (EquiObject* in)
+		{
+			int n = ths->getID();
+
+			if (!globalCore->isComplete(n))
+			{
+				throw n;
+			}
+
+			EquiObject* s = globalCore->getResult(n);
+			s = s->clone();
+			return s;
+		}
+	};
+
+public:
+	EquiFuture()
+	{
+		members["get"] = new E_FUTURE_get(this);
+	};
 };
 
 #endif

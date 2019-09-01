@@ -238,7 +238,7 @@ public:
 		}
 
 		EquiWorker work;
-		work.loanFrame(&workingFrame);
+		work.setFrame(workingFrame);
 
 		EquiFrame* f = work.touchFrame();
 		for (int i = 0; i < setFrame.size(); i++)
@@ -247,7 +247,10 @@ public:
 		}
 
 		work.scopeUp();
-		pair<EquiObject*, bool> o = work.run(&code);
+		vector<CodeLine>* cpCode = new vector<CodeLine>;
+		*cpCode = code;
+		pair<EquiObject*, bool> o = work.run(cpCode);
+		delete cpCode;
 		EquiObject* t = o.first->clone();
 		work.scopeDown();
 

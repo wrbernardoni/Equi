@@ -14,6 +14,8 @@ using namespace std;
 class EquiWorker
 {
 private:
+	int resF;
+
 	bool ownedFrame;
 	EquiFrame* data;
 
@@ -38,6 +40,9 @@ private:
 	void emplaceType(string, EquiObject*);
 
 public:
+	int froze;
+	bool mainWorker;
+
 	void scopeUp();
 	void scopeDown();
 

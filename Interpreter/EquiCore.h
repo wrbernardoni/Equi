@@ -19,11 +19,15 @@ class EquiFrame;
 class EquiTask
 {
 public:
+	int uid;
 	int lineCount;
 	int scopeSince;
 	bool breakFlag;
 	bool continueFlag;
 	bool elseFlag;
+
+	int resumeAt;
+
 	EquiFrame* frame;
 	vector<stack<pair<EquiObject*, bool>>> registers;
 	vector<CodeLine>* code;
@@ -35,8 +39,11 @@ public:
 	EquiObject* out;
 	bool complete;
 
+	vector<EquiTask*> post;
+
 	EquiTask()
 	{
+		uid = -1;
 		complete = false;
 		out = NULL;
 
@@ -51,23 +58,49 @@ public:
 		code = NULL;
 		fn = NULL;
 		inp = NULL;
+
+		resumeAt = -1;
 	}
 
 	void clean();
 };
 
+class TaskResult
+{
+public:
+	EquiTask* tsk;
+	int refCount;
+
+	TaskResult()
+	{
+		tsk = NULL;
+		refCount = 0;
+	};
+};
+
 class EquiCore
 {
 private:
+	map<int, TaskResult> allT;
+	int uidc;
 	deque<EquiTask*> tasks;
 	mutex queueMutex;
 	bool killingMode;
 public:
 	EquiCore();
 	int addTask(EquiTask*);
+	int addResult(EquiObject*);
 	EquiTask* getTask();
 	void setKillingMode();
 	int tasksLeft();
+	int getUID();
+
+	void addReference(int);
+	void deadReference(int);
+	bool isComplete(int);
+	void markComplete(int);
+	int addPost(int, EquiTask*);
+	EquiObject* getResult(int);
 };
 
 extern EquiCore* globalCore;

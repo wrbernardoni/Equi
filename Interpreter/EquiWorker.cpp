@@ -42,12 +42,15 @@ bool tokenFormat(string si){
 
 EquiWorker::EquiWorker()
 {
+	mainWorker = false;
 	runElse = false;
 	breakFlag = false;
 	continueFlag = false;
 	returnFlag = false;
 	elseFlag = false;
 	killReturn = false;
+
+	resF = -1;
 
 	//EquiFrame def;
 	//setFrame(def);
@@ -58,12 +61,15 @@ EquiWorker::EquiWorker()
 
 EquiWorker::EquiWorker(EquiFrame* f)
 {
+	mainWorker = false;
 	runElse = false;
 	breakFlag = false;
 	continueFlag = false;
 	returnFlag = false;
 	elseFlag = false;
 	killReturn = false;
+
+	resF = -1;
 
 	//EquiFrame def;
 	//setFrame(def);

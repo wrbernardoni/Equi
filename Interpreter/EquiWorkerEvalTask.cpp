@@ -25,15 +25,19 @@ pair<EquiObject*, bool> EquiWorker::evalTask(EquiTask* tsk)
 	}
 	else
 	{
+		pLine = -1;
 		lineCount = tsk->lineCount;
 		scopeSince = tsk->scopeSince;
 		breakFlag = tsk->breakFlag;
 		continueFlag = tsk->continueFlag;
 		elseFlag = tsk->elseFlag;
+		delete data;
 		data = tsk->frame;
 		registers = tsk->registers;
-
-		return runCodeLine(tsk->code);
+		resF = tsk->resumeAt;
+		pair<EquiObject*, bool> out = runCodeLine(tsk->code);
+		data = new EquiFrame;
+		return out;
 	}
 }
 

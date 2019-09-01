@@ -1,3 +1,4 @@
+/*
 function sum : (int in) -> int
 {
 	int sum = 0;
@@ -10,10 +11,53 @@ function sum : (int in) -> int
 
 
 print("Calculating the sum of all naturals less than i * 100 for the first 1000 numbers!");
-for (int i = 0; i < 1000; i++)
+for (int i = 0; i < 100; i++)
 {
-	i * 100 -> sum;
+	i -> sum;
 }
 print("Threads launched off!");
 
 while(TASKS_LEFT() != 0);
+
+
+print("Manually doing 1000");
+int i = 1000;
+future f = i -> sum;
+f.get();
+print("Launched");
+*/
+
+function fibb : (int n) -> int
+{
+	print("Fibb on %i", n);
+	if (n == 0)
+	{
+		print("(0): 0 + 0 = 0");
+		int r = 0;
+		return r;
+	}
+	else if (n == 1)
+	{
+		print("(1): 0 + 1 = 1");
+		int r = 1;
+		return r;
+	}
+
+	future r = ((n - 1) -> fibb);
+	future s = ((n - 2) -> fibb);
+	int rI = r.get();
+	int sI = s.get();
+	print("(%i):%i + %i = %i",n,sI, rI, sI + rI);
+	return (sI + rI);
+}
+print("How much fib to do?");
+int f = getint();
+print("Testing jumping");
+future fibRes = (f->fibb);
+int fI = fibRes.get();
+print("Realdone %i", fI);
+
+/*
+future res = f -> fibb;
+print("Realdone %i", res.get());
+*/

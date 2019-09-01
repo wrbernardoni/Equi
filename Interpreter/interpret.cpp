@@ -24,12 +24,22 @@ void workerThread(bool* death)
         EquiTask* t = globalCore->getTask();
         if (t != NULL)
         {
-          pair<EquiObject*, bool> ret = worker.evalTask(t);
-          t->out = ret.first->clone();
-          if (ret.second)
-            delete ret.first;
-          t->complete = true;
-          t->clean();
+          try
+          {
+            pair<EquiObject*, bool> ret = worker.evalTask(t);
+            t->out = ret.first->spawnMyType();
+            *(t->out) = *(ret.first);
+            if (ret.second)
+              delete ret.first;
+            t->clean();
+            globalCore->markComplete(t->uid);
+          }
+          catch(pair<EquiTask*, int> o)
+          {
+            o.first->uid = t->uid;
+            o.first->post = t->post;
+            globalCore->addPost(o.second, o.first);
+          }
         }
         else
         {
@@ -76,6 +86,7 @@ int interpret(string fn)
   }
 
   EquiWorker core;
+  core.mainWorker = true;
 
   if (!fullParse)
   {
