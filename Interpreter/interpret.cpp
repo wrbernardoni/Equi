@@ -4,6 +4,55 @@
 #include <iostream>
 
 #include "EquiWorker.h"
+#include "EquiCore.h"
+
+#include <thread>
+#include <mutex>
+
+EquiCore* globalCore;
+
+void workerThread(bool* death)
+{
+  while(!(*death))
+  {
+    EquiWorker worker;
+
+    try
+    {
+      while(!(*death))
+      {
+        EquiTask* t = globalCore->getTask();
+        if (t != NULL)
+        {
+          try
+          {
+            pair<EquiObject*, bool> ret = worker.evalTask(t);
+            t->out = ret.first->spawnMyType();
+            *(t->out) = *(ret.first);
+            if (ret.second)
+              delete ret.first;
+            t->clean();
+            globalCore->markComplete(t->uid);
+          }
+          catch(pair<EquiTask*, int> o)
+          {
+            o.first->uid = t->uid;
+            o.first->post = t->post;
+            globalCore->addPost(o.second, o.first);
+          }
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+    catch (string m)
+    {
+      cerr << "Error on external task: " << m << endl;
+    }
+  }
+}
 
 int interpret(string fn)
 {
@@ -25,8 +74,19 @@ int interpret(string fn)
 
   int lineNum = 0;
   // Spawn single worker
-  EquiWorker core;
+  EquiCore scheduler;
+  globalCore = &scheduler;
+  bool death = false;
 
+  vector<thread*> agents;
+  for (int i = 0; i < numThreads; i++)
+  {
+    thread* t = new thread(workerThread, &death);
+    agents.push_back(t);
+  }
+
+  EquiWorker core;
+  core.mainWorker = true;
 
   if (!fullParse)
   {
@@ -64,16 +124,30 @@ int interpret(string fn)
       if (lineTree == NULL)
         continue;
 
+      vector<SyntaxTree*> ast;
+      ast.push_back(lineTree);
+
       if (verbose >= SYNTAX_TREE_LIST)
         lineTree->print(0);
 
       if (verbose >= SYNTAX_TREE_LIST)
         cout << endl;
 
+      vector<CodeLine> cde = compile(ast);
+
+      if (verbCompiled)
+      {
+        for (int i = 0; i < cde.size(); i++)
+        {
+          cout << "[" << i << "]\t";
+          printCodeLine(cde[i]);
+        }
+      }
+
       EquiObject* o = NULL;
       try
       {
-        pair<EquiObject*, bool> rn = core.run(lineTree);
+        pair<EquiObject*, bool> rn = core.run(&cde);
         P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
         if (rn.second || core.killAnyways())
           delete rn.first;
@@ -139,30 +213,47 @@ int interpret(string fn)
       code.push_back(lineTree);
     }
 
+    vector<CodeLine> cde = compile(code);
+
+    if (verbCompiled)
+    {
+      for (int i = 0; i < cde.size(); i++)
+      {
+        cout << "[" << i << "]\t";
+        printCodeLine(cde[i]);
+      }
+    }
+
+
+    EquiObject* o = NULL;
+    try
+    {
+      pair<EquiObject*, bool> rn = core.run(&cde);
+      P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
+      if (rn.second || core.killAnyways())
+        delete rn.first;
+    }
+    catch (string m)
+    {
+      cerr << "Error on line: " << lineNum << ": " << m << endl;
+
+      if (!failsafe)
+      {
+        return 1;
+      }
+    }
+
     for(int i = 0; i < code.size(); i++)
     {
-      EquiObject* o = NULL;
-      try
-      {
-        pair<EquiObject*, bool> rn = core.run(code[i]);
-        P_VERB("-->" << rn.first->to_string() << endl, TOKEN_PRINT_VERB);
-        if (rn.second || core.killAnyways())
-          delete rn.first;
-      }
-      catch (string m)
-      {
-        cerr << "Error on line: " << lineNum << ": " << m << endl;
-
-        if (!failsafe)
-        {
-          return 1;
-        }
-      }
-
-      core.resetScope();
-
       delete code[i];
     }
+  }
+
+  death = true;
+  globalCore->setKillingMode();
+  for(int i = 0; i < agents.size(); i++)
+  {
+    agents[i]->join();
   }
 
   return 0;

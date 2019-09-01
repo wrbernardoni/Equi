@@ -58,6 +58,20 @@ void SyntaxTree::addToken(string tok)
   tokens.push_back(tok);
 }
 
+void SyntaxTree::drop(int d)
+{
+  vector<SyntaxTree*> newC;
+  for(int i = 0; i < children.size(); i++)
+  {
+    if (i != d)
+    {
+      newC.push_back(children[i]);
+    }
+  }
+
+  children = newC;
+}
+
 int SyntaxTree::numChildren()
 {
   return children.size();

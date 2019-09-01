@@ -2,25 +2,32 @@
 #define EQUI_WORKER_H_
 
 #include "global.h"
-#include "syntaxTree.h"
-#include "AllObj.h"
+#include "parse.h"
+//#include "syntaxTree.h"
+#include "EquiObject.h"
 #include "EquiFrame.h"
+#include "EquiCore.h"
 
-#include <map>
-#include <string>
-#include <deque>
 
 using namespace std;
 
 class EquiWorker
 {
 private:
+	int resF;
+
 	bool ownedFrame;
 	EquiFrame* data;
+
+	int pLine;
+	int lineCount;
+	int scopeSince;
+	vector<stack<pair<EquiObject*, bool>>> registers;
 
 	bool runElse;
 	bool breakFlag;
 	bool continueFlag;
+	bool elseFlag;
 	bool returnFlag;
 	bool killReturn;
 	EquiObject* returnItem;
@@ -32,15 +39,20 @@ private:
 	bool isType(string);
 	void emplaceType(string, EquiObject*);
 
+public:
+	int froze;
+	bool mainWorker;
+
 	void scopeUp();
 	void scopeDown();
 
-public:
 	inline bool killAnyways() { return returnFlag && killReturn; };
 	EquiFrame getFrame();
 	void setFrame(const EquiFrame&);
 	void loanFrame(EquiFrame*);
 	void loanType(EquiFrame*);
+
+	inline EquiFrame* touchFrame() {return data;};
 	
 	void resetScope();
 
@@ -48,7 +60,10 @@ public:
 	EquiWorker(EquiFrame*);
 	~EquiWorker();
 	
-	pair<EquiObject*, bool> run(SyntaxTree*);
+	//pair<EquiObject*, bool> run(SyntaxTree*);
+	pair<EquiObject*, bool> run(vector<CodeLine>*);
+	pair<EquiObject*, bool> runCodeLine(vector<CodeLine>*);
+	pair<EquiObject*, bool> evalTask(EquiTask*);
 };
 
 #endif

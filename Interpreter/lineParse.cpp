@@ -17,6 +17,7 @@
 	SyntaxTree* forLoop(vector<string>, int&);
 	SyntaxTree* functDec(vector<string>, int&);
 	SyntaxTree* line(vector<string>, int&);
+	SyntaxTree* taskInvoke(vector<string>, int&);
 	SyntaxTree* expression(vector<string>, int&);
 	SyntaxTree* commas(vector<string>, int&);
 	SyntaxTree* equality(vector<string>, int&);
@@ -31,6 +32,8 @@
 	SyntaxTree* eq_array(vector<string>, int&);
 	SyntaxTree* special(vector<string>, int&);
 	SyntaxTree* memAccess(vector<string> ln, int& state);
+	SyntaxTree* asOperator(vector<string> ln, int& state);
+	
 
 	bool isNum(string s)
 	{
@@ -57,6 +60,7 @@
 	    s != "*" && s != "%" && s != "!" && s != "=" &&
 	    s != "(" && s != ")" && s != "false" && s != "true" &&
 	    s != "{" && s != "}" && s != "[" && s != "]" && s != "." &&
+	    s != "&" && s != "as" && s != "->" &&
 	    s != "break" && s != "continue" && s != "return" &&
 	    s != "" && !isNum(s) && !isString(s));
 	}
@@ -183,7 +187,7 @@
 	    {
 	      DPRINT("Eating (");
 	      state++;
-	      SyntaxTree* expr = expression(ln, state);
+	      SyntaxTree* expr = taskInvoke(ln, state);
 	      if (expr != NULL && SAFECHECK(ln, state) == ")")
 	      {
 		DPRINT("Eating )");
@@ -367,7 +371,7 @@
 	      {
 		DPRINT("eating (");
 		state++;
-		SyntaxTree* condition = expression(ln, state);
+		SyntaxTree* condition = taskInvoke(ln, state);
 		if (condition == NULL)
 		{
 		  condition = new SyntaxTree(EQ_TR_CODE);
@@ -415,7 +419,7 @@
 	    state += 2;
 	    SyntaxTree* whl = new SyntaxTree(EQ_TR_WHILE);
 
-	    SyntaxTree* expr = expression(ln, state);
+	    SyntaxTree* expr = taskInvoke(ln, state);
 	    if (expr == NULL)
 	    {
 	      expr = new SyntaxTree(EQ_TR_CODE);
@@ -497,7 +501,7 @@
 	    state += 2;
 	    SyntaxTree* whl = new SyntaxTree(EQ_TR_FOR);
 
-	    SyntaxTree* expr = expression(ln, state);
+	    SyntaxTree* expr = taskInvoke(ln, state);
 	    if (expr == NULL)
 	    {
 	      expr = new SyntaxTree(EQ_TR_CODE);
@@ -514,7 +518,7 @@
 	    }
 	    state++;
 
-	    expr = expression(ln, state);
+	    expr = taskInvoke(ln, state);
 	    if (expr == NULL)
 	    {
 	      expr = new SyntaxTree(EQ_TR_CODE);
@@ -531,7 +535,7 @@
 	    }
 	    state++;
 
-	    expr = expression(ln, state);
+	    expr = taskInvoke(ln, state);
 	    if (expr == NULL)
 	    {
 	      expr = new SyntaxTree(EQ_TR_CODE);
@@ -743,7 +747,7 @@
 	{
 	  DEBUG("line")
 	  int ps = state;
-	  SyntaxTree* line = expression(ln, ps);
+	  SyntaxTree* line = taskInvoke(ln, ps);
 	  if (SAFECHECK(ln,ps) == ";")
 	  {
 	    ps++;
@@ -758,6 +762,72 @@
 	  }
 	}
 
+	SyntaxTree* taskInvoke(vector<string> ln, int& state)
+	{
+		DEBUG("taskInvoke")
+		int ps = state;
+		SyntaxTree* lhs = expression(ln, ps);
+		if (lhs != NULL)
+		{
+			state = ps;
+		}
+		if (SAFECHECK(ln, state) == "->")
+		{
+			DPRINT("Eating ->")
+			state++;
+			SyntaxTree* rhs = expression(ln, state);
+			if (rhs != NULL)
+			{
+				SyntaxTree* invok = new SyntaxTree(EQ_TR_TASK);
+				invok->addChild(rhs);
+				if (lhs != NULL)
+				{
+					if (lhs->getType() == EQ_TR_COMMA)
+					{
+						bool through = true;
+						int start = 0;
+						do
+						{
+							through = true;
+							vector<SyntaxTree*> c = lhs->getChildren();
+							for(int i = start; i < c.size(); i++)
+							{
+								if (c[i]->getType() == EQ_TR_AS)
+								{
+									through = false;
+									start = i;
+									invok->addChild(c[i]);
+									lhs->drop(i);
+									break;
+								}
+							}
+						} while(!through);						
+					}
+
+					if (lhs->getChildren().size() == 1 && lhs->getType() == EQ_TR_COMMA)
+					{
+						SyntaxTree* t = lhs->getChildren()[0];
+						lhs->drop(0);
+						delete lhs;
+						lhs = t;
+					}
+					else if (lhs->getChildren().size() == 0 && lhs->getType() == EQ_TR_COMMA)
+					{
+						delete lhs;
+						lhs = NULL;
+					}
+					
+
+					if (lhs != NULL)
+				  		invok->addChild(lhs);
+				}
+				return invok;
+			}
+		}
+
+		return lhs;
+	}
+
 	SyntaxTree* expression(vector<string> ln, int& state)
 	{
 	  DEBUG("expression")
@@ -769,7 +839,7 @@
 	  DEBUG("commas")
 	  int ps = state;
 	  SyntaxTree* comm = NULL;
-	  SyntaxTree* t = equality(ln, ps);
+	  SyntaxTree* t = asOperator(ln, ps);
 	  if (t != NULL)
 	  {
 	    state = ps;
@@ -777,7 +847,7 @@
 	    {
 	      ps++;
 	      DPRINT("Eating comma")
-	      SyntaxTree* c = equality(ln, ps);
+	      SyntaxTree* c = asOperator(ln, ps);
 	      if (c != NULL)
 	      {
 		state = ps;
@@ -1140,7 +1210,7 @@
 
 	  state++;
 
-	  SyntaxTree* rhs = expression(ln, state);
+	  SyntaxTree* rhs = taskInvoke(ln, state);
 
 	  if (rhs == NULL)
 	  {
@@ -1220,7 +1290,18 @@
 	      dec->addToken(SAFECHECK(ln, state));
 	      state++;
 
-	      return dec;
+	      if (SAFECHECK(ln, state) == "=" && SAFECHECK(ln, state+1) == "&")
+	      {
+	      	state += 2;
+	      	SyntaxTree* rhs = taskInvoke(ln, state);
+	      	if (rhs != NULL)
+	      	{
+	      		dec->addChild(rhs);
+	      		return dec;
+	      	}
+	      }
+	      else
+	      	return dec;
 	    }
 	  }
 	  delete dec;
@@ -1256,19 +1337,76 @@
 	    {
 	      state++;
 	      DPRINT("Eating (")
-	      SyntaxTree* exp = expression(ln, state);
+	      SyntaxTree* exp = taskInvoke(ln, state);
 	      if (SAFECHECK(ln,state) == ")")
 	      {
-		state++;
-		DPRINT("Eating )");
-		if (exp != NULL)
-		  fn->addChild(exp);
-		return fn;
+			state++;
+			DPRINT("Eating )");
+			if (exp != NULL)
+			{
+				if (exp->getType() == EQ_TR_COMMA)
+				{
+					bool through = true;
+					int start = 0;
+					do
+					{
+						through = true;
+						vector<SyntaxTree*> c = exp->getChildren();
+						for(int i = start; i < c.size(); i++)
+						{
+							if (c[i]->getType() == EQ_TR_AS)
+							{
+								through = false;
+								start = i;
+								fn->addChild(c[i]);
+								exp->drop(i);
+								break;
+							}
+						}
+					} while(!through);
+				}
+
+				if (exp->getChildren().size() == 1 && exp->getType() == EQ_TR_COMMA)
+				{
+					SyntaxTree* t = exp->getChildren()[0];
+					exp->drop(0);
+					delete exp;
+					exp = t;
+				}
+				else if (exp->getChildren().size() == 0 && exp->getType() == EQ_TR_COMMA)
+				{
+					delete exp;
+					exp = NULL;
+				}
+
+				if (exp != NULL)
+			  		fn->addChild(exp);
+			}
+			return fn;
 	      }
 	    }
 	  }
 	  delete fn;
 	  return NULL;
+	}
+
+	SyntaxTree* asOperator(vector<string> ln, int& state)
+	{
+		DEBUG("as")
+		SyntaxTree* lh = equality(ln, state);
+		if (lh == NULL || SAFECHECK(ln, state) != "as" || !isToken(SAFECHECK(ln, state + 1)))
+		{
+			return lh;
+		}
+
+		SyntaxTree* fn = new SyntaxTree(EQ_TR_AS);
+
+		fn->addChild(lh);
+		fn->addToken(SAFECHECK(ln, state + 1));
+		state += 2;
+
+		return fn;
+
 	}
 
 	SyntaxTree* primary(vector<string> ln, int& state)
@@ -1325,7 +1463,7 @@
 	  {
 	    DPRINT("Eating (")
 	    state++;
-	    SyntaxTree* expr = expression(ln, state);
+	    SyntaxTree* expr = taskInvoke(ln, state);
 	    if (expr != NULL)
 	    {
 	      if (SAFECHECK(ln,state) == ")")
@@ -1360,7 +1498,7 @@
 	    {
 	      DPRINT("Eating [")
 	      state++;
-	      tok = expression(ln, state);
+	      tok = taskInvoke(ln, state);
 
 	      if (!(SAFECHECK(ln, state) == "]"))
 	      {
@@ -1494,7 +1632,7 @@ SyntaxTree* special(vector<string> ln, int& state)
   	int ps = state;
   	SyntaxTree* expr = new SyntaxTree(EQ_TR_SPECIAL);
   	expr->addToken("return");
-  	SyntaxTree* o = expression(ln, ps);
+  	SyntaxTree* o = taskInvoke(ln, ps);
   	if (o != NULL)
   	{
   		state = ps;

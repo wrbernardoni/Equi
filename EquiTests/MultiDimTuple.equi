@@ -4,6 +4,18 @@ a[0] = (1, (), ());
 
 bool fail = false;
 
+if (a.size() != 3)
+{
+	print("Tuple size function broken");
+	fail = true;
+}
+
+if (a.at(0) != a[0])
+{
+	print("Tuple at function broken");
+	fail = true;
+}
+
 if (a != ((1,(),()),(),()))
 {
   print("Nested tuple equality broken.");

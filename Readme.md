@@ -4,7 +4,7 @@
  
  Equicontinuous (aka Equi, aka EquiParallel -- whichever sticks) will one day be an interpreted parallel programming language.
 
- Equi is currently in **v.0.0.5 -- Chihuahua Crimson**
+ Equi is currently in **v.0.0.6 -- Chihuahua Red**
 
  To run Equi, either set a system path to Equi (preferred), or run the executable in a shell script.
 
@@ -24,6 +24,16 @@ Equi 1--helloworld.equi
 
 
 ## Changelog
+**v.0.0.5 -> v.0.0.6**
+  * Added tasks, which may be invoked `bar -> foo` where bar is an input to the function foo, which may be ran on an external task. Results of the function may be gotten through the use of futures (i.e. `future res = bar->foo`, which may later get the result of the function via the member function `res.get()`)
+  * Added a command line option to specify the number of threads used, e.g. `Equi helloworld.equi -t 0` to run single threaded, or `Equi helloworld.equi -t 10` to run using 10 threads in addition to the main thread.
+  * Added additional step where Equi compiles into a semi-bytecode, this is for later making multi-processing easier and allowing for more compile time optimizations in the future.
+  * Altered roadmap
+  * Added `=&` operator, which will define and initialize a variable iff it has not been defined yet
+  * Added `as` operator, which allows for function calls like: `f(1,2, "multiply" as operation)`, which sets `operation` to the string `"multiply"` before executing the function `f`
+  * Added a `size()` and `at(int)` member function to the tuple class.
+  * Added tests for multithreading, as, and new member functions.
+
 **v.0.0.4_rev1 -> v.0.0.5**
   * Added custom function declarations that allow for using other custom functions and recursion.
   * May now reference an empty tuple, i.e. `() t = ()`

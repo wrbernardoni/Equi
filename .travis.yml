@@ -78,6 +78,8 @@ install:
 - "./build.sh"
 script:
 - cd EquiTests
+- "./runTests.sh ./../Interpreter/build/Equi -PL -t 0"
+- "./runTests.sh ./../Interpreter/build/Equi -PF -t 0"
 - "./runTests.sh ./../Interpreter/build/Equi -PL"
 - "./runTests.sh ./../Interpreter/build/Equi -PF"
 - cd ..

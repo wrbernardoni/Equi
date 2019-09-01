@@ -5,11 +5,16 @@
 #include "parse.h"
 #include "global.h"
 
+#include <thread>
+
 using namespace std;
 
 int verbose;
+int numThreads;
 bool failsafe;
 bool fullParse;
+bool showComp;
+bool verbCompiled;
 
 struct cmdline
 {
@@ -21,6 +26,8 @@ cmdline argHandler(int argc, char* argv[])
 	cmdline opts;
 	failsafe = false;
 	fullParse = true;
+	verbCompiled = false;
+	numThreads = MAX(std::thread::hardware_concurrency()-1, 1);
 
 	if (argc >= 2)
 	{
@@ -48,6 +55,18 @@ cmdline argHandler(int argc, char* argv[])
 				cerr << "Missing verbosity level.\n";
 			}
 		}
+		else if (arg == "-t" || arg == "--threads")
+		{
+			if (argc > i+1)
+			{
+				numThreads = atoi(argv[i+1]);
+				i++;
+			}
+			else
+			{
+				cerr << "Missing number of threads to spawn.\n";
+			}
+		}
 		else if (arg == "-FS" || arg == "--failsafe")
 		{
 			failsafe = true;
@@ -63,6 +82,10 @@ cmdline argHandler(int argc, char* argv[])
 		else if (arg == "-PF" || arg == "--parsefull")
 		{
 			fullParse = true;
+		}
+		else if (arg == "-Vcomp")
+		{
+			verbCompiled = true;
 		}
 		else
 		{

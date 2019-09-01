@@ -1,0 +1,51 @@
+function f: (double a,double b) -> double
+{
+	string operation =& "add";
+
+	if (operation == "add")
+		return a+b;
+	else if (operation == "multiply")
+		return a*b;
+	else if (operation == "subtract")
+		return a-b;
+	else if (operation == "divide")
+		return a/b;
+	else
+		return 0;
+}
+
+double multiplied = f(4,2, "multiply" as operation);
+print("%i * %i = %i", 4, 2, multiplied);
+// multiplied equals 8 here, 4 * 2
+
+double added = f(4,2);
+print("%i + %i = %i", 4, 2, added);
+// added equals 6 here, 4 + 2
+function id : (double d) -> double
+{
+	return d;
+}
+
+function pointWise : (() t) -> ()
+{
+	function operation =& id;
+	for (int i = 0; i < t.size(); i++)
+	{
+		t[i] = operation(t[i]);
+	}
+
+	return t;
+}
+
+
+() tup = (1, 2, 3);
+print("Pointwise operations on %i", tup);
+
+function twoTimes : (double d) -> double
+{
+	return 2 * d;
+}
+
+print("Identity map (x -> x) %i", pointWise(tup));
+print("Double map (x -> 2x) %i", pointWise(tup, twoTimes as operation));
+

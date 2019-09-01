@@ -6,7 +6,7 @@
 ~~*Chihuahua Purple*: **v.0.0.3** -- Loops~~  
 ~~*Chihuahua Magenta*: **v.0.0.4** -- Arrays, Tuples, member functions~~   
 ~~*Chihuahua Crimson*: **v.0.0.5** -- Custom Functions~~  
-*Chihuahua Red*: **v.0.0.6** -- Tasks  
+~~*Chihuahua Red*: **v.0.0.6** -- Tasks~~  
 *Chihuahua Orange*: **v.0.0.7** -- Type rework, Objects, Classes, Services  
 *Chihuahua Yellow*: **v.0.0.8** -- Importing modules (+ preprocessing)  
 *Chihuahua Green*: **v.0.0.9** -- File IO, Better numeric, and arbitrary precision numeric implementations   
@@ -24,4 +24,17 @@
 *Yorkie Yellow*: **v.0.1.8** --   
 *Yorkie Green*: **v.0.1.9** --   
 *Ultraviolet Yorkie*: **v.0.2.0** --   
+
+## To v.0.3.0 -- Toy Fox Terrier
+**Yorkie** -- Metaprogramming  
+*Toy Fox Blue*: **v.0.2.1** --    
+*Toy Fox Violet*: **v.0.2.2** --   
+*Toy Fox Purple*: **v.0.2.3** --   
+*Toy Fox Magenta*: **v.0.2.4** --   
+*Toy Fox Crimson*: **v.0.2.5** --   
+*Toy Fox Red*: **v.0.2.6** --   
+*Toy Fox Orange*: **v.0.2.7** --   
+*Toy Fox Yellow*: **v.0.2.8** --   
+*Toy Fox Green*: **v.0.2.9** --   
+*Ultraviolet Toy Fox*: **v.0.3.0** --  
 

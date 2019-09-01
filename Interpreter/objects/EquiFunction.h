@@ -36,8 +36,7 @@ public:
 
 	virtual string to_string()
 	{ 
-		throwError("Cannot stringify a function reference");
-		return ""; 
+		return "FUNCTION"; 
 	};
 };
 

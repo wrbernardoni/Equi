@@ -91,13 +91,13 @@ public:
 			if (o.getDataType() != "long" && o.getDataType() != "int" &&
 				o.getDataType() != "double" && o.getDataType() != "float")
 			{
-				throwError("Unsupported type comparison");
+				throwError("Cannot compare a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 				return false;
 			}
 			if (getDataType() != "long" && getDataType() != "int" &&
 				getDataType() != "double" && getDataType() != "float")
 			{
-				throwError("Unsupported type comparison");
+				throwError("Cannot compare a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 				return false;
 			}
 
@@ -138,12 +138,12 @@ public:
 			if (o.getDataType() != "long" && o.getDataType() != "int" &&
 				o.getDataType() != "double" && o.getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a non-numeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 			if (getDataType() != "long" && getDataType() != "int" &&
 				getDataType() != "double" && getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a nonnumeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 
 
@@ -187,12 +187,12 @@ public:
 			if (o.getDataType() != "long" && o.getDataType() != "int" &&
 				o.getDataType() != "double" && o.getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a non-numeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 			if (getDataType() != "long" && getDataType() != "int" &&
 				getDataType() != "double" && getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a nonnumeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 
 
@@ -240,12 +240,12 @@ public:
 			if (o.getDataType() != "long" && o.getDataType() != "int" &&
 				o.getDataType() != "double" && o.getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a non-numeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 			if (getDataType() != "long" && getDataType() != "int" &&
 				getDataType() != "double" && getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a nonnumeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 
 
@@ -293,12 +293,12 @@ public:
 			if (o.getDataType() != "long" && o.getDataType() != "int" &&
 				o.getDataType() != "double" && o.getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a non-numeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 			if (getDataType() != "long" && getDataType() != "int" &&
 				getDataType() != "double" && getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a nonnumeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 
 
@@ -346,12 +346,12 @@ public:
 			if (o.getDataType() != "long" && o.getDataType() != "int" &&
 				o.getDataType() != "double" && o.getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a non-numeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 			if (getDataType() != "long" && getDataType() != "int" &&
 				getDataType() != "double" && getDataType() != "float")
 			{
-				throwError("Cannot cast a numeric to a nonnumeric");
+				throwError("Cannot cast a numeric (" + getDataType() + ") to a non-numeric (" + o.getDataType() +")");
 			}
 
 

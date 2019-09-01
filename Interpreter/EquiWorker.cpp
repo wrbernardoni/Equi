@@ -3,6 +3,10 @@
 #include <cmath>
 
 #include "EquiCustomFunction.h"
+#include "AllObj.h"
+#include <map>
+#include <string>
+#include <deque>
 
 extern void throwError(string s)
 {
@@ -38,11 +42,15 @@ bool tokenFormat(string si){
 
 EquiWorker::EquiWorker()
 {
+	mainWorker = false;
 	runElse = false;
 	breakFlag = false;
 	continueFlag = false;
 	returnFlag = false;
+	elseFlag = false;
 	killReturn = false;
+
+	resF = -1;
 
 	//EquiFrame def;
 	//setFrame(def);
@@ -53,11 +61,15 @@ EquiWorker::EquiWorker()
 
 EquiWorker::EquiWorker(EquiFrame* f)
 {
+	mainWorker = false;
 	runElse = false;
 	breakFlag = false;
 	continueFlag = false;
 	returnFlag = false;
+	elseFlag = false;
 	killReturn = false;
+
+	resF = -1;
 
 	//EquiFrame def;
 	//setFrame(def);
@@ -213,6 +225,7 @@ void EquiWorker::resetScope()
 	}
 }
 
+/*
 pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 {
 	if (breakFlag || continueFlag)
@@ -227,7 +240,7 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		return retPair;
 	}
 
-	vector<SyntaxTree*> children = code->getChildren();;
+	vector<SyntaxTree*> children = code->getChildren();
 	vector<EquiObject*> childOut;
 	vector<bool> killKid;
 	if (code->getType() != EQ_TR_LOGICAL_BLOCK && code->getType() != EQ_TR_DO_WHILE
@@ -292,6 +305,12 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 		t->setTuple(o);
 		killChildren = false;
 		out = t;
+	}
+	else if (code->getType() == EQ_TR_AS)
+	{
+		out = childOut[0];
+		killOut = killKid[0];
+		killKid[0] = false;
 	}
 	else if (code->getType() == EQ_TR_EQUALITY)
 	{
@@ -512,8 +531,20 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			}
 			else
 			{
-				newObj = getType(type)->spawnMyType();
-				emplaceToken(tok, newObj);
+				if (childOut.size() != 0)
+				{
+					if (!isToken(tok))
+					{
+						newObj = getType(type)->spawnMyType();
+						(*newObj) = (*childOut[0]);
+						emplaceToken(tok, newObj);
+					}
+				}
+				else
+				{
+					newObj = getType(type)->spawnMyType();
+					emplaceToken(tok, newObj);
+				}
 			}
 		}
 		else if (code->getTokens().size() == 2)
@@ -599,95 +630,143 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 			}
 			else
 			{
-				//int[32] a;
-				EquiObject* newObj = NULL;
-				if (type == "int")
+				if (childOut.size() != 0)
 				{
-					newObj = new EquiArray<EquiPrimitive<int>>;
-					EquiPrimitive<int>* tO;
-					for (int i = 0; i < index; i++)
+					if (!isToken(tok))
 					{
-						tO = new EquiPrimitive<int>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<int>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "long")
-				{
-					newObj = new EquiArray<EquiPrimitive<long>>;
-					EquiPrimitive<long>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<long>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "double")
-				{
-					newObj = new EquiArray<EquiPrimitive<long>>;
-					EquiPrimitive<long>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<long>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
-					}
+						//int[32] a;
+						EquiObject* newObj = NULL;
+						if (type == "int")
+						{
+							newObj = new EquiArray<EquiPrimitive<int>>;
+						}
+						else if (type == "long")
+						{
+							newObj = new EquiArray<EquiPrimitive<long>>;
+						}
+						else if (type == "double")
+						{
+							newObj = new EquiArray<EquiPrimitive<long>>;
+						}
+						else if (type == "float")
+						{
+							newObj = new EquiArray<EquiPrimitive<float>>;
+						}
+						else if (type == "bool")
+						{
+							newObj = new EquiArray<EquiPrimitive<bool>>;
+						}
+						else if (type == "string")
+						{
+							newObj = new EquiArray<EquiString>;
+						}
+						else if (type == "()")
+						{
+							newObj = new EquiArray<EquiTuple>;
+						}
+						else
+						{
+							throwError("Unrecognized type name");
+						}
 
-					newObj = new EquiPrimitive<double>;
-					((EquiPrimitive<double>*)newObj)->setData(0);
-				}
-				else if (type == "float")
-				{
-					newObj = new EquiArray<EquiPrimitive<float>>;
-					EquiPrimitive<float>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<float>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<float>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "bool")
-				{
-					newObj = new EquiArray<EquiPrimitive<bool>>;
-					EquiPrimitive<bool>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<bool>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<bool>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "string")
-				{
-					newObj = new EquiArray<EquiString>;
-					EquiString* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiString;
-						tO->setString("");
-						((EquiArray<EquiString>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "()")
-				{
-					newObj = new EquiArray<EquiTuple>;
-					EquiTuple* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiTuple;
-						((EquiArray<EquiTuple>*)newObj)->append(tO);
+						(*newObj) = (*childOut[0]);
+						emplaceToken(tok, newObj);
+
+						obj = newObj;
 					}
 				}
 				else
 				{
-					throwError("Unrecognized type name");
+					//int[32] a;
+					EquiObject* newObj = NULL;
+					if (type == "int")
+					{
+						newObj = new EquiArray<EquiPrimitive<int>>;
+						EquiPrimitive<int>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<int>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<int>>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "long")
+					{
+						newObj = new EquiArray<EquiPrimitive<long>>;
+						EquiPrimitive<long>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<long>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "double")
+					{
+						newObj = new EquiArray<EquiPrimitive<long>>;
+						EquiPrimitive<long>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<long>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
+						}
+
+						newObj = new EquiPrimitive<double>;
+						((EquiPrimitive<double>*)newObj)->setData(0);
+					}
+					else if (type == "float")
+					{
+						newObj = new EquiArray<EquiPrimitive<float>>;
+						EquiPrimitive<float>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<float>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<float>>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "bool")
+					{
+						newObj = new EquiArray<EquiPrimitive<bool>>;
+						EquiPrimitive<bool>* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiPrimitive<bool>;
+							tO->setData(0);
+							((EquiArray<EquiPrimitive<bool>>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "string")
+					{
+						newObj = new EquiArray<EquiString>;
+						EquiString* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiString;
+							tO->setString("");
+							((EquiArray<EquiString>*)newObj)->append(tO);
+						}
+					}
+					else if (type == "()")
+					{
+						newObj = new EquiArray<EquiTuple>;
+						EquiTuple* tO;
+						for (int i = 0; i < index; i++)
+						{
+							tO = new EquiTuple;
+							((EquiArray<EquiTuple>*)newObj)->append(tO);
+						}
+					}
+					else
+					{
+						throwError("Unrecognized type name");
+					}
+
+					emplaceToken(tok, newObj);
+
+					obj = newObj;
 				}
-
-				emplaceToken(tok, newObj);
-
-				obj = newObj;
 			}
 		}
 		
@@ -764,16 +843,38 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	}
 	else if (code->getType() == EQ_TR_FUNCTION)
 	{
-		if (childOut.size() == 0 || childOut.size() > 2)
+		if (childOut.size() == 0)
 			throwError("Invalid number of arguments for functions");
 
 		if (childOut.size()  == 1)
 		{
 			EquiVoid* v = new EquiVoid;
 			childOut.push_back(v);
-		}	
+		}
 
-		out = (*childOut[0])(childOut[1]);
+		int input = 0;
+		vector<pair<string, EquiObject*>> setFrame;
+		for (int i = 1; i < children.size(); i++)
+		{
+			if (children[i]->getType() == EQ_TR_AS)
+			{
+				pair<string, EquiObject*> t (children[i]->getTokens()[0], childOut[i]->clone());
+				setFrame.push_back(t);
+			}
+			else
+			{
+				if (input == 0)
+					input = i;
+				else
+				{
+					throwError("Cannot have two inputs to a function");
+				}
+			}
+		}
+		if (input == 0)
+			input = 1;
+
+		out = (*childOut[0])(childOut[input], setFrame);
 	}
 	else if (code->getType() == EQ_TR_SPECIAL)
 	{
@@ -1130,4 +1231,4 @@ pair<EquiObject*, bool> EquiWorker::run(SyntaxTree* code)
 	pair<EquiObject*, bool> retPair(out, killOut);
 	return retPair;
 }
-
+*/

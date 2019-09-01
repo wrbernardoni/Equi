@@ -34,11 +34,6 @@ public:
 		return newTup;
 	};
 
-	EquiTuple()
-	{
-		data = new vector<EquiObject*>;
-	}
-
 	~EquiTuple()
 	{
 		purgeData();
@@ -188,6 +183,88 @@ public:
 		}
 		s += "}";
 		return s;
+	};
+
+private:
+	class E_TUPLE_at : public EquiFunction
+	{
+	private:
+		EquiTuple* ths;
+	public:
+		virtual EquiObject* clone() { return new E_TUPLE_at(ths); };
+		virtual EquiObject* spawnMyType() { return new E_TUPLE_at; };
+
+		E_TUPLE_at()
+		{
+			throwError("Cannot define tuple.at function outside a tuple");
+			ths = NULL;
+		}
+
+		E_TUPLE_at(EquiTuple* p)
+		{
+			ths = p;
+		}
+
+		virtual EquiObject* operator() (EquiObject* in)
+		{
+			string ind = in->to_string();
+
+			if (!isNum(ind))
+			{
+				throwError("t.at function must take a numeric type");
+			}
+
+			int i = stod(ind);
+
+			vector<EquiObject*> thsArr = ths->getTuple();
+
+			if (i < 0 || i >= thsArr.size())
+				throwError("String index out of bounds");
+
+			EquiObject* s = thsArr[i]->clone();
+			return s;
+		}
+	};
+
+	class E_TUPLE_size : public EquiFunction
+	{
+	private:
+		EquiTuple* ths;
+	public:
+		virtual EquiObject* clone() { return new E_TUPLE_size(ths); };
+		virtual EquiObject* spawnMyType() { return new E_TUPLE_size; };
+
+		E_TUPLE_size()
+		{
+			throwError("Cannot define tuple.size function outside a tuple");
+			ths = NULL;
+		}
+
+		E_TUPLE_size(EquiTuple* p)
+		{
+			ths = p;
+		}
+
+		virtual EquiObject* operator() (EquiObject* in)
+		{
+			if (in->getType() != E_VOID_TYPE)
+				throwError("No input expected in array.size function.");
+
+			vector<EquiObject*> thsArr = ths->getTuple();
+
+			EquiPrimitive<int>* n = new EquiPrimitive<int>;
+			n->setData(thsArr.size());
+			return n;
+		}
+	};
+
+public:
+	EquiTuple()
+	{
+		members["at"] = new E_TUPLE_at(this);
+		members["size"] = new E_TUPLE_size(this);
+
+		data = new vector<EquiObject*>;
 	};
 };
 

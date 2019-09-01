@@ -1,0 +1,76 @@
+function fibbMT : (int n) -> int
+{
+	if (n == 0)
+	{
+		int r = 0;
+		return r;
+	}
+	else if (n == 1)
+	{
+		int r = 1;
+		return r;
+	}
+
+	future r = ((n - 1) -> fibbMT);
+	future s = ((n - 2) -> fibbMT);
+	int rI = r.get();
+	int sI = s.get();
+	return sI + rI;
+}
+
+function fibbST : (int n) -> int
+{
+	if (n == 0)
+	{
+		int r = 0;
+		return r;
+	}
+	else if (n == 1)
+	{
+		int r = 1;
+		return r;
+	}
+	int rI = fibbST(n-1);
+	int sI = fibbST(n-2);
+	return sI + rI;
+}
+
+function blockST : (int n) -> int
+{
+	future fut = n -> fibbST;
+	return fut.get();
+}
+
+function blockMT : (int n) -> int
+{
+	future fut = n -> fibbMT;
+	return fut.get();
+}
+
+bool good = true;
+
+for (int i = 0; i < 10; i++)
+{
+	future mtF = i -> fibbMT;
+	int st = fibbST(i);
+	int bst = blockST(i);
+	int mt = mtF.get();
+	int bmt = blockMT(i);
+	if (st != bst)
+	{
+		print("ERROR on i=%i: single thread fibb says %i, blocked single thread says %i", i, st, bst);
+		good = false;
+	}
+
+	if (mt != bmt)
+	{
+		print("ERROR on i=%i: multi thread fibb says %i, blocked multi thread says %i", i, mt, bmt);
+		good = false;
+	}
+}
+
+
+if (!good)
+	throw("Bad");
+
+print("Test successful");

@@ -26,6 +26,20 @@ EquiFrame::EquiFrame()
 	(*typ)["string"] = new EquiString;
 	(*typ)["()"] = new EquiTuple;
 	(*typ)["function"] = new EquiFunctionHandle;
+	(*typ)["future"] = new EquiFuture;
+	types.push_back(typ);
+}
+
+EquiFrame::EquiFrame(int i)
+{
+	delType = true;
+	delTok = true;
+	dTyL = 0;
+	dToL = 0;
+
+	map<string, EquiObject*>* tok = new map<string, EquiObject*>;
+	map<string, EquiObject*>* typ = new map<string, EquiObject*>;
+	tokens.push_back(tok);
 	types.push_back(typ);
 }
 
@@ -216,6 +230,7 @@ void EquiFrame::copyTokens(const deque<map<string, EquiObject*>*>& o)
 
 void EquiFrame::setTypes(const deque<map<string, EquiObject*>*>& o)
 {
+	//cout << "Del" << endl;
 	int i = 0;
 	for (auto x : types)
 	{
@@ -232,7 +247,7 @@ void EquiFrame::setTypes(const deque<map<string, EquiObject*>*>& o)
 
 	delType = true;
 	dTyL = 0;
-
+	//cout << "load" << endl;
 	for (auto  x : o)
 	{
 		map<string, EquiObject*>* tok = new map<string, EquiObject*>;
@@ -305,4 +320,25 @@ EquiObject* EquiFrame::getType(string n)
 	}
 	throwError("Type " + n + " not found");
 	return NULL;
+}
+
+vector<pair<string, EquiObject*>> EquiFrame::apparentTokens()
+{
+	map<string, EquiObject*> out;
+	for (auto x : tokens)
+	{
+		for (auto y : *x)
+		{
+			out[y.first] = y.second->clone();
+		}
+	}
+
+	vector<pair<string, EquiObject*>> toAdd;
+
+	for (auto y : out)
+	{
+		toAdd.push_back(y);
+	}
+
+	return toAdd;
 }
