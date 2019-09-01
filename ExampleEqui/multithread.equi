@@ -53,8 +53,8 @@ function fibb : (int n) -> int
 print("How much fib to do?");
 int f = getint();
 print("Testing jumping");
-future fibRes = (f->fibb);
-int fI = fibRes.get();
+//future fibRes = (f->fibb);
+int fI = (f->fibb).get();
 print("Realdone %i", fI);
 
 /*

@@ -37,14 +37,12 @@ function fibbST : (int n) -> int
 
 function blockST : (int n) -> int
 {
-	future fut = n -> fibbST;
-	return fut.get();
+	return (n -> fibbST).get();
 }
 
 function blockMT : (int n) -> int
 {
-	future fut = n -> fibbMT;
-	return fut.get();
+	return (n -> fibbMT).get();
 }
 
 bool good = true;
