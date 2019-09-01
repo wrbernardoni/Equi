@@ -1168,7 +1168,7 @@ pair<EquiObject*, bool> EquiWorker::runCodeLine(vector<CodeLine>* code)
 		}
 
 		lineCount += step;
-		resF = -1;
+		//resF = -1;
 	}
 
 	if (registers.size() >= 1)
