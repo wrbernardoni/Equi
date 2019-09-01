@@ -6,7 +6,7 @@
 ~~*Chihuahua Purple*: **v.0.0.3** -- Loops~~  
 ~~*Chihuahua Magenta*: **v.0.0.4** -- Arrays, Tuples, member functions~~   
 ~~*Chihuahua Crimson*: **v.0.0.5** -- Custom Functions~~  
-*Chihuahua Red*: **v.0.0.6** -- Tasks  
+~~*Chihuahua Red*: **v.0.0.6** -- Tasks~~  
 *Chihuahua Orange*: **v.0.0.7** -- Type rework, Objects, Classes, Services  
 *Chihuahua Yellow*: **v.0.0.8** -- Importing modules (+ preprocessing)  
 *Chihuahua Green*: **v.0.0.9** -- File IO, Better numeric, and arbitrary precision numeric implementations   
