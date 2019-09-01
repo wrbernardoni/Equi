@@ -24,6 +24,8 @@ Equi 1--helloworld.equi
 
 
 ## Changelog
+**v.0.0.6 -> Current**
+  * Fixed reintroduced issue which did not allow you to use temporary variable member functions.
 **v.0.0.5 -> v.0.0.6**
   * Added tasks, which may be invoked `bar -> foo` where bar is an input to the function foo, which may be ran on an external task. Results of the function may be gotten through the use of futures (i.e. `future res = bar->foo`, which may later get the result of the function via the member function `res.get()`)
   * Added a command line option to specify the number of threads used, e.g. `Equi helloworld.equi -t 0` to run single threaded, or `Equi helloworld.equi -t 10` to run using 10 threads in addition to the main thread.
