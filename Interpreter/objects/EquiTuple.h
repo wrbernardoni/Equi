@@ -3,6 +3,7 @@
 
 #include "EquiObject.h"
 #include "EquiVoid.h"
+#include "EquiArray.h"
 
 class EquiTuple : public EquiObject
 {
@@ -33,6 +34,16 @@ public:
 		newTup->setTuple(tuple);
 		return newTup;
 	};
+
+	virtual EquiObject* getArray(int n)
+	{
+		EquiArray<EquiTuple>* arr = new EquiArray<EquiTuple>;
+		for (int i = 0; i < n; i++)
+		{
+			arr->append(new EquiTuple);
+		}
+		return arr;
+	}
 
 	~EquiTuple()
 	{
@@ -184,6 +195,11 @@ public:
 		s += "}";
 		return s;
 	};
+
+	virtual int maxIndex()
+	{
+		return getTuple()->size();
+	}
 
 private:
 	class E_TUPLE_at : public EquiFunction

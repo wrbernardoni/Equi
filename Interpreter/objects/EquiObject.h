@@ -76,6 +76,12 @@ public:
 		return getType();
 	}
 
+	virtual EquiObject* getArray(int)
+	{
+		throwError("Array operator not defined for " + getType());
+		return NULL;
+	}
+
 	virtual bool operator== (EquiObject& o) { return false; }; 
 	virtual bool operator!= (EquiObject& o) { return !(*this == o); };
 
@@ -206,6 +212,16 @@ public:
 			delete members[i];
 
 		members[i] = o;
+	}
+
+	virtual int maxIndex()
+	{
+		return 0;
+	}
+
+	virtual int minIndex()
+	{
+		return 0;
 	}
 
 	virtual string to_string() { return "()"; };

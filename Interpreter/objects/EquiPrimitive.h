@@ -15,6 +15,16 @@ public:
 		return newT; 
 	};
 
+	virtual EquiObject* getArray(int n)
+	{
+		EquiArray<EquiPrimitive<T>>* arr = new EquiArray<EquiPrimitive<T>>;
+		for (int i = 0; i < n; i++)
+		{
+			arr->append(new EquiPrimitive<T>);
+		}
+		return arr;
+	}
+
 	EquiPrimitive()
 	{
 		data = new T;

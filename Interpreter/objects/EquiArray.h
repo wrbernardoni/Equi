@@ -3,7 +3,65 @@
 
 #include "EquiObject.h"
 #include "EquiFunction.h"
-#include "EquiPrimitive.h"
+
+class E_ARRAY_at : public EquiFunction
+{
+private:
+	EquiObject* ths;
+public:
+	virtual EquiObject* clone() { return new E_ARRAY_at(ths); };
+	virtual EquiObject* spawnMyType() { return new E_ARRAY_at; };
+
+	E_ARRAY_at()
+	{
+		ths = NULL;
+	}
+
+	E_ARRAY_at(EquiObject* t)
+	{
+		ths = t;
+	}
+
+	virtual EquiObject* operator() (EquiObject* in)
+	{
+		string ind = in->to_string();
+
+		if (!isNum(ind))
+		{
+			throwError("array.at function must take a numeric type");
+		}
+
+		int i = stod(ind);
+
+		if (i < 0 || i >= ths->maxIndex())
+			throwError("String index out of bounds");
+
+		EquiObject* s = (*ths)[i]->clone();
+		return s;
+	}
+};
+
+class E_ARRAY_size : public EquiFunction
+{
+private:
+	EquiObject* ths;
+public:
+	virtual EquiObject* clone() { return new E_ARRAY_size(ths); };
+	virtual EquiObject* spawnMyType() { return new E_ARRAY_size; };
+
+	E_ARRAY_size()
+	{
+		throwError("Cannot define array.at function outside a string");
+		ths = NULL;
+	}
+
+	E_ARRAY_size(EquiObject* t)
+	{
+		ths = t;
+	}
+
+	virtual EquiObject* operator() (EquiObject* in);
+};
 
 template <class T>
 class EquiArray : public EquiObject
@@ -107,80 +165,11 @@ public:
 		return s;
 	};
 
-private:
-	class E_ARRAY_at : public EquiFunction
+	virtual int maxIndex()
 	{
-	private:
-		EquiArray<T>* ths;
-	public:
-		virtual EquiObject* clone() { return new E_ARRAY_at(ths); };
-		virtual EquiObject* spawnMyType() { return new E_ARRAY_at; };
+		return formatData()->size();
+	}
 
-		E_ARRAY_at()
-		{
-			throwError("Cannot define array.at function outside a string");
-			ths = NULL;
-		}
-
-		E_ARRAY_at(EquiArray<T>* p)
-		{
-			ths = p;
-		}
-
-		virtual EquiObject* operator() (EquiObject* in)
-		{
-			string ind = in->to_string();
-
-			if (!isNum(ind))
-			{
-				throwError("array.at function must take a numeric type");
-			}
-
-			int i = stod(ind);
-
-			vector<T*> thsArr = ths->getArray();
-
-			if (i < 0 || i >= thsArr.size())
-				throwError("String index out of bounds");
-
-			EquiObject* s = thsArr[i]->clone();
-			return s;
-		}
-	};
-
-	class E_ARRAY_size : public EquiFunction
-	{
-	private:
-		EquiArray<T>* ths;
-	public:
-		virtual EquiObject* clone() { return new E_ARRAY_size(ths); };
-		virtual EquiObject* spawnMyType() { return new E_ARRAY_size; };
-
-		E_ARRAY_size()
-		{
-			throwError("Cannot define array.at function outside a string");
-			ths = NULL;
-		}
-
-		E_ARRAY_size(EquiArray<T>* p)
-		{
-			ths = p;
-		}
-
-		virtual EquiObject* operator() (EquiObject* in)
-		{
-			if (in->getType() != E_VOID_TYPE)
-				throwError("No input expected in array.size function.");
-
-			vector<T*> thsArr = ths->getArray();
-
-			EquiPrimitive<int>* n = new EquiPrimitive<int>;
-			n->setData(thsArr.size());
-			return n;
-		}
-	};
-
-public:
 	EquiArray()
 	{
 		vector<T*>* nV = new vector<T*>;

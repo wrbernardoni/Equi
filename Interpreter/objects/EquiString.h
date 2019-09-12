@@ -2,6 +2,7 @@
 #define EQUI_STRING_OBJ_H_
 
 #include "EquiObject.h"
+#include "EquiArray.h"
 
 class EquiString : public EquiObject
 {
@@ -20,6 +21,16 @@ public:
 	{
 		string* s = (string*)data;
 		return *s;
+	}
+
+	virtual EquiObject* getArray(int n)
+	{
+		EquiArray<EquiString>* arr = new EquiArray<EquiString>;
+		for (int i = 0; i < n; i++)
+		{
+			arr->append(new EquiString);
+		}
+		return arr;
 	}
 
 	void setString(string nu)

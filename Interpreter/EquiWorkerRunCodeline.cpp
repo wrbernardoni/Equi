@@ -1012,93 +1012,14 @@ pair<EquiObject*, bool> EquiWorker::runCodeLine(vector<CodeLine>* code)
 					index = stoi(oS);
 				}
 
-				EquiObject* newObj = NULL;
-				if (type == "int")
-				{
-					newObj = new EquiArray<EquiPrimitive<int>>;
-					EquiPrimitive<int>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<int>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<int>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "long")
-				{
-					newObj = new EquiArray<EquiPrimitive<long>>;
-					EquiPrimitive<long>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<long>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "double")
-				{
-					newObj = new EquiArray<EquiPrimitive<long>>;
-					EquiPrimitive<long>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<long>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<long>>*)newObj)->append(tO);
-					}
-
-					newObj = new EquiPrimitive<double>;
-					((EquiPrimitive<double>*)newObj)->setData(0);
-				}
-				else if (type == "float")
-				{
-					newObj = new EquiArray<EquiPrimitive<float>>;
-					EquiPrimitive<float>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<float>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<float>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "bool")
-				{
-					newObj = new EquiArray<EquiPrimitive<bool>>;
-					EquiPrimitive<bool>* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiPrimitive<bool>;
-						tO->setData(0);
-						((EquiArray<EquiPrimitive<bool>>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "string")
-				{
-					newObj = new EquiArray<EquiString>;
-					EquiString* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiString;
-						tO->setString("");
-						((EquiArray<EquiString>*)newObj)->append(tO);
-					}
-				}
-				else if (type == "()")
-				{
-					newObj = new EquiArray<EquiTuple>;
-					EquiTuple* tO;
-					for (int i = 0; i < index; i++)
-					{
-						tO = new EquiTuple;
-						((EquiArray<EquiTuple>*)newObj)->append(tO);
-					}
-				}
-				else
-				{
-					throwError("Unrecognized type name");
-				}
-
+				EquiObject* typeDef = getType(type);
+				//cout << "SpawningBA" << endl;
+				EquiObject* newObj = typeDef->getArray(index);
+				//cout << "SpawningC" << endl;
 				emplaceToken(tok, newObj);
+				//cout << "SpawningD" << endl;
 				pair<EquiObject*, bool> o1(newObj, false);
+				//cout << "SpawningE" << endl;
 				registers[ln.reg].push(o1);
 			}
 			else if (ln.cmd == EC_IS_TOKEN && !breakFlag && !continueFlag)

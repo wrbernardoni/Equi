@@ -21,6 +21,11 @@ public:
 		delete parent;
 	}
 
+	virtual EquiObject* getArray(int n)
+	{
+		return child->getArray(n);
+	}
+
 	virtual EquiObject* spawnMyType() { return child->spawnMyType(); };
 	virtual EquiObject* clone() 
 	{ 

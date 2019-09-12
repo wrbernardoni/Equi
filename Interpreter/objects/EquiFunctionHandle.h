@@ -3,6 +3,7 @@
 
 #include "AllObj.h"
 #include "EquiFunction.h"
+#include "EquiArray.h"
 
 class EquiFunctionHandle : public EquiFunction
 {
@@ -25,6 +26,16 @@ public:
 	{
 		if (f != NULL)
 			delete f;
+	}
+
+	virtual EquiObject* getArray(int n)
+	{
+		EquiArray<EquiFunctionHandle>* arr = new EquiArray<EquiFunctionHandle>;
+		for (int i = 0; i < n; i++)
+		{
+			arr->append(new EquiFunctionHandle);
+		}
+		return arr;
 	}
 
 	virtual string to_string() { return "FUNCTION_HANDLE"; };

@@ -2,6 +2,7 @@
 #define EQUI_FUTURE_H_
 
 #include "EquiObject.h"
+#include "EquiArray.h"
 #include <iostream>
 
 class EquiFuture : public EquiObject
@@ -24,6 +25,16 @@ public:
 		f->setID(uid);
 		return f;
 	};
+
+	virtual EquiObject* getArray(int n)
+	{
+		EquiArray<EquiFuture>* arr = new EquiArray<EquiFuture>;
+		for (int i = 0; i < n; i++)
+		{
+			arr->append(new EquiFuture);
+		}
+		return arr;
+	}
 
 	virtual inline string getType() { return E_FUTURE_TYPE; };
 	virtual bool operator== (EquiObject& o) 
