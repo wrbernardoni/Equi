@@ -198,7 +198,7 @@ public:
 
 	virtual int maxIndex()
 	{
-		return getTuple()->size();
+		return ((vector<EquiObject*>*) data)->size();
 	}
 
 private:
